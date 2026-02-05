@@ -41,10 +41,10 @@
     "node": ">= 18"
   },
   "scripts": {
-    "build": "napi build --platform --release --js index.js --dts index.d.ts ../../crates/langmail-node",
-    "build:debug": "napi build --platform --js index.js --dts index.d.ts ../../crates/langmail-node",
+    "build": "napi build --platform --release --js index.js --dts index.d.ts --cargo-cwd ../../crates/langmail-node .",
+    "build:debug": "napi build --platform --js index.js --dts index.d.ts --cargo-cwd ../../crates/langmail-node .",
     "prepublishOnly": "napi prepublish -t npm",
-    "test": "node --test test/"
+    "test": "node --test test/*.test.js"
   },
   "devDependencies": {
     "@napi-rs/cli": "^2.18.0"
