@@ -17,9 +17,9 @@ static SIGNATURE_PATTERNS: Lazy<Vec<Regex>> = Lazy::new(|| {
         r"(?mi)^Sent from Mail for ",
         r"(?mi)^Sent from Outlook",
         r"(?mi)^Sent via ",
-        r"(?mi)^Gesendet von ",        // German
-        r"(?mi)^Envoyé de mon ",        // French
-        r"(?mi)^Enviado desde mi ",     // Spanish
+        r"(?mi)^Gesendet von ",     // German
+        r"(?mi)^Envoyé de mon ",    // French
+        r"(?mi)^Enviado desde mi ", // Spanish
         // "Get Outlook for" / app promos
         r"(?mi)^Get Outlook for ",
         // Common sign-offs followed by a name on the next line
@@ -137,7 +137,8 @@ mod tests {
 
     #[test]
     fn test_signoff_pattern() {
-        let body = "Let me know if you have questions.\n\nBest regards,\nAlice Smith\nVP Engineering\n";
+        let body =
+            "Let me know if you have questions.\n\nBest regards,\nAlice Smith\nVP Engineering\n";
         let (text, sig) = extract_signature(body);
         assert!(text.contains("Let me know"));
         assert!(sig.is_some());

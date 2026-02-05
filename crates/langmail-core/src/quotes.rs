@@ -59,15 +59,17 @@ pub fn strip_quotes(body: &str) -> String {
     if earliest_quote_start == 0 {
         // Check if there's any non-quoted content
         let lines: Vec<&str> = body.lines().collect();
-        let first_non_quoted = lines.iter().position(|line| {
-            !line.starts_with('>') && !line.trim().is_empty()
-        });
+        let first_non_quoted = lines
+            .iter()
+            .position(|line| !line.starts_with('>') && !line.trim().is_empty());
 
         if let Some(idx) = first_non_quoted {
             // Find the end of the non-quoted section
-            let end = lines[idx..].iter().position(|line| {
-                line.starts_with('>')
-            }).map(|e| e + idx).unwrap_or(lines.len());
+            let end = lines[idx..]
+                .iter()
+                .position(|line| line.starts_with('>'))
+                .map(|e| e + idx)
+                .unwrap_or(lines.len());
 
             return lines[idx..end].join("\n");
         }

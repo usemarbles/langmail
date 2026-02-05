@@ -24,9 +24,7 @@ pub fn preprocess(raw: &[u8]) -> Result<EmailOutput, LangmailError> {
         .parse(raw)
         .ok_or(LangmailError::ParseFailed)?;
 
-    let subject = message
-        .subject()
-        .map(|s| s.to_string());
+    let subject = message.subject().map(|s| s.to_string());
 
     let from = message
         .from()
@@ -39,28 +37,25 @@ pub fn preprocess(raw: &[u8]) -> Result<EmailOutput, LangmailError> {
     let to = extract_addresses(message.to());
     let cc = extract_addresses(message.cc());
 
-    let date = message.date()
-        .map(|d| {
-            // mail-parser DateTime -> ISO 8601 string
-            format!(
-                "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}Z",
-                d.year, d.month, d.day, d.hour, d.minute, d.second
-            )
-        });
+    let date = message.date().map(|d| {
+        // mail-parser DateTime -> ISO 8601 string
+        format!(
+            "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}Z",
+            d.year, d.month, d.day, d.hour, d.minute, d.second
+        )
+    });
 
-    let message_id = message
-        .message_id()
-        .map(|id| id.to_string());
+    let message_id = message.message_id().map(|id| id.to_string());
 
     let in_reply_to = message
         .in_reply_to()
         .as_text_list()
-        .map(|list| list.into_iter().map(|s| s.to_string()).collect());
+        .map(|list| list.iter().map(|s| s.to_string()).collect());
 
     let references = message
         .references()
         .as_text_list()
-        .map(|list| list.into_iter().map(|s| s.to_string()).collect());
+        .map(|list| list.iter().map(|s| s.to_string()).collect());
 
     // Extract body: prefer plain text, fall back to HTML with conversion
     let raw_body = extract_body(&message);
@@ -88,7 +83,10 @@ pub fn preprocess(raw: &[u8]) -> Result<EmailOutput, LangmailError> {
 }
 
 /// Preprocess with custom options.
-pub fn preprocess_with_options(raw: &[u8], options: &PreprocessOptions) -> Result<EmailOutput, LangmailError> {
+pub fn preprocess_with_options(
+    raw: &[u8],
+    options: &PreprocessOptions,
+) -> Result<EmailOutput, LangmailError> {
     let mut output = preprocess(raw)?;
 
     if !options.strip_quotes {
@@ -145,19 +143,16 @@ fn extract_body(message: &mail_parser::Message) -> String {
 
 fn extract_addresses(address_opt: Option<&mail_parser::Address>) -> Vec<Address> {
     match address_opt {
-        Some(addresses) => {
-            addresses
-                .iter()
-                .map(|addr| Address {
-                    name: addr.name().map(|n| n.to_string()),
-                    email: addr.address().map(|a| a.to_string()).unwrap_or_default(),
-                })
-                .collect()
-        }
+        Some(addresses) => addresses
+            .iter()
+            .map(|addr| Address {
+                name: addr.name().map(|n| n.to_string()),
+                email: addr.address().map(|a| a.to_string()).unwrap_or_default(),
+            })
+            .collect(),
         None => Vec::new(),
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -178,7 +173,9 @@ mod tests {
             "\r\n",
             "Best,\r\n",
             "Alice\r\n",
-        ).as_bytes().to_vec()
+        )
+        .as_bytes()
+        .to_vec()
     }
 
     fn reply_email() -> Vec<u8> {
@@ -203,7 +200,9 @@ mod tests {
             ">\r\n",
             "> Best,\r\n",
             "> Alice\r\n",
-        ).as_bytes().to_vec()
+        )
+        .as_bytes()
+        .to_vec()
     }
 
     #[test]
@@ -222,7 +221,10 @@ mod tests {
         let output = preprocess(&reply_email()).unwrap();
         assert!(output.body.contains("Great to hear from you."));
         assert!(!output.body.contains("Just wanted to say hi!"));
-        assert_eq!(output.in_reply_to.as_ref().unwrap(), &["abc123@example.com"]);
+        assert_eq!(
+            output.in_reply_to.as_ref().unwrap(),
+            &["abc123@example.com"]
+        );
     }
 
     #[test]

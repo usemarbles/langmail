@@ -17,8 +17,21 @@ pub fn html_to_clean_text(html: &str) -> String {
 
     // Block-level elements that should produce line breaks
     const BLOCK_ELEMENTS: &[&str] = &[
-        "p", "div", "br", "h1", "h2", "h3", "h4", "h5", "h6",
-        "li", "tr", "blockquote", "pre", "hr", "table",
+        "p",
+        "div",
+        "br",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "li",
+        "tr",
+        "blockquote",
+        "pre",
+        "hr",
+        "table",
     ];
 
     let chars: Vec<char> = html.chars().collect();

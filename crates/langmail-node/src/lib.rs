@@ -121,14 +121,22 @@ fn to_napi_output(result: langmail_core::EmailOutput) -> EmailOutput {
             name: a.name,
             email: a.email,
         }),
-        to: result.to.into_iter().map(|a| NapiAddress {
-            name: a.name,
-            email: a.email,
-        }).collect(),
-        cc: result.cc.into_iter().map(|a| NapiAddress {
-            name: a.name,
-            email: a.email,
-        }).collect(),
+        to: result
+            .to
+            .into_iter()
+            .map(|a| NapiAddress {
+                name: a.name,
+                email: a.email,
+            })
+            .collect(),
+        cc: result
+            .cc
+            .into_iter()
+            .map(|a| NapiAddress {
+                name: a.name,
+                email: a.email,
+            })
+            .collect(),
         date: result.date,
         message_id: result.message_id,
         in_reply_to: result.in_reply_to,
