@@ -1,5 +1,5 @@
 {
-  "name": "@langmail/node",
+  "name": "langmail",
   "version": "0.1.0",
   "description": "Email preprocessing for LLMs — fast, typed, Rust-powered",
   "main": "index.js",

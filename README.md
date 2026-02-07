@@ -5,7 +5,7 @@
 Emails are messy — nested MIME parts, quoted reply chains, HTML cruft, signatures, forwarded headers. LLMs don't need any of that. langmail strips it all away and gives you clean, structured text optimized for language model consumption.
 
 ```typescript
-import { preprocessString } from "@langmail/node";
+import { preprocessString } from "langmail";
 
 const result = preprocessString(rawEmail);
 
@@ -28,7 +28,7 @@ console.log(result.from);
 ## Install
 
 ```bash
-npm install @langmail/node
+npm install langmail
 ```
 
 Prebuilt native binaries for Linux (x64, arm64), macOS (x64, arm64), and Windows (x64). No Rust toolchain needed.
@@ -38,7 +38,7 @@ Prebuilt native binaries for Linux (x64, arm64), macOS (x64, arm64), and Windows
 ### Basic
 
 ```typescript
-import { preprocess } from "@langmail/node";
+import { preprocess } from "langmail";
 import { readFileSync } from "fs";
 
 // From raw .eml file
@@ -46,14 +46,14 @@ const raw = readFileSync("message.eml");
 const result = preprocess(raw);
 
 // Or from a string (e.g. Gmail API response)
-import { preprocessString } from "@langmail/node";
+import { preprocessString } from "langmail";
 const result = preprocessString(rawEmailString);
 ```
 
 ### With options
 
 ```typescript
-import { preprocessWithOptions } from "@langmail/node";
+import { preprocessWithOptions } from "langmail";
 
 const result = preprocessWithOptions(raw, {
   stripQuotes: true, // Remove quoted replies (default: true)
