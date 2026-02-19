@@ -3,7 +3,7 @@ use napi_derive::napi;
 
 /// Preprocessed email output optimized for LLM consumption.
 #[napi(object)]
-pub struct EmailOutput {
+pub struct ProcessedEmail {
     /// The cleaned email body text, with quotes and signature removed.
     pub body: String,
 
@@ -72,7 +72,7 @@ pub struct PreprocessOptions {
 /// @param raw - Raw email as a Buffer or Uint8Array
 /// @returns Preprocessed email output
 #[napi]
-pub fn preprocess(raw: Buffer) -> Result<EmailOutput> {
+pub fn preprocess(raw: Buffer) -> Result<ProcessedEmail> {
     let result = langmail_core::preprocess(&raw)
         .map_err(|e| Error::new(Status::GenericFailure, format!("{}", e)))?;
 
@@ -85,7 +85,7 @@ pub fn preprocess(raw: Buffer) -> Result<EmailOutput> {
 /// @param options - Preprocessing options
 /// @returns Preprocessed email output
 #[napi]
-pub fn preprocess_with_options(raw: Buffer, options: PreprocessOptions) -> Result<EmailOutput> {
+pub fn preprocess_with_options(raw: Buffer, options: PreprocessOptions) -> Result<ProcessedEmail> {
     let core_options = langmail_core::PreprocessOptions {
         strip_quotes: options.strip_quotes.unwrap_or(true),
         strip_signature: options.strip_signature.unwrap_or(true),
@@ -105,7 +105,7 @@ pub fn preprocess_with_options(raw: Buffer, options: PreprocessOptions) -> Resul
 /// @param raw - Raw email as a string
 /// @returns Preprocessed email output
 #[napi]
-pub fn preprocess_string(raw: String) -> Result<EmailOutput> {
+pub fn preprocess_string(raw: String) -> Result<ProcessedEmail> {
     preprocess(Buffer::from(raw.as_bytes().to_vec()))
 }
 
@@ -113,8 +113,8 @@ pub fn preprocess_string(raw: String) -> Result<EmailOutput> {
 // Internal conversion
 // ---------------------------------------------------------------------------
 
-fn to_napi_output(result: langmail_core::EmailOutput) -> EmailOutput {
-    EmailOutput {
+fn to_napi_output(result: langmail_core::ProcessedEmail) -> ProcessedEmail {
+    ProcessedEmail {
         body: result.body,
         subject: result.subject,
         from: result.from.map(|a| NapiAddress {

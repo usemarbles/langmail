@@ -33,7 +33,7 @@ Three main exports:
 
 ### Type System (`types.rs`)
 
-- `EmailOutput` - Main output structure with cleaned body + metadata
+- `ProcessedEmail` - Main output structure with cleaned body + metadata
 - `PreprocessOptions` - Configuration: `stripQuotes`, `stripSignature`, `maxBodyLength`
 - `Address` - Email address with optional display name
 - `LangmailError` - Only error type: `ParseFailed`

@@ -10,7 +10,7 @@ use mail_parser::MessageParser;
 /// Preprocess a raw email (RFC 5322 / EML format) into an LLM-ready structure.
 ///
 /// This is the primary entry point for langmail. It takes raw email bytes and
-/// returns a structured [`EmailOutput`] with clean body text, metadata, and
+/// returns a structured [`ProcessedEmail`] with clean body text, metadata, and
 /// thread information — optimized for feeding into language models.
 ///
 /// # Example
@@ -19,7 +19,7 @@ use mail_parser::MessageParser;
 /// let output = langmail_core::preprocess(raw).unwrap();
 /// assert!(output.body.contains("Hi Bob!"));
 /// ```
-pub fn preprocess(raw: &[u8]) -> Result<EmailOutput, LangmailError> {
+pub fn preprocess(raw: &[u8]) -> Result<ProcessedEmail, LangmailError> {
     let message = MessageParser::default()
         .parse(raw)
         .ok_or(LangmailError::ParseFailed)?;
@@ -66,7 +66,7 @@ pub fn preprocess(raw: &[u8]) -> Result<EmailOutput, LangmailError> {
     // Strip signature
     let (clean_body, signature) = signature::extract_signature(&body_without_quotes);
 
-    Ok(EmailOutput {
+    Ok(ProcessedEmail {
         body: clean_body.trim().to_string(),
         subject,
         from,
@@ -86,7 +86,7 @@ pub fn preprocess(raw: &[u8]) -> Result<EmailOutput, LangmailError> {
 pub fn preprocess_with_options(
     raw: &[u8],
     options: &PreprocessOptions,
-) -> Result<EmailOutput, LangmailError> {
+) -> Result<ProcessedEmail, LangmailError> {
     let mut output = preprocess(raw)?;
 
     if !options.strip_quotes {

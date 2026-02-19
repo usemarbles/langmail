@@ -7,7 +7,7 @@ use std::fmt;
 /// along with structured metadata.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct EmailOutput {
+pub struct ProcessedEmail {
     /// The cleaned email body text, with quotes and signature removed.
     pub body: String,
 

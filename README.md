@@ -65,7 +65,7 @@ const result = preprocessWithOptions(raw, {
 ### Output structure
 
 ```typescript
-interface EmailOutput {
+interface ProcessedEmail {
   body: string; // Clean text, ready for your LLM
   subject?: string;
   from?: { name?: string; email: string };
