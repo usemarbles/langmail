@@ -6,6 +6,12 @@
  * Scrubs PII from headers, URLs, and body content while preserving
  * structure that matters for parsing (MIME, HTML layout, encoding).
  *
+ * Note: URL anonymization is primarily targeted at LinkedIn emails.
+ * For non-LinkedIn emails, only email addresses and sender/recipient
+ * names (extracted from headers) are anonymized automatically.
+ * Always manually review the output for any remaining PII in free-text
+ * content such as headlines, taglines, or other profile data.
+ *
  * Usage:
  *   npx tsx anonymize-fixture.ts input.eml output.eml
  *   npx tsx anonymize-fixture.ts input.eml   # writes input.anon.eml
@@ -13,6 +19,124 @@
 
 import * as fs from "fs";
 import * as path from "path";
+
+// ---------------------------------------------------------------------------
+// Utilities
+// ---------------------------------------------------------------------------
+
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Build a regex pattern with Unicode-aware word boundaries (unlike \b, works with accented chars). */
+function withUnicodeBounds(pattern: string): string {
+  return `(?<![\\p{L}\\p{N}])${pattern}(?![\\p{L}\\p{N}])`;
+}
+
+/** Remove quoted-printable soft line breaks so regexes can match full URLs. */
+function undoQPSoftBreaks(text: string): string {
+  return text.replace(/=\r?\n/g, "");
+}
+
+/**
+ * Build a mapping from unwrapped-text positions to wrapped-text positions.
+ * map[i] = position in wrapped text of the i-th character of the unwrapped text.
+ * A sentinel at map[unwrapped.length] points past the last character.
+ */
+function buildPositionMap(wrappedText: string): number[] {
+  const map: number[] = [];
+  let wi = 0;
+  while (wi < wrappedText.length) {
+    if (
+      wrappedText[wi] === "=" &&
+      wi + 1 < wrappedText.length &&
+      (wrappedText[wi + 1] === "\n" ||
+        (wrappedText[wi + 1] === "\r" && wi + 2 < wrappedText.length && wrappedText[wi + 2] === "\n"))
+    ) {
+      wi += wrappedText[wi + 1] === "\r" ? 3 : 2;
+    } else {
+      map.push(wi);
+      wi++;
+    }
+  }
+  map.push(wi); // sentinel
+  return map;
+}
+
+/**
+ * Run a regex replacement that works across QP soft line breaks.
+ * Matches against the unwrapped text but applies replacements to the wrapped
+ * text, so =\n breaks outside matched regions are preserved exactly.
+ */
+function replaceInQP(text: string, pattern: RegExp, replacement: string): string {
+  const unwrapped = undoQPSoftBreaks(text);
+  const posMap = buildPositionMap(text);
+
+  const re = new RegExp(pattern.source, pattern.flags);
+  const matches: Array<{ wrappedStart: number; wrappedEnd: number; rep: string }> = [];
+
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(unwrapped)) !== null) {
+    const rep = m[0].replace(
+      new RegExp(pattern.source, pattern.flags.replace("g", "")),
+      replacement
+    );
+    matches.push({
+      wrappedStart: posMap[m.index],
+      wrappedEnd: posMap[m.index + m[0].length],
+      rep,
+    });
+    if (!pattern.global) break;
+  }
+
+  if (matches.length === 0) return text;
+
+  // Apply in reverse order so earlier positions remain valid
+  let result = text;
+  for (let i = matches.length - 1; i >= 0; i--) {
+    const { wrappedStart, wrappedEnd, rep } = matches[i];
+    result = result.slice(0, wrappedStart) + rep + result.slice(wrappedEnd);
+  }
+  return result;
+}
+
+/** Re-wrap only lines that exceed the QP limit (76 chars). */
+function rewrapLongLines(text: string, maxLineLen = 76): string {
+  const crlfCount = (text.match(/\r\n/g) ?? []).length;
+  const lfOnly = (text.match(/(?<!\r)\n/g) ?? []).length;
+  const eol = crlfCount > lfOnly ? "\r\n" : "\n";
+  const lines = text.split(eol);
+  const result: string[] = [];
+
+  for (const line of lines) {
+    if (line.length <= maxLineLen) {
+      result.push(line);
+      continue;
+    }
+
+    let remaining = line;
+    while (remaining.length > maxLineLen) {
+      let breakAt = maxLineLen - 1;
+
+      if (breakAt >= 1 && remaining[breakAt - 1] === "=") {
+        breakAt -= 1;
+      } else if (
+        breakAt >= 2 &&
+        remaining[breakAt - 2] === "=" &&
+        /[0-9A-Fa-f]/.test(remaining[breakAt - 1])
+      ) {
+        breakAt -= 2;
+      }
+
+      if (breakAt <= 0) breakAt = 1;
+      result.push(remaining.slice(0, breakAt) + "=");
+      remaining = remaining.slice(breakAt);
+    }
+    result.push(remaining);
+  }
+
+  return result.join(eol);
+}
 
 // ---------------------------------------------------------------------------
 // Replacement values
@@ -64,17 +188,36 @@ const STRIP_HEADERS = new Set([
 ]);
 
 /** Headers whose values contain PII that needs targeted replacement. */
-function anonymizeHeaderValue(name: string, value: string): string {
+function anonymizeHeaderValue(
+  name: string,
+  value: string,
+  senderFirst: string,
+  senderLast: string
+): string {
   const lower = name.toLowerCase();
 
   if (lower === "delivered-to" || lower === "to") {
     return value.replace(/[^\s<>@,]+@[^\s<>@,]+/g, REPLACEMENTS.email)
-                .replace(/[^<]*(?=<)/g, `${REPLACEMENTS.fullName} `);
+                .replace(/([^,<]+?)(\s*<)/g, `${REPLACEMENTS.fullName} $2`);
   }
 
   if (lower === "from") {
-    // Keep sender service name (e.g. "via LinkedIn") but replace email
-    return value.replace(/[^\s<>@,]+@[^\s<>@,]+/g, `noreply@example.com`);
+    let v = value.replace(/[^\s<>@,]+@[^\s<>@,]+/g, `noreply@example.com`);
+    // Replace sender name while preserving "via Service" suffix
+    if (senderFirst && senderLast) {
+      v = v.replace(new RegExp(escapeRegex(`${senderFirst} ${senderLast}`), "gi"), REPLACEMENTS.fullName);
+    } else if (senderFirst) {
+      v = v.replace(new RegExp(withUnicodeBounds(escapeRegex(senderFirst)), "giu"), REPLACEMENTS.firstName);
+    }
+    return v;
+  }
+
+  if (lower === "subject") {
+    let v = value;
+    if (senderFirst) {
+      v = v.replace(new RegExp(withUnicodeBounds(escapeRegex(senderFirst)), "giu"), REPLACEMENTS.firstName);
+    }
+    return v;
   }
 
   if (lower === "message-id") {
@@ -92,57 +235,73 @@ function anonymizeHeaderValue(name: string, value: string): string {
 // Body transformations
 // ---------------------------------------------------------------------------
 
-function anonymizeUrls(text: string): string {
+/** A text replacer — either plain String.replace or QP-aware replaceInQP. */
+type TextReplacer = (text: string, pattern: RegExp, replacement: string) => string;
+
+function defaultReplace(text: string, pattern: RegExp, replacement: string): string {
+  return text.replace(pattern, replacement);
+}
+
+function anonymizeUrls(text: string, rep: TextReplacer = defaultReplace): string {
   // LinkedIn messaging thread URLs → canonical test URL
-  text = text.replace(
+  text = rep(
+    text,
     /https?:\/\/(?:[\w-]+\.)?linkedin\.com\/comm\/messaging\/thread\/[^\s"'>)]+/g,
     REPLACEMENTS.messageThreadUrl
   );
 
   // LinkedIn tracking pixel (emimp)
-  text = text.replace(
+  text = rep(
+    text,
     /https?:\/\/(?:[\w-]+\.)?linkedin\.com\/emimp\/[^\s"'>)]+/g,
     REPLACEMENTS.trackingPixelUrl
   );
 
   // LinkedIn profile image CDN URLs
-  text = text.replace(
+  text = rep(
+    text,
     /https?:\/\/media\.licdn\.com\/dms\/image\/[^\s"'>)]+/g,
     REPLACEMENTS.profileImageUrl
   );
 
   // LinkedIn static asset URLs (logos etc.) — keep structurally but genericize
-  text = text.replace(
+  text = rep(
+    text,
     /https?:\/\/static\.licdn\.com\/[^\s"'>)]+/g,
     "https://example.com/static/image.png"
   );
 
   // LinkedIn unsubscribe / psettings URLs
-  text = text.replace(
+  text = rep(
+    text,
     /https?:\/\/(?:[\w-]+\.)?linkedin\.com\/comm\/psettings\/[^\s"'>)]+/g,
     REPLACEMENTS.unsubscribeUrl
   );
 
   // LinkedIn help URLs
-  text = text.replace(
+  text = rep(
+    text,
     /https?:\/\/(?:www\.)?linkedin\.com\/help\/[^\s"'>)]+/g,
     REPLACEMENTS.helpUrl
   );
 
   // LinkedIn profile URLs  (in/username pattern)
-  text = text.replace(
+  text = rep(
+    text,
     /https?:\/\/(?:[\w-]+\.)?linkedin\.com\/comm\/in\/[^\s"'>)]+/g,
     "https://www.linkedin.com/in/test-user"
   );
 
   // LinkedIn feed / generic comm URLs
-  text = text.replace(
+  text = rep(
+    text,
     /https?:\/\/(?:[\w-]+\.)?linkedin\.com\/comm\/[^\s"'>)]+/g,
     REPLACEMENTS.genericUrl
   );
 
   // Any remaining linkedin.com URLs
-  text = text.replace(
+  text = rep(
+    text,
     /https?:\/\/(?:[\w-]+\.)?linkedin\.com\/[^\s"'>)]+/g,
     REPLACEMENTS.genericUrl
   );
@@ -150,45 +309,42 @@ function anonymizeUrls(text: string): string {
   return text;
 }
 
-function anonymizeNames(text: string, realFirst: string, realLast: string): string {
+function anonymizeNames(text: string, realFirst: string, realLast: string, rep: TextReplacer = defaultReplace): string {
   const fullName = `${realFirst} ${realLast}`.trim();
   if (fullName) {
-    text = text.replace(new RegExp(escapeRegex(fullName), "gi"), REPLACEMENTS.fullName);
+    text = rep(text, new RegExp(escapeRegex(fullName), "gi"), REPLACEMENTS.fullName);
   }
   if (realFirst) {
-    text = text.replace(new RegExp(`\\b${escapeRegex(realFirst)}\\b`, "g"), REPLACEMENTS.firstName);
+    text = rep(text, new RegExp(withUnicodeBounds(escapeRegex(realFirst)), "giu"), REPLACEMENTS.firstName);
   }
   if (realLast) {
-    text = text.replace(new RegExp(`\\b${escapeRegex(realLast)}\\b`, "g"), REPLACEMENTS.lastName);
+    text = rep(text, new RegExp(withUnicodeBounds(escapeRegex(realLast)), "giu"), REPLACEMENTS.lastName);
   }
   return text;
 }
 
-function anonymizeEmails(text: string): string {
-  return text.replace(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g, REPLACEMENTS.email);
+function anonymizeEmails(text: string, rep: TextReplacer = defaultReplace): string {
+  return rep(text, /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g, REPLACEMENTS.email);
 }
 
-function anonymizeLinkedInIds(text: string): string {
+function anonymizeLinkedInIds(text: string, rep: TextReplacer = defaultReplace): string {
   // midToken, midSig, otpToken, eid, loid query params
-  text = text.replace(/([?&])(midToken|midSig|otpToken|eid|loid)=([^&\s"'>)]+)/g, "$1$2=REDACTED");
+  // Handle both plain & and HTML &amp; as separators, and =3D (QP-encoded =)
+  text = rep(
+    text,
+    /([?&]|&amp;)(midToken|midSig|otpToken|eid|loid)(=3D|=)([^&\s"'>)]+)/g,
+    "$1$2$3REDACTED"
+  );
   // lipi URN values
-  text = text.replace(/lipi=[^&\s"'>)]+/g, "lipi=REDACTED");
+  text = rep(text, /lipi(=3D|=)[^&\s"'>)]+/g, "lipi$1REDACTED");
   // trk / trkEmail params
-  text = text.replace(/(trkEmail?=[^&\s"'>)]+)/g, "trk=REDACTED");
+  text = rep(text, /(?:trkEmail|trk)(=3D|=)[^&\s"'>)]+/g, "trk$1REDACTED");
   return text;
 }
 
 // ---------------------------------------------------------------------------
 // MIME parser / reconstructor
 // ---------------------------------------------------------------------------
-
-interface MimePart {
-  headers: Array<{ name: string; value: string; raw: string }>;
-  body: string;
-  boundary?: string;
-  parts?: MimePart[];
-  isMultipart: boolean;
-}
 
 function parseHeaders(raw: string): Array<{ name: string; value: string; raw: string }> {
   const headers: Array<{ name: string; value: string; raw: string }> = [];
@@ -208,60 +364,33 @@ function getBoundary(contentType: string): string | undefined {
   return m ? m[1] : undefined;
 }
 
-function splitOnBoundary(body: string, boundary: string): string[] {
-  const delimiter = `--${boundary}`;
-  const parts: string[] = [];
-  let start = body.indexOf(delimiter);
-  if (start === -1) return [body];
-  while (start !== -1) {
-    const lineEnd = body.indexOf("\n", start);
-    if (lineEnd === -1) break;
-    const next = body.indexOf(`\n${delimiter}`, lineEnd);
-    if (next === -1) break;
-    parts.push(body.slice(lineEnd + 1, next));
-    start = next + 1;
-  }
-  return parts;
-}
-
 function anonymizeBody(
   rawBody: string,
   contentType: string,
   senderFirst: string,
   senderLast: string,
-  recipientName: string
+  recipientName: string,
+  isQP = false
 ): string {
+  const rep: TextReplacer = isQP ? replaceInQP : defaultReplace;
+
   let body = rawBody;
-  body = anonymizeUrls(body);
-  body = anonymizeEmails(body);
-  body = anonymizeLinkedInIds(body);
-  body = anonymizeNames(body, senderFirst, senderLast);
+  body = anonymizeUrls(body, rep);
+  body = anonymizeEmails(body, rep);
+  body = anonymizeLinkedInIds(body, rep);
+  body = anonymizeNames(body, senderFirst, senderLast, rep);
 
   // Recipient name scrub
   if (recipientName) {
     const [rFirst, ...rRest] = recipientName.split(" ");
     const rLast = rRest.join(" ");
-    body = anonymizeNames(body, rFirst, rLast);
+    body = anonymizeNames(body, rFirst, rLast, rep);
   }
 
-  // Recipient headline / tagline (the "Tech with Purpose" style string)
-  body = body.replace(
-    /\(Tech with Purpose[^)]*\)/gi,
-    `(${REPLACEMENTS.recipientHeadline})`
-  );
-  body = body.replace(
-    /Tech with Purpose[^|\n<]*/gi,
-    REPLACEMENTS.recipientHeadline
-  );
-
-  // Sender headline
-  body = body.replace(
-    /Bringing Kubernetes to new places/gi,
-    REPLACEMENTS.headline
-  );
-
-  // "1 new message" — keep as-is, it's structural
-  // Copyright footer address — keep (not PII)
+  // Safety: re-wrap any lines that ended up > 76 chars after replacement
+  if (isQP) {
+    body = rewrapLongLines(body);
+  }
 
   return body;
 }
@@ -274,17 +403,17 @@ function extractSenderInfo(headers: Array<{ name: string; value: string; raw: st
   firstName: string;
   lastName: string;
 } {
-  // Try Subject: "Elias just messaged you"
-  const subject = headers.find((h) => h.name.toLowerCase() === "subject")?.value ?? "";
-  const subjectMatch = subject.match(/^(\w+)\s+just messaged/i);
-  if (subjectMatch) {
-    return { firstName: subjectMatch[1], lastName: "" };
-  }
-  // Try From: "First Last via LinkedIn"
+  // Try From: "First Last via LinkedIn" first — gives full name
   const from = headers.find((h) => h.name.toLowerCase() === "from")?.value ?? "";
   const fromMatch = from.match(/^([A-Z][a-z]+)\s+([A-Z][a-z]+)\s+via/);
   if (fromMatch) {
     return { firstName: fromMatch[1], lastName: fromMatch[2] };
+  }
+  // Fall back to Subject: "Elias just messaged you" — first name only
+  const subject = headers.find((h) => h.name.toLowerCase() === "subject")?.value ?? "";
+  const subjectMatch = subject.match(/^(\w+)\s+just messaged/i);
+  if (subjectMatch) {
+    return { firstName: subjectMatch[1], lastName: "" };
   }
   return { firstName: "", lastName: "" };
 }
@@ -315,7 +444,7 @@ function processEmail(raw: string): string {
 
   for (const h of parsedHeaders) {
     if (STRIP_HEADERS.has(h.name.toLowerCase())) continue;
-    const anonymizedValue = anonymizeHeaderValue(h.name, h.value);
+    const anonymizedValue = anonymizeHeaderValue(h.name, h.value, senderFirst, senderLast);
     outputHeaders.push(`${h.name}: ${anonymizedValue}`);
   }
 
@@ -326,43 +455,40 @@ function processEmail(raw: string): string {
   let processedBody: string;
 
   if (boundary) {
-    // Multipart: process each part's body individually
-    const parts = splitOnBoundary(bodySection, boundary);
-    const processedParts = parts.map((part) => {
-      const partSep = part.match(/\r?\n\r?\n/);
-      if (!partSep || partSep.index === undefined) return part;
-      const partHeaders = part.slice(0, partSep.index);
-      const partBody = part.slice(partSep.index + partSep[0].length);
-      const partCT = partHeaders.match(/content-type:\s*([^\r\n;]+)/i)?.[1] ?? "";
-      const anonymized = anonymizeBody(partBody, partCT, senderFirst, senderLast, recipientName);
-      return partHeaders + partSep[0] + anonymized;
-    });
+    // Split body into segments separated by boundary delimiters.
+    // Segments alternate: preamble, delimiter, part, delimiter, part, ..., closing delimiter, epilogue
+    const delimiterPattern = new RegExp(`(^--${escapeRegex(boundary)}(?:--)?[\\t ]*\\r?\\n?)`, "m");
+    const segments = bodySection.split(delimiterPattern);
 
-    // Reconstruct with original boundary delimiters
-    const lines = bodySection.split(/\r?\n/);
     let result = "";
-    let partIdx = 0;
-    let inPart = false;
-    let currentPart = "";
-
-    for (const line of lines) {
-      if (line.startsWith(`--${boundary}`)) {
-        if (inPart && partIdx < processedParts.length) {
-          result += processedParts[partIdx];
-          partIdx++;
-          currentPart = "";
+    let afterClosing = false;
+    const boundaryPrefix = "--" + boundary;
+    const closingPrefix = boundaryPrefix + "--";
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i];
+      if (seg.startsWith(boundaryPrefix)) {
+        // This is a boundary delimiter line — emit as-is
+        result += seg;
+        if (seg.startsWith(closingPrefix)) {
+          afterClosing = true;
         }
-        result += line + "\n";
-        inPart = !line.endsWith("--");
-      } else if (inPart) {
-        currentPart += line + "\n";
+      } else if (i === 0 || afterClosing) {
+        // Preamble (before first boundary) or epilogue (after closing delimiter)
+        result += anonymizeBody(seg, "", senderFirst, senderLast, recipientName);
       } else {
-        result += line + "\n";
+        // MIME part content — split into part headers + body
+        const partSep = seg.match(/\r?\n\r?\n/);
+        if (!partSep || partSep.index === undefined) {
+          result += seg;
+          continue;
+        }
+        const partHeaders = seg.slice(0, partSep.index);
+        const partBody = seg.slice(partSep.index + partSep[0].length);
+        const partCT = partHeaders.match(/content-type:\s*([^\r\n;]+)/i)?.[1] ?? "";
+        const isQP = /content-transfer-encoding:\s*quoted-printable/i.test(partHeaders);
+        const anonymized = anonymizeBody(partBody, partCT, senderFirst, senderLast, recipientName, isQP);
+        result += partHeaders + partSep[0] + anonymized;
       }
-    }
-    // flush last part if needed
-    if (inPart && partIdx < processedParts.length) {
-      result += processedParts[partIdx];
     }
 
     processedBody = result;
@@ -371,14 +497,6 @@ function processEmail(raw: string): string {
   }
 
   return outputHeaders.join("\n") + "\n\n" + processedBody;
-}
-
-// ---------------------------------------------------------------------------
-// Utilities
-// ---------------------------------------------------------------------------
-
-function escapeRegex(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 // ---------------------------------------------------------------------------
@@ -393,6 +511,11 @@ if (!inputPath) {
 }
 
 const resolvedInput = path.resolve(inputPath);
+if (!fs.existsSync(resolvedInput)) {
+  console.error(`Error: file not found: ${resolvedInput}`);
+  process.exit(1);
+}
+
 const resolvedOutput = outputPath
   ? path.resolve(outputPath)
   : resolvedInput.replace(/(\.[^.]+)?$/, ".anon$1");
