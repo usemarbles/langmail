@@ -303,17 +303,23 @@ function processEmail(raw: string): string {
   if (boundary) {
     // Split body into segments separated by boundary delimiters.
     // Segments alternate: preamble, delimiter, part, delimiter, part, ..., closing delimiter, epilogue
-    const delimiterPattern = new RegExp(`(^--${escapeRegex(boundary)}(?:--)?[\\t ]*\\r?\\n?)`, "gm");
+    const delimiterPattern = new RegExp(`(^--${escapeRegex(boundary)}(?:--)?[\\t ]*\\r?\\n?)`, "m");
     const segments = bodySection.split(delimiterPattern);
 
     let result = "";
+    let afterClosing = false;
+    const boundaryPrefix = "--" + boundary;
+    const closingPrefix = boundaryPrefix + "--";
     for (let i = 0; i < segments.length; i++) {
       const seg = segments[i];
-      if (seg.match(delimiterPattern)) {
+      if (seg.startsWith(boundaryPrefix)) {
         // This is a boundary delimiter line — emit as-is
         result += seg;
-      } else if (i === 0) {
-        // Preamble (before first boundary) — anonymize it too
+        if (seg.startsWith(closingPrefix)) {
+          afterClosing = true;
+        }
+      } else if (i === 0 || afterClosing) {
+        // Preamble (before first boundary) or epilogue (after closing delimiter)
         result += anonymizeBody(seg, "", senderFirst, senderLast, recipientName);
       } else {
         // MIME part content — split into part headers + body
