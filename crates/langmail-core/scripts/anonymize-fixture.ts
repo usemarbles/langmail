@@ -28,6 +28,11 @@ function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+/** Remove quoted-printable soft line breaks so regexes can match full URLs. */
+function undoQPSoftBreaks(text: string): string {
+  return text.replace(/=\r?\n/g, "");
+}
+
 // ---------------------------------------------------------------------------
 // Replacement values
 // ---------------------------------------------------------------------------
@@ -78,7 +83,12 @@ const STRIP_HEADERS = new Set([
 ]);
 
 /** Headers whose values contain PII that needs targeted replacement. */
-function anonymizeHeaderValue(name: string, value: string): string {
+function anonymizeHeaderValue(
+  name: string,
+  value: string,
+  senderFirst: string,
+  senderLast: string
+): string {
   const lower = name.toLowerCase();
 
   if (lower === "delivered-to" || lower === "to") {
@@ -87,8 +97,22 @@ function anonymizeHeaderValue(name: string, value: string): string {
   }
 
   if (lower === "from") {
-    // Keep sender service name (e.g. "via LinkedIn") but replace email
-    return value.replace(/[^\s<>@,]+@[^\s<>@,]+/g, `noreply@example.com`);
+    let v = value.replace(/[^\s<>@,]+@[^\s<>@,]+/g, `noreply@example.com`);
+    // Replace sender name while preserving "via Service" suffix
+    if (senderFirst && senderLast) {
+      v = v.replace(new RegExp(escapeRegex(`${senderFirst} ${senderLast}`), "gi"), REPLACEMENTS.fullName);
+    } else if (senderFirst) {
+      v = v.replace(new RegExp(`\\b${escapeRegex(senderFirst)}\\b`, "g"), REPLACEMENTS.firstName);
+    }
+    return v;
+  }
+
+  if (lower === "subject") {
+    let v = value;
+    if (senderFirst) {
+      v = v.replace(new RegExp(`\\b${escapeRegex(senderFirst)}\\b`, "g"), REPLACEMENTS.firstName);
+    }
+    return v;
   }
 
   if (lower === "message-id") {
@@ -184,11 +208,15 @@ function anonymizeEmails(text: string): string {
 
 function anonymizeLinkedInIds(text: string): string {
   // midToken, midSig, otpToken, eid, loid query params
-  text = text.replace(/([?&])(midToken|midSig|otpToken|eid|loid)=([^&\s"'>)]+)/g, "$1$2=REDACTED");
+  // Handle both plain & and HTML &amp; as separators, and =3D (QP-encoded =)
+  text = text.replace(
+    /([?&]|&amp;)(midToken|midSig|otpToken|eid|loid)(=3D|=)([^&\s"'>)]+)/g,
+    "$1$2$3REDACTED"
+  );
   // lipi URN values
-  text = text.replace(/lipi=[^&\s"'>)]+/g, "lipi=REDACTED");
+  text = text.replace(/lipi(=3D|=)[^&\s"'>)]+/g, "lipi$1REDACTED");
   // trk / trkEmail params
-  text = text.replace(/(trkEmail?=[^&\s"'>)]+)/g, "trk=REDACTED");
+  text = text.replace(/(?:trkEmail|trk)(=3D|=)[^&\s"'>)]+/g, "trk$1REDACTED");
   return text;
 }
 
@@ -249,17 +277,17 @@ function extractSenderInfo(headers: Array<{ name: string; value: string; raw: st
   firstName: string;
   lastName: string;
 } {
-  // Try Subject: "Elias just messaged you"
-  const subject = headers.find((h) => h.name.toLowerCase() === "subject")?.value ?? "";
-  const subjectMatch = subject.match(/^(\w+)\s+just messaged/i);
-  if (subjectMatch) {
-    return { firstName: subjectMatch[1], lastName: "" };
-  }
-  // Try From: "First Last via LinkedIn"
+  // Try From: "First Last via LinkedIn" first — gives full name
   const from = headers.find((h) => h.name.toLowerCase() === "from")?.value ?? "";
   const fromMatch = from.match(/^([A-Z][a-z]+)\s+([A-Z][a-z]+)\s+via/);
   if (fromMatch) {
     return { firstName: fromMatch[1], lastName: fromMatch[2] };
+  }
+  // Fall back to Subject: "Elias just messaged you" — first name only
+  const subject = headers.find((h) => h.name.toLowerCase() === "subject")?.value ?? "";
+  const subjectMatch = subject.match(/^(\w+)\s+just messaged/i);
+  if (subjectMatch) {
+    return { firstName: subjectMatch[1], lastName: "" };
   }
   return { firstName: "", lastName: "" };
 }
@@ -290,7 +318,7 @@ function processEmail(raw: string): string {
 
   for (const h of parsedHeaders) {
     if (STRIP_HEADERS.has(h.name.toLowerCase())) continue;
-    const anonymizedValue = anonymizeHeaderValue(h.name, h.value);
+    const anonymizedValue = anonymizeHeaderValue(h.name, h.value, senderFirst, senderLast);
     outputHeaders.push(`${h.name}: ${anonymizedValue}`);
   }
 
@@ -331,7 +359,9 @@ function processEmail(raw: string): string {
         const partHeaders = seg.slice(0, partSep.index);
         const partBody = seg.slice(partSep.index + partSep[0].length);
         const partCT = partHeaders.match(/content-type:\s*([^\r\n;]+)/i)?.[1] ?? "";
-        const anonymized = anonymizeBody(partBody, partCT, senderFirst, senderLast, recipientName);
+        const isQP = /content-transfer-encoding:\s*quoted-printable/i.test(partHeaders);
+        const bodyToProcess = isQP ? undoQPSoftBreaks(partBody) : partBody;
+        const anonymized = anonymizeBody(bodyToProcess, partCT, senderFirst, senderLast, recipientName);
         result += partHeaders + partSep[0] + anonymized;
       }
     }
