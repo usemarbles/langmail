@@ -73,5 +73,14 @@ export declare function preprocessWithOptions(raw: Buffer, options: PreprocessOp
  * @returns Preprocessed email output
  */
 export declare function preprocessString(raw: string): ProcessedEmail
-/** @deprecated Use `ProcessedEmail` instead. */
-export type EmailOutput = ProcessedEmail
+/**
+ * Format a preprocessed email as an LLM-ready context string.
+ *
+ * Takes a `ProcessedEmail` (as returned by `preprocess`) and returns a
+ * deterministic plain-text representation with header lines followed by a
+ * CONTENT section, suitable for pasting into an LLM prompt.
+ *
+ * @param email - A ProcessedEmail object
+ * @returns Formatted context string
+ */
+export declare function toLlmContext(email: ProcessedEmail): string
