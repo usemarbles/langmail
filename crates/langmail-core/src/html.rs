@@ -88,7 +88,15 @@ pub fn html_to_clean_text(html: &str) -> String {
 
         // Handle HTML entities
         if ch == '&' {
-            let entity_end = chars[i..].iter().position(|&c| c == ';');
+            // Cap scan to 10 chars to avoid treating bare `&` as entity start
+            let scan_limit = std::cmp::min(chars.len() - i, 11);
+            let entity_end = chars[i..i + scan_limit]
+                .iter()
+                .position(|&c| c == ';')
+                .filter(|&end| {
+                    // Reject if the candidate contains spaces or `<` (bare ampersand)
+                    !chars[i + 1..i + end].iter().any(|&c| c == ' ' || c == '<')
+                });
             if let Some(end) = entity_end {
                 let entity: String = chars[i..=i + end].iter().collect();
                 let decoded = decode_entity(&entity);
@@ -137,6 +145,8 @@ fn decode_entity(entity: &str) -> String {
         "&copy;" | "&#169;" => "©".to_string(),
         "&reg;" | "&#174;" => "®".to_string(),
         "&trade;" | "&#8482;" => "™".to_string(),
+        "&zwnj;" | "&#8204;" => "\u{200C}".to_string(),
+        "&shy;" | "&#173;" => "\u{00AD}".to_string(),
         _ => {
             // Try numeric entities: &#NNN; or &#xHHH;
             if entity.starts_with("&#x") || entity.starts_with("&#X") {
@@ -233,5 +243,25 @@ mod tests {
         let html = "<p>Héllo wörld 🌍</p>";
         let text = html_to_clean_text(html);
         assert!(text.contains("Héllo wörld 🌍"));
+    }
+
+    #[test]
+    fn test_bare_ampersand_preserved() {
+        let html = "<p>Security & access</p>";
+        let text = html_to_clean_text(html);
+        assert!(
+            text.contains("Security & access"),
+            "bare ampersand should be preserved, got: {text}"
+        );
+    }
+
+    #[test]
+    fn test_shy_entity_decoded() {
+        let html = "<p>soft&shy;hyphen</p>";
+        let text = html_to_clean_text(html);
+        assert!(
+            text.contains("soft\u{00AD}hyphen"),
+            "&shy; should decode to U+00AD, got: {text}"
+        );
     }
 }

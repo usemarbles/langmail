@@ -5,7 +5,7 @@ mod types;
 
 pub use types::*;
 
-use mail_parser::MessageParser;
+use mail_parser::{MessageParser, MimeHeaders};
 
 /// Preprocess a raw email (RFC 5322 / EML format) into an LLM-ready structure.
 ///
@@ -57,7 +57,7 @@ pub fn preprocess(raw: &[u8]) -> Result<ProcessedEmail, LangmailError> {
         .as_text_list()
         .map(|list| list.iter().map(|s| s.to_string()).collect());
 
-    // Extract body: prefer plain text, fall back to HTML with conversion
+    // Extract body: prefer HTML (richer content), fall back to plain text
     let raw_body = extract_body(&message);
     let raw_body = clean_invisible_characters(&raw_body);
 
@@ -130,15 +130,25 @@ pub fn preprocess_with_options(
 // Internal helpers
 // ---------------------------------------------------------------------------
 
+fn has_html_part(message: &mail_parser::Message) -> bool {
+    message
+        .parts
+        .iter()
+        .any(|p| p.is_content_type("text", "html"))
+}
+
 fn extract_body(message: &mail_parser::Message) -> String {
-    // Prefer plain text body
-    if let Some(text) = message.body_text(0) {
-        return text.to_string();
+    // Prefer HTML body when an actual text/html part exists (richer content).
+    // mail-parser auto-generates HTML from plain text, so we check for a real part.
+    if has_html_part(message) {
+        if let Some(html_body) = message.body_html(0) {
+            return html::html_to_clean_text(&html_body);
+        }
     }
 
-    // Fall back to HTML body, converting to plain text
-    if let Some(html_body) = message.body_html(0) {
-        return html::html_to_clean_text(&html_body);
+    // Fall back to plain text body
+    if let Some(text) = message.body_text(0) {
+        return text.to_string();
     }
 
     String::new()
@@ -346,3 +356,4 @@ mod tests {
         assert_eq!(output.body, "Hello world!");
     }
 }
+
