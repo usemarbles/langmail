@@ -59,7 +59,7 @@ pub fn preprocess(raw: &[u8]) -> Result<ProcessedEmail, LangmailError> {
 
     // Extract body: prefer plain text, fall back to HTML with conversion
     let raw_body = extract_body(&message);
-    let raw_body = strip_zero_width(&raw_body);
+    let raw_body = clean_invisible_characters(&raw_body);
 
     // Strip quoted replies
     let body_without_quotes = quotes::strip_quotes(&raw_body);
@@ -67,8 +67,11 @@ pub fn preprocess(raw: &[u8]) -> Result<ProcessedEmail, LangmailError> {
     // Strip signature
     let (clean_body, signature) = signature::extract_signature(&body_without_quotes);
 
+    let body = collapse_empty_lines(clean_body.trim());
+
     Ok(ProcessedEmail {
-        body: clean_body.trim().to_string(),
+        clean_body_length: body.len(),
+        body,
         subject,
         from,
         to,
@@ -79,7 +82,6 @@ pub fn preprocess(raw: &[u8]) -> Result<ProcessedEmail, LangmailError> {
         references,
         signature,
         raw_body_length: raw_body.len(),
-        clean_body_length: clean_body.trim().len(),
     })
 }
 
@@ -95,13 +97,13 @@ pub fn preprocess_with_options(
         let message = MessageParser::default()
             .parse(raw)
             .ok_or(LangmailError::ParseFailed)?;
-        let raw_body = strip_zero_width(&extract_body(&message));
+        let raw_body = clean_invisible_characters(&extract_body(&message));
         let (clean_body, sig) = if options.strip_signature {
             signature::extract_signature(&raw_body)
         } else {
             (raw_body.clone(), None)
         };
-        output.body = clean_body.trim().to_string();
+        output.body = collapse_empty_lines(clean_body.trim());
         output.signature = sig;
         output.clean_body_length = output.body.len();
     } else if !options.strip_signature {
@@ -109,9 +111,9 @@ pub fn preprocess_with_options(
         let message = MessageParser::default()
             .parse(raw)
             .ok_or(LangmailError::ParseFailed)?;
-        let raw_body = strip_zero_width(&extract_body(&message));
+        let raw_body = clean_invisible_characters(&extract_body(&message));
         let body_without_quotes = quotes::strip_quotes(&raw_body);
-        output.body = body_without_quotes.trim().to_string();
+        output.body = collapse_empty_lines(body_without_quotes.trim());
         output.signature = None;
         output.clean_body_length = output.body.len();
     }
@@ -142,23 +144,51 @@ fn extract_body(message: &mail_parser::Message) -> String {
     String::new()
 }
 
-const ZERO_WIDTH_CHARS: &[char] = &[
-    '\u{200C}', // ZWNJ
-    '\u{200B}', // Zero Width Space
-    '\u{200D}', // Zero Width Joiner
-    '\u{FEFF}', // BOM / Zero Width No-Break Space
+/// Invisible characters to remove entirely
+const INVISIBLE_CHARS: &[char] = &[
+    '\u{034F}', // COMBINING GRAPHEME JOINER
+    '\u{200B}', // ZERO WIDTH SPACE
+    '\u{200C}', // ZERO WIDTH NON-JOINER
+    '\u{200D}', // ZERO WIDTH JOINER
+    '\u{FEFF}', // ZERO WIDTH NO-BREAK SPACE (BOM)
+    '\u{00AD}', // SOFT HYPHEN
+    '\u{2007}', // FIGURE SPACE
 ];
 
 const ZERO_WIDTH_ENTITIES: &[&str] = &["&zwnj;", "&#x200c;", "&#8204;"];
 
-fn strip_zero_width(s: &str) -> String {
+/// Removes invisible Unicode characters commonly used as email spacers,
+/// converts non-breaking spaces to regular spaces, and collapses excessive
+/// empty lines.
+fn clean_invisible_characters(s: &str) -> String {
     let mut result = s.to_string();
     for entity in ZERO_WIDTH_ENTITIES {
         result = result.replace(entity, "");
     }
-    result.chars()
-        .filter(|c| !ZERO_WIDTH_CHARS.contains(c))
+    result
+        .chars()
+        .map(|c| if c == '\u{00A0}' { ' ' } else { c })
+        .filter(|c| !INVISIBLE_CHARS.contains(c))
         .collect()
+}
+
+/// Collapses 3+ consecutive newlines to maximum 2 newlines.
+/// Preserves paragraph breaks (2 newlines) but removes excessive spacing.
+fn collapse_empty_lines(s: &str) -> String {
+    let mut result = String::with_capacity(s.len());
+    let mut newline_count = 0u32;
+    for c in s.chars() {
+        if c == '\n' {
+            newline_count += 1;
+            if newline_count <= 2 {
+                result.push(c);
+            }
+        } else {
+            newline_count = 0;
+            result.push(c);
+        }
+    }
+    result
 }
 
 fn extract_addresses(address_opt: Option<&mail_parser::Address>) -> Vec<Address> {
@@ -254,19 +284,39 @@ mod tests {
     }
 
     #[test]
-    fn test_strip_zero_width_removes_all_types() {
+    fn test_clean_invisible_removes_all_types() {
         let input = "he\u{200B}ll\u{200C}o \u{200D}wo\u{FEFF}rld";
-        assert_eq!(strip_zero_width(input), "hello world");
+        assert_eq!(clean_invisible_characters(input), "hello world");
     }
 
     #[test]
-    fn test_strip_zero_width_normal_text_unchanged() {
+    fn test_clean_invisible_extra_chars() {
+        let input = "he\u{034F}llo\u{00AD} wo\u{2007}rld";
+        assert_eq!(clean_invisible_characters(input), "hello world");
+    }
+
+    #[test]
+    fn test_clean_invisible_nbsp_to_space() {
+        let input = "hello\u{00A0}world";
+        assert_eq!(clean_invisible_characters(input), "hello world");
+    }
+
+    #[test]
+    fn test_clean_invisible_normal_text_unchanged() {
         let input = "Hello, world! 🎉 Ümlauts and ñ are fine.";
-        assert_eq!(strip_zero_width(input), input);
+        assert_eq!(clean_invisible_characters(input), input);
     }
 
     #[test]
-    fn test_email_with_zero_width_chars_cleaned() {
+    fn test_collapse_empty_lines() {
+        assert_eq!(collapse_empty_lines("a\n\n\nb"), "a\n\nb");
+        assert_eq!(collapse_empty_lines("a\n\n\n\n\nb"), "a\n\nb");
+        assert_eq!(collapse_empty_lines("a\n\nb"), "a\n\nb");
+        assert_eq!(collapse_empty_lines("a\nb"), "a\nb");
+    }
+
+    #[test]
+    fn test_email_with_invisible_chars_cleaned() {
         let raw = concat!(
             "From: Alice <alice@example.com>\r\n",
             "To: Bob <bob@example.com>\r\n",
