@@ -102,7 +102,8 @@ function replaceInQP(text: string, pattern: RegExp, replacement: string): string
 
 /** Re-wrap only lines that exceed the QP limit (76 chars). */
 function rewrapLongLines(text: string, maxLineLen = 76): string {
-  const lines = text.split("\n");
+  const eol = text.includes("\r\n") ? "\r\n" : "\n";
+  const lines = text.split(eol);
   const result: string[] = [];
 
   for (const line of lines) {
@@ -132,7 +133,7 @@ function rewrapLongLines(text: string, maxLineLen = 76): string {
     result.push(remaining);
   }
 
-  return result.join("\n");
+  return result.join(eol);
 }
 
 // ---------------------------------------------------------------------------
