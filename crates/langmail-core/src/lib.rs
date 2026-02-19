@@ -149,8 +149,14 @@ const ZERO_WIDTH_CHARS: &[char] = &[
     '\u{FEFF}', // BOM / Zero Width No-Break Space
 ];
 
+const ZERO_WIDTH_ENTITIES: &[&str] = &["&zwnj;", "&#x200c;", "&#8204;"];
+
 fn strip_zero_width(s: &str) -> String {
-    s.chars()
+    let mut result = s.to_string();
+    for entity in ZERO_WIDTH_ENTITIES {
+        result = result.replace(entity, "");
+    }
+    result.chars()
         .filter(|c| !ZERO_WIDTH_CHARS.contains(c))
         .collect()
 }
