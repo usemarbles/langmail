@@ -6,6 +6,12 @@
  * Scrubs PII from headers, URLs, and body content while preserving
  * structure that matters for parsing (MIME, HTML layout, encoding).
  *
+ * Note: URL anonymization is primarily targeted at LinkedIn emails.
+ * For non-LinkedIn emails, only email addresses and sender/recipient
+ * names (extracted from headers) are anonymized automatically.
+ * Always manually review the output for any remaining PII in free-text
+ * content such as headlines, taglines, or other profile data.
+ *
  * Usage:
  *   npx tsx anonymize-fixture.ts input.eml output.eml
  *   npx tsx anonymize-fixture.ts input.eml   # writes input.anon.eml
@@ -13,6 +19,14 @@
 
 import * as fs from "fs";
 import * as path from "path";
+
+// ---------------------------------------------------------------------------
+// Utilities
+// ---------------------------------------------------------------------------
+
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 // ---------------------------------------------------------------------------
 // Replacement values
@@ -69,7 +83,7 @@ function anonymizeHeaderValue(name: string, value: string): string {
 
   if (lower === "delivered-to" || lower === "to") {
     return value.replace(/[^\s<>@,]+@[^\s<>@,]+/g, REPLACEMENTS.email)
-                .replace(/[^<]*(?=<)/g, `${REPLACEMENTS.fullName} `);
+                .replace(/([^,<]+?)(\s*<)/g, `${REPLACEMENTS.fullName} $2`);
   }
 
   if (lower === "from") {
@@ -182,14 +196,6 @@ function anonymizeLinkedInIds(text: string): string {
 // MIME parser / reconstructor
 // ---------------------------------------------------------------------------
 
-interface MimePart {
-  headers: Array<{ name: string; value: string; raw: string }>;
-  body: string;
-  boundary?: string;
-  parts?: MimePart[];
-  isMultipart: boolean;
-}
-
 function parseHeaders(raw: string): Array<{ name: string; value: string; raw: string }> {
   const headers: Array<{ name: string; value: string; raw: string }> = [];
   // Unfold continuation lines
@@ -206,22 +212,6 @@ function parseHeaders(raw: string): Array<{ name: string; value: string; raw: st
 function getBoundary(contentType: string): string | undefined {
   const m = contentType.match(/boundary="?([^";\r\n]+)"?/i);
   return m ? m[1] : undefined;
-}
-
-function splitOnBoundary(body: string, boundary: string): string[] {
-  const delimiter = `--${boundary}`;
-  const parts: string[] = [];
-  let start = body.indexOf(delimiter);
-  if (start === -1) return [body];
-  while (start !== -1) {
-    const lineEnd = body.indexOf("\n", start);
-    if (lineEnd === -1) break;
-    const next = body.indexOf(`\n${delimiter}`, lineEnd);
-    if (next === -1) break;
-    parts.push(body.slice(lineEnd + 1, next));
-    start = next + 1;
-  }
-  return parts;
 }
 
 function anonymizeBody(
@@ -244,24 +234,9 @@ function anonymizeBody(
     body = anonymizeNames(body, rFirst, rLast);
   }
 
-  // Recipient headline / tagline (the "Tech with Purpose" style string)
-  body = body.replace(
-    /\(Tech with Purpose[^)]*\)/gi,
-    `(${REPLACEMENTS.recipientHeadline})`
-  );
-  body = body.replace(
-    /Tech with Purpose[^|\n<]*/gi,
-    REPLACEMENTS.recipientHeadline
-  );
-
-  // Sender headline
-  body = body.replace(
-    /Bringing Kubernetes to new places/gi,
-    REPLACEMENTS.headline
-  );
-
-  // "1 new message" — keep as-is, it's structural
-  // Copyright footer address — keep (not PII)
+  // NOTE: Free-text content like headlines, taglines, and other profile data
+  // cannot be reliably detected automatically. After running this script,
+  // manually review the output for any remaining PII in body text.
 
   return body;
 }
@@ -326,43 +301,33 @@ function processEmail(raw: string): string {
   let processedBody: string;
 
   if (boundary) {
-    // Multipart: process each part's body individually
-    const parts = splitOnBoundary(bodySection, boundary);
-    const processedParts = parts.map((part) => {
-      const partSep = part.match(/\r?\n\r?\n/);
-      if (!partSep || partSep.index === undefined) return part;
-      const partHeaders = part.slice(0, partSep.index);
-      const partBody = part.slice(partSep.index + partSep[0].length);
-      const partCT = partHeaders.match(/content-type:\s*([^\r\n;]+)/i)?.[1] ?? "";
-      const anonymized = anonymizeBody(partBody, partCT, senderFirst, senderLast, recipientName);
-      return partHeaders + partSep[0] + anonymized;
-    });
+    // Split body into segments separated by boundary delimiters.
+    // Segments alternate: preamble, delimiter, part, delimiter, part, ..., closing delimiter, epilogue
+    const delimiterPattern = new RegExp(`(^--${escapeRegex(boundary)}(?:--)?[\\t ]*\\r?\\n?)`, "gm");
+    const segments = bodySection.split(delimiterPattern);
 
-    // Reconstruct with original boundary delimiters
-    const lines = bodySection.split(/\r?\n/);
     let result = "";
-    let partIdx = 0;
-    let inPart = false;
-    let currentPart = "";
-
-    for (const line of lines) {
-      if (line.startsWith(`--${boundary}`)) {
-        if (inPart && partIdx < processedParts.length) {
-          result += processedParts[partIdx];
-          partIdx++;
-          currentPart = "";
-        }
-        result += line + "\n";
-        inPart = !line.endsWith("--");
-      } else if (inPart) {
-        currentPart += line + "\n";
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i];
+      if (seg.match(delimiterPattern)) {
+        // This is a boundary delimiter line — emit as-is
+        result += seg;
+      } else if (i === 0) {
+        // Preamble (before first boundary) — anonymize it too
+        result += anonymizeBody(seg, "", senderFirst, senderLast, recipientName);
       } else {
-        result += line + "\n";
+        // MIME part content — split into part headers + body
+        const partSep = seg.match(/\r?\n\r?\n/);
+        if (!partSep || partSep.index === undefined) {
+          result += seg;
+          continue;
+        }
+        const partHeaders = seg.slice(0, partSep.index);
+        const partBody = seg.slice(partSep.index + partSep[0].length);
+        const partCT = partHeaders.match(/content-type:\s*([^\r\n;]+)/i)?.[1] ?? "";
+        const anonymized = anonymizeBody(partBody, partCT, senderFirst, senderLast, recipientName);
+        result += partHeaders + partSep[0] + anonymized;
       }
-    }
-    // flush last part if needed
-    if (inPart && partIdx < processedParts.length) {
-      result += processedParts[partIdx];
     }
 
     processedBody = result;
@@ -371,14 +336,6 @@ function processEmail(raw: string): string {
   }
 
   return outputHeaders.join("\n") + "\n\n" + processedBody;
-}
-
-// ---------------------------------------------------------------------------
-// Utilities
-// ---------------------------------------------------------------------------
-
-function escapeRegex(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 // ---------------------------------------------------------------------------
@@ -393,6 +350,11 @@ if (!inputPath) {
 }
 
 const resolvedInput = path.resolve(inputPath);
+if (!fs.existsSync(resolvedInput)) {
+  console.error(`Error: file not found: ${resolvedInput}`);
+  process.exit(1);
+}
+
 const resolvedOutput = outputPath
   ? path.resolve(outputPath)
   : resolvedInput.replace(/(\.[^.]+)?$/, ".anon$1");
