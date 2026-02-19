@@ -59,6 +59,7 @@ pub fn preprocess(raw: &[u8]) -> Result<ProcessedEmail, LangmailError> {
 
     // Extract body: prefer plain text, fall back to HTML with conversion
     let raw_body = extract_body(&message);
+    let raw_body = strip_zero_width(&raw_body);
 
     // Strip quoted replies
     let body_without_quotes = quotes::strip_quotes(&raw_body);
@@ -94,7 +95,7 @@ pub fn preprocess_with_options(
         let message = MessageParser::default()
             .parse(raw)
             .ok_or(LangmailError::ParseFailed)?;
-        let raw_body = extract_body(&message);
+        let raw_body = strip_zero_width(&extract_body(&message));
         let (clean_body, sig) = if options.strip_signature {
             signature::extract_signature(&raw_body)
         } else {
@@ -108,7 +109,7 @@ pub fn preprocess_with_options(
         let message = MessageParser::default()
             .parse(raw)
             .ok_or(LangmailError::ParseFailed)?;
-        let raw_body = extract_body(&message);
+        let raw_body = strip_zero_width(&extract_body(&message));
         let body_without_quotes = quotes::strip_quotes(&raw_body);
         output.body = body_without_quotes.trim().to_string();
         output.signature = None;
@@ -139,6 +140,19 @@ fn extract_body(message: &mail_parser::Message) -> String {
     }
 
     String::new()
+}
+
+const ZERO_WIDTH_CHARS: &[char] = &[
+    '\u{200C}', // ZWNJ
+    '\u{200B}', // Zero Width Space
+    '\u{200D}', // Zero Width Joiner
+    '\u{FEFF}', // BOM / Zero Width No-Break Space
+];
+
+fn strip_zero_width(s: &str) -> String {
+    s.chars()
+        .filter(|c| !ZERO_WIDTH_CHARS.contains(c))
+        .collect()
 }
 
 fn extract_addresses(address_opt: Option<&mail_parser::Address>) -> Vec<Address> {
@@ -231,5 +245,32 @@ mod tests {
     fn test_clean_body_shorter_than_raw() {
         let output = preprocess(&reply_email()).unwrap();
         assert!(output.clean_body_length < output.raw_body_length);
+    }
+
+    #[test]
+    fn test_strip_zero_width_removes_all_types() {
+        let input = "he\u{200B}ll\u{200C}o \u{200D}wo\u{FEFF}rld";
+        assert_eq!(strip_zero_width(input), "hello world");
+    }
+
+    #[test]
+    fn test_strip_zero_width_normal_text_unchanged() {
+        let input = "Hello, world! 🎉 Ümlauts and ñ are fine.";
+        assert_eq!(strip_zero_width(input), input);
+    }
+
+    #[test]
+    fn test_email_with_zero_width_chars_cleaned() {
+        let raw = concat!(
+            "From: Alice <alice@example.com>\r\n",
+            "To: Bob <bob@example.com>\r\n",
+            "Subject: Test\r\n",
+            "Content-Type: text/plain; charset=utf-8\r\n",
+            "\r\n",
+            "Hello\u{200B} world\u{FEFF}!\r\n",
+        )
+        .as_bytes();
+        let output = preprocess(raw).unwrap();
+        assert_eq!(output.body, "Hello world!");
     }
 }
