@@ -38,8 +38,70 @@ function undoQPSoftBreaks(text: string): string {
   return text.replace(/=\r?\n/g, "");
 }
 
-/** Re-wrap long lines with QP soft line breaks (=\n) at 76 chars. */
-function rewrapQP(text: string, maxLineLen = 76): string {
+/**
+ * Build a mapping from unwrapped-text positions to wrapped-text positions.
+ * map[i] = position in wrapped text of the i-th character of the unwrapped text.
+ * A sentinel at map[unwrapped.length] points past the last character.
+ */
+function buildPositionMap(wrappedText: string): number[] {
+  const map: number[] = [];
+  let wi = 0;
+  while (wi < wrappedText.length) {
+    if (
+      wrappedText[wi] === "=" &&
+      wi + 1 < wrappedText.length &&
+      (wrappedText[wi + 1] === "\n" ||
+        (wrappedText[wi + 1] === "\r" && wi + 2 < wrappedText.length && wrappedText[wi + 2] === "\n"))
+    ) {
+      wi += wrappedText[wi + 1] === "\r" ? 3 : 2;
+    } else {
+      map.push(wi);
+      wi++;
+    }
+  }
+  map.push(wi); // sentinel
+  return map;
+}
+
+/**
+ * Run a regex replacement that works across QP soft line breaks.
+ * Matches against the unwrapped text but applies replacements to the wrapped
+ * text, so =\n breaks outside matched regions are preserved exactly.
+ */
+function replaceInQP(text: string, pattern: RegExp, replacement: string): string {
+  const unwrapped = undoQPSoftBreaks(text);
+  const posMap = buildPositionMap(text);
+
+  const re = new RegExp(pattern.source, pattern.flags);
+  const matches: Array<{ wrappedStart: number; wrappedEnd: number; rep: string }> = [];
+
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(unwrapped)) !== null) {
+    const rep = m[0].replace(
+      new RegExp(pattern.source, pattern.flags.replace("g", "")),
+      replacement
+    );
+    matches.push({
+      wrappedStart: posMap[m.index],
+      wrappedEnd: posMap[m.index + m[0].length],
+      rep,
+    });
+    if (!pattern.global) break;
+  }
+
+  if (matches.length === 0) return text;
+
+  // Apply in reverse order so earlier positions remain valid
+  let result = text;
+  for (let i = matches.length - 1; i >= 0; i--) {
+    const { wrappedStart, wrappedEnd, rep } = matches[i];
+    result = result.slice(0, wrappedStart) + rep + result.slice(wrappedEnd);
+  }
+  return result;
+}
+
+/** Re-wrap only lines that exceed the QP limit (76 chars). */
+function rewrapLongLines(text: string, maxLineLen = 76): string {
   const lines = text.split("\n");
   const result: string[] = [];
 
@@ -51,9 +113,8 @@ function rewrapQP(text: string, maxLineLen = 76): string {
 
     let remaining = line;
     while (remaining.length > maxLineLen) {
-      let breakAt = maxLineLen - 1; // leave room for trailing '='
+      let breakAt = maxLineLen - 1;
 
-      // Don't break inside a =XX hex escape sequence
       if (breakAt >= 1 && remaining[breakAt - 1] === "=") {
         breakAt -= 1;
       } else if (
@@ -64,7 +125,7 @@ function rewrapQP(text: string, maxLineLen = 76): string {
         breakAt -= 2;
       }
 
-      if (breakAt <= 0) breakAt = 1; // safety: always make progress
+      if (breakAt <= 0) breakAt = 1;
       result.push(remaining.slice(0, breakAt) + "=");
       remaining = remaining.slice(breakAt);
     }
@@ -171,57 +232,73 @@ function anonymizeHeaderValue(
 // Body transformations
 // ---------------------------------------------------------------------------
 
-function anonymizeUrls(text: string): string {
+/** A text replacer — either plain String.replace or QP-aware replaceInQP. */
+type TextReplacer = (text: string, pattern: RegExp, replacement: string) => string;
+
+function defaultReplace(text: string, pattern: RegExp, replacement: string): string {
+  return text.replace(pattern, replacement);
+}
+
+function anonymizeUrls(text: string, rep: TextReplacer = defaultReplace): string {
   // LinkedIn messaging thread URLs → canonical test URL
-  text = text.replace(
+  text = rep(
+    text,
     /https?:\/\/(?:[\w-]+\.)?linkedin\.com\/comm\/messaging\/thread\/[^\s"'>)]+/g,
     REPLACEMENTS.messageThreadUrl
   );
 
   // LinkedIn tracking pixel (emimp)
-  text = text.replace(
+  text = rep(
+    text,
     /https?:\/\/(?:[\w-]+\.)?linkedin\.com\/emimp\/[^\s"'>)]+/g,
     REPLACEMENTS.trackingPixelUrl
   );
 
   // LinkedIn profile image CDN URLs
-  text = text.replace(
+  text = rep(
+    text,
     /https?:\/\/media\.licdn\.com\/dms\/image\/[^\s"'>)]+/g,
     REPLACEMENTS.profileImageUrl
   );
 
   // LinkedIn static asset URLs (logos etc.) — keep structurally but genericize
-  text = text.replace(
+  text = rep(
+    text,
     /https?:\/\/static\.licdn\.com\/[^\s"'>)]+/g,
     "https://example.com/static/image.png"
   );
 
   // LinkedIn unsubscribe / psettings URLs
-  text = text.replace(
+  text = rep(
+    text,
     /https?:\/\/(?:[\w-]+\.)?linkedin\.com\/comm\/psettings\/[^\s"'>)]+/g,
     REPLACEMENTS.unsubscribeUrl
   );
 
   // LinkedIn help URLs
-  text = text.replace(
+  text = rep(
+    text,
     /https?:\/\/(?:www\.)?linkedin\.com\/help\/[^\s"'>)]+/g,
     REPLACEMENTS.helpUrl
   );
 
   // LinkedIn profile URLs  (in/username pattern)
-  text = text.replace(
+  text = rep(
+    text,
     /https?:\/\/(?:[\w-]+\.)?linkedin\.com\/comm\/in\/[^\s"'>)]+/g,
     "https://www.linkedin.com/in/test-user"
   );
 
   // LinkedIn feed / generic comm URLs
-  text = text.replace(
+  text = rep(
+    text,
     /https?:\/\/(?:[\w-]+\.)?linkedin\.com\/comm\/[^\s"'>)]+/g,
     REPLACEMENTS.genericUrl
   );
 
   // Any remaining linkedin.com URLs
-  text = text.replace(
+  text = rep(
+    text,
     /https?:\/\/(?:[\w-]+\.)?linkedin\.com\/[^\s"'>)]+/g,
     REPLACEMENTS.genericUrl
   );
@@ -229,35 +306,36 @@ function anonymizeUrls(text: string): string {
   return text;
 }
 
-function anonymizeNames(text: string, realFirst: string, realLast: string): string {
+function anonymizeNames(text: string, realFirst: string, realLast: string, rep: TextReplacer = defaultReplace): string {
   const fullName = `${realFirst} ${realLast}`.trim();
   if (fullName) {
-    text = text.replace(new RegExp(escapeRegex(fullName), "gi"), REPLACEMENTS.fullName);
+    text = rep(text, new RegExp(escapeRegex(fullName), "gi"), REPLACEMENTS.fullName);
   }
   if (realFirst) {
-    text = text.replace(new RegExp(withUnicodeBounds(escapeRegex(realFirst)), "giu"), REPLACEMENTS.firstName);
+    text = rep(text, new RegExp(withUnicodeBounds(escapeRegex(realFirst)), "giu"), REPLACEMENTS.firstName);
   }
   if (realLast) {
-    text = text.replace(new RegExp(withUnicodeBounds(escapeRegex(realLast)), "giu"), REPLACEMENTS.lastName);
+    text = rep(text, new RegExp(withUnicodeBounds(escapeRegex(realLast)), "giu"), REPLACEMENTS.lastName);
   }
   return text;
 }
 
-function anonymizeEmails(text: string): string {
-  return text.replace(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g, REPLACEMENTS.email);
+function anonymizeEmails(text: string, rep: TextReplacer = defaultReplace): string {
+  return rep(text, /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g, REPLACEMENTS.email);
 }
 
-function anonymizeLinkedInIds(text: string): string {
+function anonymizeLinkedInIds(text: string, rep: TextReplacer = defaultReplace): string {
   // midToken, midSig, otpToken, eid, loid query params
   // Handle both plain & and HTML &amp; as separators, and =3D (QP-encoded =)
-  text = text.replace(
+  text = rep(
+    text,
     /([?&]|&amp;)(midToken|midSig|otpToken|eid|loid)(=3D|=)([^&\s"'>)]+)/g,
     "$1$2$3REDACTED"
   );
   // lipi URN values
-  text = text.replace(/lipi(=3D|=)[^&\s"'>)]+/g, "lipi$1REDACTED");
+  text = rep(text, /lipi(=3D|=)[^&\s"'>)]+/g, "lipi$1REDACTED");
   // trk / trkEmail params
-  text = text.replace(/(?:trkEmail|trk)(=3D|=)[^&\s"'>)]+/g, "trk$1REDACTED");
+  text = rep(text, /(?:trkEmail|trk)(=3D|=)[^&\s"'>)]+/g, "trk$1REDACTED");
   return text;
 }
 
@@ -288,24 +366,28 @@ function anonymizeBody(
   contentType: string,
   senderFirst: string,
   senderLast: string,
-  recipientName: string
+  recipientName: string,
+  isQP = false
 ): string {
+  const rep: TextReplacer = isQP ? replaceInQP : defaultReplace;
+
   let body = rawBody;
-  body = anonymizeUrls(body);
-  body = anonymizeEmails(body);
-  body = anonymizeLinkedInIds(body);
-  body = anonymizeNames(body, senderFirst, senderLast);
+  body = anonymizeUrls(body, rep);
+  body = anonymizeEmails(body, rep);
+  body = anonymizeLinkedInIds(body, rep);
+  body = anonymizeNames(body, senderFirst, senderLast, rep);
 
   // Recipient name scrub
   if (recipientName) {
     const [rFirst, ...rRest] = recipientName.split(" ");
     const rLast = rRest.join(" ");
-    body = anonymizeNames(body, rFirst, rLast);
+    body = anonymizeNames(body, rFirst, rLast, rep);
   }
 
-  // NOTE: Free-text content like headlines, taglines, and other profile data
-  // cannot be reliably detected automatically. After running this script,
-  // manually review the output for any remaining PII in body text.
+  // Safety: re-wrap any lines that ended up > 76 chars after replacement
+  if (isQP) {
+    body = rewrapLongLines(body);
+  }
 
   return body;
 }
@@ -401,10 +483,8 @@ function processEmail(raw: string): string {
         const partBody = seg.slice(partSep.index + partSep[0].length);
         const partCT = partHeaders.match(/content-type:\s*([^\r\n;]+)/i)?.[1] ?? "";
         const isQP = /content-transfer-encoding:\s*quoted-printable/i.test(partHeaders);
-        const bodyToProcess = isQP ? undoQPSoftBreaks(partBody) : partBody;
-        const anonymized = anonymizeBody(bodyToProcess, partCT, senderFirst, senderLast, recipientName);
-        const finalBody = isQP ? rewrapQP(anonymized) : anonymized;
-        result += partHeaders + partSep[0] + finalBody;
+        const anonymized = anonymizeBody(partBody, partCT, senderFirst, senderLast, recipientName, isQP);
+        result += partHeaders + partSep[0] + anonymized;
       }
     }
 
