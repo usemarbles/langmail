@@ -28,9 +28,50 @@ function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+/** Build a regex pattern with Unicode-aware word boundaries (unlike \b, works with accented chars). */
+function withUnicodeBounds(pattern: string): string {
+  return `(?<![\\p{L}\\p{N}])${pattern}(?![\\p{L}\\p{N}])`;
+}
+
 /** Remove quoted-printable soft line breaks so regexes can match full URLs. */
 function undoQPSoftBreaks(text: string): string {
   return text.replace(/=\r?\n/g, "");
+}
+
+/** Re-wrap long lines with QP soft line breaks (=\n) at 76 chars. */
+function rewrapQP(text: string, maxLineLen = 76): string {
+  const lines = text.split("\n");
+  const result: string[] = [];
+
+  for (const line of lines) {
+    if (line.length <= maxLineLen) {
+      result.push(line);
+      continue;
+    }
+
+    let remaining = line;
+    while (remaining.length > maxLineLen) {
+      let breakAt = maxLineLen - 1; // leave room for trailing '='
+
+      // Don't break inside a =XX hex escape sequence
+      if (breakAt >= 1 && remaining[breakAt - 1] === "=") {
+        breakAt -= 1;
+      } else if (
+        breakAt >= 2 &&
+        remaining[breakAt - 2] === "=" &&
+        /[0-9A-Fa-f]/.test(remaining[breakAt - 1])
+      ) {
+        breakAt -= 2;
+      }
+
+      if (breakAt <= 0) breakAt = 1; // safety: always make progress
+      result.push(remaining.slice(0, breakAt) + "=");
+      remaining = remaining.slice(breakAt);
+    }
+    result.push(remaining);
+  }
+
+  return result.join("\n");
 }
 
 // ---------------------------------------------------------------------------
@@ -102,7 +143,7 @@ function anonymizeHeaderValue(
     if (senderFirst && senderLast) {
       v = v.replace(new RegExp(escapeRegex(`${senderFirst} ${senderLast}`), "gi"), REPLACEMENTS.fullName);
     } else if (senderFirst) {
-      v = v.replace(new RegExp(`\\b${escapeRegex(senderFirst)}\\b`, "g"), REPLACEMENTS.firstName);
+      v = v.replace(new RegExp(withUnicodeBounds(escapeRegex(senderFirst)), "giu"), REPLACEMENTS.firstName);
     }
     return v;
   }
@@ -110,7 +151,7 @@ function anonymizeHeaderValue(
   if (lower === "subject") {
     let v = value;
     if (senderFirst) {
-      v = v.replace(new RegExp(`\\b${escapeRegex(senderFirst)}\\b`, "g"), REPLACEMENTS.firstName);
+      v = v.replace(new RegExp(withUnicodeBounds(escapeRegex(senderFirst)), "giu"), REPLACEMENTS.firstName);
     }
     return v;
   }
@@ -194,10 +235,10 @@ function anonymizeNames(text: string, realFirst: string, realLast: string): stri
     text = text.replace(new RegExp(escapeRegex(fullName), "gi"), REPLACEMENTS.fullName);
   }
   if (realFirst) {
-    text = text.replace(new RegExp(`\\b${escapeRegex(realFirst)}\\b`, "g"), REPLACEMENTS.firstName);
+    text = text.replace(new RegExp(withUnicodeBounds(escapeRegex(realFirst)), "giu"), REPLACEMENTS.firstName);
   }
   if (realLast) {
-    text = text.replace(new RegExp(`\\b${escapeRegex(realLast)}\\b`, "g"), REPLACEMENTS.lastName);
+    text = text.replace(new RegExp(withUnicodeBounds(escapeRegex(realLast)), "giu"), REPLACEMENTS.lastName);
   }
   return text;
 }
@@ -362,7 +403,8 @@ function processEmail(raw: string): string {
         const isQP = /content-transfer-encoding:\s*quoted-printable/i.test(partHeaders);
         const bodyToProcess = isQP ? undoQPSoftBreaks(partBody) : partBody;
         const anonymized = anonymizeBody(bodyToProcess, partCT, senderFirst, senderLast, recipientName);
-        result += partHeaders + partSep[0] + anonymized;
+        const finalBody = isQP ? rewrapQP(anonymized) : anonymized;
+        result += partHeaders + partSep[0] + finalBody;
       }
     }
 
