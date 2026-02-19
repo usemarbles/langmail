@@ -1,0 +1,37 @@
+Delivered-To: test@example.com
+MIME-Version: 1.0
+From: Max Mustermann <noreply@example.com>
+Date: Sat, 8 Nov 2025 14:04:26 +0100
+Message-ID: <test-message-id@example.com>
+Subject: Feedbacks
+To: test@example.com
+Content-Type: multipart/mixed; boundary="000000000000bd77ee064314f020"
+
+--000000000000bd77ee064314f020
+Content-Type: multipart/alternative; boundary="000000000000bd77ec064314f01e"
+
+--000000000000bd77ec064314f01e
+Content-Type: text/plain; charset="UTF-8"
+
+Hi Max,
+
+anbei mein erstes Feedback.
+
+Keep up the work!
+
+Max
+
+P.S. Ich hatte dir eine Nachricht via Marbles geschickt, diese taucht in
+Gmail allerdings nicht unter "gesendet" auf.
+
+--000000000000bd77ec064314f01e
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hi Max,<div><br></div><div>anbei mein erstes Feedback.=
+<br><br>Keep up the work!<br><br>Max</div><div><br></div><div>P.S. Ich ha=
+tte dir eine Nachricht via Marbles geschickt, diese taucht in Gmail allerdi=
+ngs nicht unter &quot;gesendet&quot; auf.</div></div>
+
+--000000000000bd77ec064314f01e--
+--000000000000bd77ee064314f020--
