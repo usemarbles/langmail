@@ -67,7 +67,7 @@ pub fn preprocess(raw: &[u8]) -> Result<ProcessedEmail, LangmailError> {
     // Strip signature
     let (clean_body, signature) = signature::extract_signature(&body_without_quotes);
 
-    let body = collapse_empty_lines(clean_body.trim());
+    let body = collapse_empty_lines(&trim_whitespace_lines(clean_body.trim()));
 
     Ok(ProcessedEmail {
         clean_body_length: body.len(),
@@ -103,7 +103,7 @@ pub fn preprocess_with_options(
         } else {
             (raw_body.clone(), None)
         };
-        output.body = collapse_empty_lines(clean_body.trim());
+        output.body = collapse_empty_lines(&trim_whitespace_lines(clean_body.trim()));
         output.signature = sig;
         output.clean_body_length = output.body.len();
     } else if !options.strip_signature {
@@ -113,7 +113,7 @@ pub fn preprocess_with_options(
             .ok_or(LangmailError::ParseFailed)?;
         let raw_body = clean_invisible_characters(&extract_body(&message));
         let body_without_quotes = quotes::strip_quotes(&raw_body);
-        output.body = collapse_empty_lines(body_without_quotes.trim());
+        output.body = collapse_empty_lines(&trim_whitespace_lines(body_without_quotes.trim()));
         output.signature = None;
         output.clean_body_length = output.body.len();
     }
@@ -170,6 +170,14 @@ fn clean_invisible_characters(s: &str) -> String {
         .map(|c| if c == '\u{00A0}' { ' ' } else { c })
         .filter(|c| !INVISIBLE_CHARS.contains(c))
         .collect()
+}
+
+/// Trims lines that contain only whitespace to empty lines.
+fn trim_whitespace_lines(s: &str) -> String {
+    s.lines()
+        .map(|line| if line.trim().is_empty() { "" } else { line })
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 /// Collapses 3+ consecutive newlines to maximum 2 newlines.
@@ -305,6 +313,14 @@ mod tests {
     fn test_clean_invisible_normal_text_unchanged() {
         let input = "Hello, world! 🎉 Ümlauts and ñ are fine.";
         assert_eq!(clean_invisible_characters(input), input);
+    }
+
+    #[test]
+    fn test_trim_whitespace_lines() {
+        assert_eq!(trim_whitespace_lines("a\n   \nb"), "a\n\nb");
+        assert_eq!(trim_whitespace_lines("a\n \t \nb"), "a\n\nb");
+        assert_eq!(trim_whitespace_lines("a\n\nb"), "a\n\nb");
+        assert_eq!(trim_whitespace_lines("hello\nworld"), "hello\nworld");
     }
 
     #[test]
