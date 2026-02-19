@@ -356,4 +356,3 @@ mod tests {
         assert_eq!(output.body, "Hello world!");
     }
 }
-
