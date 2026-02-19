@@ -73,3 +73,5 @@ export declare function preprocessWithOptions(raw: Buffer, options: PreprocessOp
  * @returns Preprocessed email output
  */
 export declare function preprocessString(raw: string): ProcessedEmail
+/** @deprecated Use `ProcessedEmail` instead. */
+export type EmailOutput = ProcessedEmail
