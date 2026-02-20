@@ -62,14 +62,14 @@ jobs:
       - name: Build native module
         if: ${{ !matrix.docker && !matrix.use-cross }}
         working-directory: packages/langmail
-        run: npx napi build --platform --release --target ${{ matrix.target }} --js false --dts false ../../crates/langmail-node
+        run: npx napi build --platform --release --target ${{ matrix.target }} --js false --dts false --cargo-cwd ../../crates/langmail-node .
 
       - name: Build native module (cross)
         if: ${{ matrix.use-cross && !matrix.docker }}
         working-directory: packages/langmail
         env:
           CARGO: cross
-        run: npx napi build --platform --release --target ${{ matrix.target }} --js false --dts false ../../crates/langmail-node
+        run: npx napi build --platform --release --target ${{ matrix.target }} --js false --dts false --cargo-cwd ../../crates/langmail-node .
 
       - name: Build native module (musl Docker)
         uses: addnab/docker-run-action@v3
@@ -88,7 +88,7 @@ jobs:
             rustup target add aarch64-unknown-linux-musl
             cd packages/langmail
             npm ci
-            npx napi build --platform --release --target aarch64-unknown-linux-musl --js false --dts false ../../crates/langmail-node
+            npx napi build --platform --release --target aarch64-unknown-linux-musl --js false --dts false --cargo-cwd ../../crates/langmail-node .
 
       - uses: actions/upload-artifact@v4
         with:
