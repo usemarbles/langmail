@@ -26,30 +26,76 @@ jobs:
           - target: aarch64-unknown-linux-gnu
             os: ubuntu-latest
             use-cross: true
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-latest
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
 
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
+
       - uses: actions/setup-node@v4
+        if: ${{ !matrix.docker }}
         with:
           node-version: "20"
 
+      - uses: dtolnay/rust-toolchain@stable
+        if: ${{ !matrix.docker }}
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: taiki-e/install-action@v2
+        if: ${{ matrix.use-cross && !matrix.docker }}
+        with:
+          tool: cross
+
+      - uses: Swatinem/rust-cache@v2
+        if: ${{ !matrix.docker }}
+        with:
+          key: ${{ matrix.target }}
+
       - name: Install dependencies
+        if: ${{ !matrix.docker }}
         working-directory: packages/langmail
-        run: npm install
+        run: npm ci
 
       - name: Build native module
+        if: ${{ !matrix.docker && !matrix.use-cross }}
         working-directory: packages/langmail
-        run: npx napi build --platform --release --target ${{ matrix.target }} --js index.js --dts index.d.ts ../../crates/langmail-node
+        run: npx napi build --platform --release --target ${{ matrix.target }} --js false --dts false ../../crates/langmail-node
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Build native module (cross)
+        if: ${{ matrix.use-cross && !matrix.docker }}
+        working-directory: packages/langmail
+        env:
+          CARGO: cross
+        run: npx napi build --platform --release --target ${{ matrix.target }} --js false --dts false ../../crates/langmail-node
+
+      - name: Build native module (musl Docker)
+        uses: addnab/docker-run-action@v3
+        if: ${{ matrix.docker }}
+        with:
+          image: ${{ matrix.docker }}
+          options: >-
+            --user 0:0
+            -v ${{ github.workspace }}/.cargo-cache/git/db:/usr/local/cargo/git/db
+            -v ${{ github.workspace }}/.cargo/registry/cache:/usr/local/cargo/registry/cache
+            -v ${{ github.workspace }}/.cargo/registry/index:/usr/local/cargo/registry/index
+            -v ${{ github.workspace }}:/build
+            -w /build
+          run: |
+            set -e
+            rustup target add aarch64-unknown-linux-musl
+            cd packages/langmail
+            npm ci
+            npx napi build --platform --release --target aarch64-unknown-linux-musl --js false --dts false ../../crates/langmail-node
+
+      - uses: actions/upload-artifact@v4
         with:
           name: bindings-${{ matrix.target }}
-          path: packages/langmail/*.node
+          path: packages/langmail/langmail.*.node
+          if-no-files-found: error
+          retention-days: 1
 
   publish:
     name: Publish to npm
@@ -57,28 +103,41 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
           registry-url: "https://registry.npmjs.org"
 
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: packages/langmail/artifacts
-
-      - name: Move binaries
-        working-directory: packages/langmail
-        run: |
-          ls -R artifacts/
-          cp artifacts/**/*.node .
-
       - name: Install dependencies
         working-directory: packages/langmail
-        run: npm install
+        run: npm ci
 
-      - name: Publish
+      - uses: actions/download-artifact@v4
+        with:
+          path: packages/langmail/artifacts
+          pattern: bindings-*
+          merge-multiple: false
+
+      - name: Generate platform npm package directories
         working-directory: packages/langmail
-        run: npm publish
+        run: npx napi create-npm-dir -t .
+
+      - name: Distribute binaries to platform directories
+        working-directory: packages/langmail
+        run: npx napi artifacts --dir artifacts --dist npm
+
+      - name: Publish platform packages
+        working-directory: packages/langmail
+        run: |
+          for dir in npm/*/; do
+            npm publish "$dir" --access public
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish main package
+        working-directory: packages/langmail
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
