@@ -8,8 +8,11 @@ use regex::Regex;
 /// - Outlook: "-----Original Message-----" or "From: ... Sent: ..."
 /// - Apple Mail: "On <date>, at <time>, <name> wrote:"
 /// - Generic: "> " prefixed lines
-/// - Thunderbird: "-------- Forwarded Message --------"
 /// - Various localized patterns (German, French, Spanish)
+///
+/// Forwarded messages are intentionally NOT matched here. Unlike quoted
+/// replies (which repeat already-seen content), a forwarded message carries
+/// new information and must be preserved for LLM consumption.
 static QUOTE_HEADERS: Lazy<Vec<Regex>> = Lazy::new(|| {
     [
         // Gmail / generic: "On <date>, <name> wrote:"
@@ -20,8 +23,6 @@ static QUOTE_HEADERS: Lazy<Vec<Regex>> = Lazy::new(|| {
         r"(?m)^From:\s+.+\nSent:\s+",
         // Apple Mail: "On <date>, at <time>,"
         r"(?m)^On .{10,80}, at .{4,20}, .{1,60} wrote:\s*$",
-        // Forwarded message
-        r"(?mi)^-{2,}\s*Forwarded Message\s*-{2,}\s*$",
         // German: "Am <date> schrieb <name>:"
         r"(?m)^Am .{10,80} schrieb .{1,60}:\s*$",
         // French: "Le <date>, <name> a écrit :"
@@ -114,11 +115,15 @@ mod tests {
     }
 
     #[test]
-    fn test_forwarded_message() {
+    fn test_forwarded_message_preserved() {
+        // Forwarded messages are NOT stripped — they carry new information.
         let body = "FYI, see below.\n\n-------- Forwarded Message --------\nFrom: Alice\nSubject: Hello\n\nForwarded content\n";
         let result = strip_quotes(body);
-        assert!(result.contains("FYI"));
-        assert!(!result.contains("Forwarded content"));
+        assert!(result.contains("FYI"), "intro should be present");
+        assert!(
+            result.contains("Forwarded content"),
+            "forwarded body should not be stripped"
+        );
     }
 
     #[test]
