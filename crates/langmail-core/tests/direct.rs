@@ -10,7 +10,7 @@ fn test_to_llm_context_contains_headers() {
     assert!(ctx.contains("FROM: Max Mustermann <noreply@example.com>"));
     assert!(ctx.contains("TO: test@example.com"));
     assert!(ctx.contains("SUBJECT: Feedbacks"));
-    assert!(ctx.contains("DATE: 2025-11-08T14:04:26Z"));
+    assert!(ctx.contains("DATE: 2025-11-08T13:04:26Z"));
 }
 
 #[test]

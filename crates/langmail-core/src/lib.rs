@@ -45,13 +45,7 @@ pub fn preprocess_with_options(
     let to = extract_addresses(message.to());
     let cc = extract_addresses(message.cc());
 
-    let date = message.date().map(|d| {
-        // mail-parser DateTime -> ISO 8601 string
-        format!(
-            "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}Z",
-            d.year, d.month, d.day, d.hour, d.minute, d.second
-        )
-    });
+    let date = message.date().map(|d| datetime_to_utc_iso8601(d));
 
     let message_id = message.message_id().map(|id| id.to_string());
 
@@ -195,6 +189,36 @@ fn collapse_empty_lines(s: &str) -> String {
         }
     }
     result
+}
+
+/// Converts a mail-parser `DateTime` to a UTC ISO 8601 string using its Unix timestamp.
+fn datetime_to_utc_iso8601(d: &mail_parser::DateTime) -> String {
+    let ts = d.to_timestamp();
+    // Decompose Unix timestamp into calendar fields (no external crate needed)
+    let secs_per_day = 86400i64;
+    let mut days = ts / secs_per_day;
+    let mut time = ts % secs_per_day;
+    if time < 0 {
+        days -= 1;
+        time += secs_per_day;
+    }
+    let hour = time / 3600;
+    let minute = (time % 3600) / 60;
+    let second = time % 60;
+
+    // Civil date from days since Unix epoch (algorithm from http://howardhinnant.github.io/date_algorithms.html)
+    let z = days + 719468;
+    let era = (if z >= 0 { z } else { z - 146096 }) / 146097;
+    let doe = z - era * 146097;
+    let yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
+    let y = yoe + era * 400;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let day = doy - (153 * mp + 2) / 5 + 1;
+    let month = if mp < 10 { mp + 3 } else { mp - 9 };
+    let year = if month <= 2 { y + 1 } else { y };
+
+    format!("{year:04}-{month:02}-{day:02}T{hour:02}:{minute:02}:{second:02}Z")
 }
 
 fn extract_addresses(address_opt: Option<&mail_parser::Address>) -> Vec<Address> {

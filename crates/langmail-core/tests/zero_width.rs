@@ -61,3 +61,15 @@ fn test_no_excessive_empty_lines() {
         output.body
     );
 }
+
+#[test]
+fn test_date_converted_to_utc() {
+    // Email Date header: Tue, 02 Dec 2025 08:53:35 -0600
+    // UTC equivalent:    2025-12-02T14:53:35Z  (+6h for -0600 offset)
+    let output = preprocess(ZERO_WIDTH_EML).unwrap();
+    assert_eq!(
+        output.date.as_deref(),
+        Some("2025-12-02T14:53:35Z"),
+        "date should be converted from local timezone to UTC"
+    );
+}
