@@ -1,58 +1,58 @@
 {
-  "name": "langmail",
-  "version": "0.2.0",
-  "description": "Email preprocessing for LLMs — fast, typed, Rust-powered",
-  "main": "index.js",
-  "types": "index.d.ts",
-  "files": [
-    "index.js",
-    "index.d.ts",
-    "*.node"
-  ],
-  "napi": {
-    "name": "langmail",
-    "triples": {
-      "defaults": true,
-      "additional": [
-        "aarch64-apple-darwin",
-        "aarch64-unknown-linux-gnu"
-      ]
-    }
-  },
-  "keywords": [
-    "email",
-    "llm",
-    "preprocessing",
-    "ai",
-    "langchain",
-    "mime",
-    "parsing",
-    "nlp",
-    "rust",
-    "napi"
-  ],
-  "license": "MIT OR Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nicely-done/langmail.git"
-  },
-  "engines": {
-    "node": ">= 18"
-  },
-  "scripts": {
-    "build": "napi build --platform --release --js index.js --dts index.d.ts --cargo-cwd ../../crates/langmail-node .",
-    "build:debug": "napi build --platform --js index.js --dts index.d.ts --cargo-cwd ../../crates/langmail-node .",
-    "prepublishOnly": "napi version",
-    "test": "node --test"
-  },
-  "devDependencies": {
-    "@napi-rs/cli": "^2.18.0"
-  },
-  "optionalDependencies": {
-    "langmail-win32-x64-msvc": "0.2.0",
-    "langmail-darwin-x64": "0.2.0",
-    "langmail-linux-x64-gnu": "0.2.0",
-    "langmail-darwin-arm64": "0.2.0",
-    "langmail-linux-arm64-gnu": "0.2.0"
-  }
+	"name": "langmail",
+	"version": "0.2.0",
+	"description": "Email preprocessing for LLMs — fast, typed, Rust-powered",
+	"main": "index.js",
+	"types": "index.d.ts",
+	"files": [
+		"index.js",
+		"index.d.ts",
+		"*.node"
+	],
+	"napi": {
+		"name": "langmail",
+		"triples": {
+			"defaults": true,
+			"additional": [
+				"aarch64-apple-darwin",
+				"aarch64-unknown-linux-gnu"
+			]
+		}
+	},
+	"keywords": [
+		"email",
+		"llm",
+		"preprocessing",
+		"ai",
+		"langchain",
+		"mime",
+		"parsing",
+		"nlp",
+		"rust",
+		"napi"
+	],
+	"license": "MIT OR Apache-2.0",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/usemarbles/langmail.git"
+	},
+	"engines": {
+		"node": ">= 18"
+	},
+	"scripts": {
+		"build": "napi build --platform --release --js index.js --dts index.d.ts --cargo-cwd ../../crates/langmail-node .",
+		"build:debug": "napi build --platform --js index.js --dts index.d.ts --cargo-cwd ../../crates/langmail-node .",
+		"prepublishOnly": "napi version",
+		"test": "node --test"
+	},
+	"devDependencies": {
+		"@napi-rs/cli": "^2.18.0"
+	},
+	"optionalDependencies": {
+		"langmail-win32-x64-msvc": "0.2.0",
+		"langmail-darwin-x64": "0.2.0",
+		"langmail-linux-x64-gnu": "0.2.0",
+		"langmail-darwin-arm64": "0.2.0",
+		"langmail-linux-arm64-gnu": "0.2.0"
+	}
 }

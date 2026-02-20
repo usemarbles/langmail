@@ -9,7 +9,7 @@ members = [
 version = "0.2.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/nicely-done/langmail"
+repository = "https://github.com/usemarbles/langmail"
 description = "Email preprocessing for LLMs"
 
 [workspace.dependencies]
