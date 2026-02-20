@@ -45,7 +45,7 @@ pub fn preprocess_with_options(
     let to = extract_addresses(message.to());
     let cc = extract_addresses(message.cc());
 
-    let date = message.date().map(|d| datetime_to_utc_iso8601(d));
+    let date = message.date().map(datetime_to_utc_iso8601);
 
     let message_id = message.message_id().map(|id| id.to_string());
 
