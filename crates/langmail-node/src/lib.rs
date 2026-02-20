@@ -109,9 +109,57 @@ pub fn preprocess_string(raw: String) -> Result<ProcessedEmail> {
     preprocess(Buffer::from(raw.as_bytes().to_vec()))
 }
 
+/// Format a preprocessed email as an LLM-ready context string.
+///
+/// Takes a `ProcessedEmail` (as returned by `preprocess`) and returns a
+/// deterministic plain-text representation with header lines followed by a
+/// CONTENT section, suitable for pasting into an LLM prompt.
+///
+/// @param email - A ProcessedEmail object
+/// @returns Formatted context string
+#[napi]
+pub fn to_llm_context(email: ProcessedEmail) -> String {
+    let core_email = to_core_email(email);
+    core_email.to_llm_context()
+}
+
 // ---------------------------------------------------------------------------
 // Internal conversion
 // ---------------------------------------------------------------------------
+
+fn to_core_email(email: ProcessedEmail) -> langmail_core::ProcessedEmail {
+    langmail_core::ProcessedEmail {
+        body: email.body,
+        subject: email.subject,
+        from: email.from.map(|a| langmail_core::Address {
+            name: a.name,
+            email: a.email,
+        }),
+        to: email
+            .to
+            .into_iter()
+            .map(|a| langmail_core::Address {
+                name: a.name,
+                email: a.email,
+            })
+            .collect(),
+        cc: email
+            .cc
+            .into_iter()
+            .map(|a| langmail_core::Address {
+                name: a.name,
+                email: a.email,
+            })
+            .collect(),
+        date: email.date,
+        message_id: email.message_id,
+        in_reply_to: email.in_reply_to,
+        references: email.references,
+        signature: email.signature,
+        raw_body_length: email.raw_body_length as usize,
+        clean_body_length: email.clean_body_length as usize,
+    }
+}
 
 fn to_napi_output(result: langmail_core::ProcessedEmail) -> ProcessedEmail {
     ProcessedEmail {

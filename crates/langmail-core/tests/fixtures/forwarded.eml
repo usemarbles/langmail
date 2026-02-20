@@ -1,0 +1,27 @@
+From: Bob <bob@example.com>
+To: Charlie <charlie@example.com>
+Subject: Fwd: Project update
+Date: Mon, 10 Feb 2026 15:30:00 +0000
+Message-ID: <fwd-001@example.com>
+Content-Type: text/plain; charset=UTF-8
+
+FYI, thought you should see this — Alice has some good news.
+
+-------- Forwarded Message --------
+From: Alice <alice@example.com>
+Date: Mon, 10 Feb 2026 10:00:00 +0000
+Subject: Project update
+To: Bob <bob@example.com>
+
+Hi Bob,
+
+The project is on track for the Q1 deadline. Here are the key updates:
+
+- Feature A is complete
+- Feature B is in review
+- Feature C starts next week
+
+Let me know if you have any questions.
+
+Best,
+Alice

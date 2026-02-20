@@ -55,6 +55,44 @@ pub struct Address {
     pub email: String,
 }
 
+impl fmt::Display for Address {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match &self.name {
+            Some(name) => write!(f, "{} <{}>", name, self.email),
+            None => write!(f, "{}", self.email),
+        }
+    }
+}
+
+impl ProcessedEmail {
+    /// Format the email as a plain-text string suitable for LLM prompts.
+    ///
+    /// Produces a deterministic representation with header lines (FROM, TO,
+    /// SUBJECT, DATE) followed by a CONTENT section.  Missing fields are
+    /// omitted; the CONTENT line is always present.
+    pub fn to_llm_context(&self) -> String {
+        let mut parts: Vec<String> = Vec::new();
+
+        if let Some(from) = &self.from {
+            parts.push(format!("FROM: {}", from));
+        }
+        if !self.to.is_empty() {
+            let to_str: Vec<String> = self.to.iter().map(|a| a.to_string()).collect();
+            parts.push(format!("TO: {}", to_str.join(", ")));
+        }
+        if let Some(subject) = &self.subject {
+            parts.push(format!("SUBJECT: {}", subject));
+        }
+        if let Some(date) = &self.date {
+            parts.push(format!("DATE: {}", date));
+        }
+        parts.push("CONTENT:".to_string());
+        parts.push(self.body.clone());
+
+        parts.join("\n")
+    }
+}
+
 /// Options for customizing preprocessing behavior.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

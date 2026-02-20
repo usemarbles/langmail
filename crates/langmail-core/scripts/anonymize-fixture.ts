@@ -6,9 +6,10 @@
  * Scrubs PII from headers, URLs, and body content while preserving
  * structure that matters for parsing (MIME, HTML layout, encoding).
  *
- * Note: URL anonymization is primarily targeted at LinkedIn emails.
- * For non-LinkedIn emails, only email addresses and sender/recipient
- * names (extracted from headers) are anonymized automatically.
+ * Handles both LinkedIn and generic emails:
+ * - LinkedIn: anonymizes tracking URLs, profile URLs, CDN image URLs, etc.
+ * - Generic: extracts sender name from From header, derives recipient name
+ *   from To header (display name or email local part).
  * Always manually review the output for any remaining PII in free-text
  * content such as headlines, taglines, or other profile data.
  *
@@ -182,6 +183,10 @@ const STRIP_HEADERS = new Set([
   "dkim-signature",
   "x-linkedin-fbl",
   "x-linkedin-id",
+  "x-google-dkim-signature",
+  "x-gm-message-state",
+  "x-gm-gg",
+  "x-gm-features",
   "feedback-id",
   "require-recipient-valid-since",
   "return-path",
@@ -310,8 +315,10 @@ function anonymizeUrls(text: string, rep: TextReplacer = defaultReplace): string
 }
 
 function anonymizeNames(text: string, realFirst: string, realLast: string, rep: TextReplacer = defaultReplace): string {
-  const fullName = `${realFirst} ${realLast}`.trim();
-  if (fullName) {
+  // Only replace as a full name when both parts are present — avoids replacing a
+  // single first name with the two-word "Max Mustermann" placeholder.
+  if (realFirst && realLast) {
+    const fullName = `${realFirst} ${realLast}`;
     text = rep(text, new RegExp(escapeRegex(fullName), "gi"), REPLACEMENTS.fullName);
   }
   if (realFirst) {
@@ -403,18 +410,32 @@ function extractSenderInfo(headers: Array<{ name: string; value: string; raw: st
   firstName: string;
   lastName: string;
 } {
-  // Try From: "First Last via LinkedIn" first — gives full name
   const from = headers.find((h) => h.name.toLowerCase() === "from")?.value ?? "";
-  const fromMatch = from.match(/^([A-Z][a-z]+)\s+([A-Z][a-z]+)\s+via/);
-  if (fromMatch) {
-    return { firstName: fromMatch[1], lastName: fromMatch[2] };
+
+  // Try From: "First Last via LinkedIn" — gives full name with service suffix
+  const viaMatch = from.match(/^([A-Z][a-z]+)\s+([A-Z][a-z]+)\s+via/);
+  if (viaMatch) {
+    return { firstName: viaMatch[1], lastName: viaMatch[2] };
   }
+
   // Fall back to Subject: "Elias just messaged you" — first name only
   const subject = headers.find((h) => h.name.toLowerCase() === "subject")?.value ?? "";
   const subjectMatch = subject.match(/^(\w+)\s+just messaged/i);
   if (subjectMatch) {
     return { firstName: subjectMatch[1], lastName: "" };
   }
+
+  // Generic From: "Display Name <email@example.com>"
+  const displayNameMatch = from.match(/^([^<]+?)\s*</);
+  if (displayNameMatch) {
+    const parts = displayNameMatch[1].trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return { firstName: parts[0], lastName: parts.slice(1).join(" ") };
+    } else if (parts.length === 1 && parts[0]) {
+      return { firstName: parts[0], lastName: "" };
+    }
+  }
+
   return { firstName: "", lastName: "" };
 }
 
@@ -422,8 +443,25 @@ function extractRecipientName(
   headers: Array<{ name: string; value: string; raw: string }>
 ): string {
   const to = headers.find((h) => h.name.toLowerCase() === "to")?.value ?? "";
-  const m = to.match(/^([^<]+)</);
-  return m ? m[1].trim() : "";
+
+  // "Display Name <email>" format
+  const displayMatch = to.match(/^([^<]+)</);
+  if (displayMatch) {
+    const name = displayMatch[1].trim();
+    if (name) return name;
+  }
+
+  // Bare email — derive a name from the local part (e.g. "dominik" → "Dominik")
+  const emailMatch = to.match(/^([a-zA-Z0-9._%+-]+)@/);
+  if (emailMatch) {
+    const parts = emailMatch[1]
+      .split(/[._+-]+/)
+      .filter(Boolean)
+      .map((p) => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase());
+    if (parts.length > 0) return parts.join(" ");
+  }
+
+  return "";
 }
 
 function processEmail(raw: string): string {

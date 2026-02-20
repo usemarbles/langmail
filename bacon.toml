@@ -1,0 +1,6 @@
+[jobs.test]
+command = ["cargo", "test", "--workspace"]
+need_stdout = true
+
+[settings]
+default_job = "test"
