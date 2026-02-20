@@ -141,8 +141,16 @@ pub fn html_to_clean_text(html: &str) -> String {
 
         // Regular character
         if ch == '\n' || ch == '\r' {
-            // Treat newlines as spaces in HTML context
+            // Treat newlines as spaces in HTML context (collapse with adjacent whitespace)
             if !result.ends_with(' ') && !result.ends_with('\n') {
+                result.push(' ');
+            }
+        } else if ch == ' ' || ch == '\t' {
+            // Collapse consecutive spaces and spaces at the start of a line (after \n).
+            // This correctly handles HTML text-node whitespace normalization and
+            // prevents indentation between tags (e.g. "<p>\n  <a>") from leaking
+            // into the output as a leading space.
+            if !result.ends_with('\n') && !result.ends_with(' ') {
                 result.push(' ');
             }
         } else {
@@ -334,5 +342,36 @@ mod tests {
         let html = "<p>first</p><p>second</p>";
         let text = html_to_clean_text(html);
         assert!(text.contains("first\n\nsecond"), "got: {text}");
+    }
+
+    #[test]
+    fn test_no_leading_space_from_indented_inline_child() {
+        // HTML indentation between a block element and its first inline child
+        // must not produce a leading space on the output line.
+        let html = "<p>\n  <a href=\"https://example.com\">Unsubscribe</a>\n</p>";
+        let text = html_to_clean_text(html);
+        assert!(
+            text.contains("Unsubscribe"),
+            "Unsubscribe text missing, got: {text}"
+        );
+        for line in text.lines() {
+            if line.contains("Unsubscribe") {
+                assert!(
+                    !line.starts_with(' '),
+                    "line with Unsubscribe should not have a leading space, got: {line:?}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_inline_spaces_within_paragraph_preserved() {
+        // Spaces between words inside a paragraph must still be preserved.
+        let html = "<p>hello world and more</p>";
+        let text = html_to_clean_text(html);
+        assert!(
+            text.contains("hello world and more"),
+            "word spacing lost, got: {text}"
+        );
     }
 }

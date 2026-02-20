@@ -64,6 +64,19 @@ fn test_unsubscribe_preserved() {
 }
 
 #[test]
+fn test_unsubscribe_no_leading_space() {
+    let body = &output().body;
+    for line in body.lines() {
+        if line.contains("Unsubscribe") {
+            assert_eq!(
+                line, "Unsubscribe",
+                "Unsubscribe line should have no leading/trailing spaces, got: {line:?}"
+            );
+        }
+    }
+}
+
+#[test]
 fn test_no_markdown_artifacts() {
     let body = &output().body;
     assert!(!body.contains("**"), "body contains markdown bold markers");
