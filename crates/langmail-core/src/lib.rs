@@ -20,6 +20,14 @@ use mail_parser::{MessageParser, MimeHeaders};
 /// assert!(output.body.contains("Hi Bob!"));
 /// ```
 pub fn preprocess(raw: &[u8]) -> Result<ProcessedEmail, LangmailError> {
+    preprocess_with_options(raw, &PreprocessOptions::default())
+}
+
+/// Preprocess with custom options.
+pub fn preprocess_with_options(
+    raw: &[u8],
+    options: &PreprocessOptions,
+) -> Result<ProcessedEmail, LangmailError> {
     let message = MessageParser::default()
         .parse(raw)
         .ok_or(LangmailError::ParseFailed)?;
@@ -61,13 +69,34 @@ pub fn preprocess(raw: &[u8]) -> Result<ProcessedEmail, LangmailError> {
     let raw_body = extract_body(&message);
     let raw_body = clean_invisible_characters(&raw_body);
 
-    // Strip quoted replies
-    let body_without_quotes = quotes::strip_quotes(&raw_body);
+    // Conditionally strip quoted replies
+    let body = if options.strip_quotes {
+        quotes::strip_quotes(&raw_body)
+    } else {
+        raw_body.clone()
+    };
 
-    // Strip signature
-    let (clean_body, signature) = signature::extract_signature(&body_without_quotes);
+    // Conditionally strip signature
+    let (clean_body, signature) = if options.strip_signature {
+        signature::extract_signature(&body)
+    } else {
+        (body, None)
+    };
 
-    let body = collapse_empty_lines(&trim_whitespace_lines(clean_body.trim()));
+    let mut body = collapse_empty_lines(&trim_whitespace_lines(clean_body.trim()));
+
+    // Truncate to max_body_length characters (not bytes) on a char boundary
+    if options.max_body_length > 0 {
+        let char_count = body.chars().count();
+        if char_count > options.max_body_length {
+            let byte_end = body
+                .char_indices()
+                .nth(options.max_body_length)
+                .map(|(idx, _)| idx)
+                .unwrap_or(body.len());
+            body.truncate(byte_end);
+        }
+    }
 
     Ok(ProcessedEmail {
         clean_body_length: body.len(),
@@ -83,47 +112,6 @@ pub fn preprocess(raw: &[u8]) -> Result<ProcessedEmail, LangmailError> {
         signature,
         raw_body_length: raw_body.len(),
     })
-}
-
-/// Preprocess with custom options.
-pub fn preprocess_with_options(
-    raw: &[u8],
-    options: &PreprocessOptions,
-) -> Result<ProcessedEmail, LangmailError> {
-    let mut output = preprocess(raw)?;
-
-    if !options.strip_quotes {
-        // Re-extract without quote stripping
-        let message = MessageParser::default()
-            .parse(raw)
-            .ok_or(LangmailError::ParseFailed)?;
-        let raw_body = clean_invisible_characters(&extract_body(&message));
-        let (clean_body, sig) = if options.strip_signature {
-            signature::extract_signature(&raw_body)
-        } else {
-            (raw_body.clone(), None)
-        };
-        output.body = collapse_empty_lines(&trim_whitespace_lines(clean_body.trim()));
-        output.signature = sig;
-        output.clean_body_length = output.body.len();
-    } else if !options.strip_signature {
-        // Re-run with quotes stripped but keep signature
-        let message = MessageParser::default()
-            .parse(raw)
-            .ok_or(LangmailError::ParseFailed)?;
-        let raw_body = clean_invisible_characters(&extract_body(&message));
-        let body_without_quotes = quotes::strip_quotes(&raw_body);
-        output.body = collapse_empty_lines(&trim_whitespace_lines(body_without_quotes.trim()));
-        output.signature = None;
-        output.clean_body_length = output.body.len();
-    }
-
-    if options.max_body_length > 0 && output.body.len() > options.max_body_length {
-        output.body = output.body[..options.max_body_length].to_string();
-        output.clean_body_length = output.body.len();
-    }
-
-    Ok(output)
 }
 
 // ---------------------------------------------------------------------------
@@ -354,5 +342,120 @@ mod tests {
         .as_bytes();
         let output = preprocess(raw).unwrap();
         assert_eq!(output.body, "Hello world!");
+    }
+
+    // --- Tests for preprocess_with_options ---
+
+    fn make_email(body: &str) -> Vec<u8> {
+        format!(
+            "From: Alice <alice@example.com>\r\n\
+             To: Bob <bob@example.com>\r\n\
+             Subject: Test\r\n\
+             Content-Type: text/plain; charset=utf-8\r\n\
+             \r\n\
+             {body}\r\n"
+        )
+        .into_bytes()
+    }
+
+    #[test]
+    fn test_options_no_strip_quotes() {
+        let raw = reply_email();
+        let options = PreprocessOptions {
+            strip_quotes: false,
+            strip_signature: true,
+            ..Default::default()
+        };
+        let output = preprocess_with_options(&raw, &options).unwrap();
+        // Quotes should be preserved
+        assert!(output.body.contains("Just wanted to say hi!"));
+        assert!(output.body.contains("Great to hear from you."));
+    }
+
+    #[test]
+    fn test_options_no_strip_signature() {
+        let raw = make_email("Hello there.\n\n-- \nAlice\nCEO, Acme Corp");
+        let options = PreprocessOptions {
+            strip_quotes: true,
+            strip_signature: false,
+            ..Default::default()
+        };
+        let output = preprocess_with_options(&raw, &options).unwrap();
+        assert!(output.body.contains("Hello there."));
+        assert!(output.body.contains("Alice"));
+        assert!(output.body.contains("CEO, Acme Corp"));
+        assert!(output.signature.is_none());
+    }
+
+    #[test]
+    fn test_options_max_body_length_ascii() {
+        let raw = make_email("Hello world, this is a test message.");
+        let options = PreprocessOptions {
+            max_body_length: 5,
+            ..Default::default()
+        };
+        let output = preprocess_with_options(&raw, &options).unwrap();
+        assert_eq!(output.body, "Hello");
+        assert_eq!(output.body.chars().count(), 5);
+    }
+
+    #[test]
+    fn test_options_max_body_length_multibyte_no_panic() {
+        // "Héllo 🌍 wörld" — contains 2-byte (é, ö) and 4-byte (🌍) chars.
+        // Truncating at character boundaries must not panic.
+        let raw = make_email("Héllo 🌍 wörld");
+        let options = PreprocessOptions {
+            max_body_length: 7,
+            ..Default::default()
+        };
+        let output = preprocess_with_options(&raw, &options).unwrap();
+        assert_eq!(output.body.chars().count(), 7);
+        assert_eq!(output.body, "Héllo 🌍");
+    }
+
+    #[test]
+    fn test_options_max_body_length_emoji_boundary() {
+        // Each emoji is one char but 4 bytes. Truncate at 2 chars.
+        let raw = make_email("🎉🎊🎈");
+        let options = PreprocessOptions {
+            max_body_length: 2,
+            ..Default::default()
+        };
+        let output = preprocess_with_options(&raw, &options).unwrap();
+        assert_eq!(output.body, "🎉🎊");
+        assert_eq!(output.body.chars().count(), 2);
+    }
+
+    #[test]
+    fn test_options_max_body_length_zero_means_no_limit() {
+        let raw = make_email("Hello world");
+        let options = PreprocessOptions {
+            max_body_length: 0,
+            ..Default::default()
+        };
+        let output = preprocess_with_options(&raw, &options).unwrap();
+        assert_eq!(output.body, "Hello world");
+    }
+
+    #[test]
+    fn test_options_max_body_length_larger_than_body() {
+        let raw = make_email("Short");
+        let options = PreprocessOptions {
+            max_body_length: 1000,
+            ..Default::default()
+        };
+        let output = preprocess_with_options(&raw, &options).unwrap();
+        assert_eq!(output.body, "Short");
+    }
+
+    #[test]
+    fn test_options_default_matches_preprocess() {
+        let raw = reply_email();
+        let a = preprocess(&raw).unwrap();
+        let b = preprocess_with_options(&raw, &PreprocessOptions::default()).unwrap();
+        assert_eq!(a.body, b.body);
+        assert_eq!(a.signature, b.signature);
+        assert_eq!(a.clean_body_length, b.clean_body_length);
+        assert_eq!(a.raw_body_length, b.raw_body_length);
     }
 }
