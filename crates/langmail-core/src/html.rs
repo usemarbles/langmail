@@ -11,11 +11,18 @@ use htmd::element_handler::Handlers;
 pub fn html_to_markdown(html: &str) -> String {
     let converter = HtmlToMarkdown::builder()
         .skip_tags(vec!["script", "style", "img", "head", "svg"])
-        // Render only the link text; drop the href entirely.
+        // Render link text in brackets; drop the href entirely.
         // Email links are almost always opaque tracking URLs with no semantic
-        // value for LLM consumption.
+        // value for LLM consumption. Brackets signal "this was a link" without
+        // exposing the URL.
         .add_handler(vec!["a"], |handlers: &dyn Handlers, element: Element| {
-            Some(handlers.walk_children(element.node))
+            let content = handlers.walk_children(element.node).content;
+            let trimmed = content.trim();
+            if trimmed.is_empty() {
+                None
+            } else {
+                Some(format!("[{trimmed}]").into())
+            }
         })
         // HTML emails use <table> for layout, not data. Rendering them as
         // Markdown tables escapes every `|` in cell content as `&#124;` and
@@ -134,18 +141,28 @@ mod tests {
     }
 
     #[test]
-    fn test_anchor_text_preserved_href_dropped() {
-        // Anchor links should render as plain text — tracking URLs are dropped.
+    fn test_anchor_renders_as_bracketed_text() {
+        // Links render as [text] — href is dropped (tracking URLs have no semantic value).
         let html = r#"<p><a href="https://tracking.example.com/click/abc123">Click here</a></p>"#;
         let text = html_to_markdown(html);
-        assert!(text.contains("Click here"), "link text missing, got: {text}");
+        assert!(text.contains("[Click here]"), "expected [Click here], got: {text}");
         assert!(
             !text.contains("tracking.example.com"),
             "href should be dropped, got: {text}"
         );
+    }
+
+    #[test]
+    fn test_unsubscribe_link_renders_as_bracketed_text() {
+        // Unsubscribe links (common in marketing emails) should come out as [Unsubscribe].
+        let html = r#"<p style="font-size: 12px; color: #666;">
+  <a href="https://example.com/unsubscribe?email=test%40example.com" style="color: #666;">Unsubscribe</a>
+</p>"#;
+        let text = html_to_markdown(html);
+        assert!(text.contains("[Unsubscribe]"), "expected [Unsubscribe], got: {text}");
         assert!(
-            !text.contains("]("),
-            "no Markdown link syntax expected, got: {text}"
+            !text.contains("example.com/unsubscribe"),
+            "href should be dropped, got: {text}"
         );
     }
 
@@ -204,8 +221,8 @@ mod tests {
         let html = "<p>\n  <a href=\"https://example.com\">Unsubscribe</a>\n</p>";
         let text = html_to_markdown(html);
         assert!(
-            text.contains("Unsubscribe"),
-            "Unsubscribe text missing, got: {text}"
+            text.contains("[Unsubscribe]"),
+            "[Unsubscribe] text missing, got: {text}"
         );
         for line in text.lines() {
             if line.contains("Unsubscribe") {
