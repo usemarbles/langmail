@@ -170,10 +170,10 @@ fn clean_invisible_characters(s: &str) -> String {
         .collect()
 }
 
-/// Trims lines that contain only whitespace to empty lines.
+/// Trims trailing whitespace from every line, collapsing whitespace-only lines to empty.
 fn trim_whitespace_lines(s: &str) -> String {
     s.lines()
-        .map(|line| if line.trim().is_empty() { "" } else { line })
+        .map(|line| line.trim_end())
         .collect::<Vec<_>>()
         .join("\n")
 }

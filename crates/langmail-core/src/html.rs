@@ -2,7 +2,8 @@
 ///
 /// This is intentionally opinionated about output format:
 /// - Strips all HTML tags
-/// - Preserves paragraph structure with single blank lines
+/// - Preserves paragraph structure with blank lines
+/// - Renders ordered/unordered lists with numbered/bulleted prefixes
 /// - Converts common HTML entities
 /// - Removes style/script blocks entirely
 /// - Collapses excessive whitespace
@@ -13,26 +14,29 @@ pub fn html_to_clean_text(html: &str) -> String {
     let mut in_style = false;
     let mut tag_name = String::new();
     let mut collecting_tag_name = false;
-    let mut last_was_block = false;
 
-    // Block-level elements that should produce line breaks
-    const BLOCK_ELEMENTS: &[&str] = &[
+    // Stack tracking list context: (is_ordered, current_counter)
+    let mut list_context: Vec<(bool, u32)> = Vec::new();
+
+    // Paragraph-level elements (open or close) → "\n\n"
+    const PARA_ELEMENTS: &[&str] = &[
         "p",
         "div",
-        "br",
         "h1",
         "h2",
         "h3",
         "h4",
         "h5",
         "h6",
-        "li",
-        "tr",
         "blockquote",
         "pre",
-        "hr",
         "table",
     ];
+    // Line-level elements → "\n"
+    const LINE_ELEMENTS: &[&str] = &["br", "tr", "td", "th"];
+    // "hr" handled separately → 80-dash separator
+    // "li" handled separately → numbered/bulleted prefix
+    // "ol"/"ul" handled separately → list context stack
 
     let chars: Vec<char> = html.chars().collect();
     let mut i = 0;
@@ -55,19 +59,48 @@ pub fn html_to_clean_text(html: &str) -> String {
 
                 let tag_lower = tag_name.to_lowercase();
                 let is_closing = tag_lower.starts_with('/');
-                let clean_tag = tag_lower.trim_start_matches('/').to_string();
+                let clean_tag = tag_lower
+                    .trim_start_matches('/')
+                    .trim_end_matches('/')
+                    .trim()
+                    .to_string();
 
                 // Track script/style blocks
                 if clean_tag == "script" {
                     in_script = !is_closing;
                 } else if clean_tag == "style" {
                     in_style = !is_closing;
-                }
-
-                // Add line break for block elements
-                if BLOCK_ELEMENTS.contains(&clean_tag.as_str()) && !last_was_block {
+                } else if clean_tag == "ol" {
+                    if is_closing {
+                        list_context.pop();
+                    } else {
+                        list_context.push((true, 0));
+                    }
+                } else if clean_tag == "ul" {
+                    if is_closing {
+                        list_context.pop();
+                    } else {
+                        list_context.push((false, 0));
+                    }
+                } else if clean_tag == "li" && !is_closing {
+                    if let Some(ctx) = list_context.last_mut() {
+                        if ctx.0 {
+                            ctx.1 += 1;
+                            result.push_str(&format!("\n {}. ", ctx.1));
+                        } else {
+                            result.push_str("\n * ");
+                        }
+                    } else {
+                        result.push_str("\n * ");
+                    }
+                } else if clean_tag == "hr" {
+                    result.push_str("\n\n");
+                    result.push_str(&"-".repeat(80));
+                    result.push_str("\n\n");
+                } else if PARA_ELEMENTS.contains(&clean_tag.as_str()) {
+                    result.push_str("\n\n");
+                } else if LINE_ELEMENTS.contains(&clean_tag.as_str()) {
                     result.push('\n');
-                    last_was_block = true;
                 }
             } else if collecting_tag_name {
                 if ch.is_whitespace() {
@@ -101,7 +134,6 @@ pub fn html_to_clean_text(html: &str) -> String {
                 let entity: String = chars[i..=i + end].iter().collect();
                 let decoded = decode_entity(&entity);
                 result.push_str(&decoded);
-                last_was_block = false;
                 i += end + 1;
                 continue;
             }
@@ -115,7 +147,6 @@ pub fn html_to_clean_text(html: &str) -> String {
             }
         } else {
             result.push(ch);
-            last_was_block = false;
         }
 
         i += 1;
@@ -263,5 +294,45 @@ mod tests {
             text.contains("soft\u{00AD}hyphen"),
             "&shy; should decode to U+00AD, got: {text}"
         );
+    }
+
+    #[test]
+    fn test_ordered_list() {
+        let html = "<ol><li>first</li><li>second</li><li>third</li></ol>";
+        let text = html_to_clean_text(html);
+        assert!(text.contains(" 1. first"), "got: {text}");
+        assert!(text.contains(" 2. second"), "got: {text}");
+        assert!(text.contains(" 3. third"), "got: {text}");
+    }
+
+    #[test]
+    fn test_unordered_list() {
+        let html = "<ul><li>alpha</li><li>beta</li></ul>";
+        let text = html_to_clean_text(html);
+        assert!(text.contains(" * alpha"), "got: {text}");
+        assert!(text.contains(" * beta"), "got: {text}");
+    }
+
+    #[test]
+    fn test_hr_produces_separator() {
+        let html = "<p>before</p><hr/><p>after</p>";
+        let text = html_to_clean_text(html);
+        assert!(text.contains("--------"), "missing dashes, got: {text}");
+        assert!(text.contains("before"), "got: {text}");
+        assert!(text.contains("after"), "got: {text}");
+    }
+
+    #[test]
+    fn test_self_closing_br() {
+        let html = "line one<br/>line two";
+        let text = html_to_clean_text(html);
+        assert!(text.contains("line one\nline two"), "got: {text}");
+    }
+
+    #[test]
+    fn test_para_elements_double_newline() {
+        let html = "<p>first</p><p>second</p>";
+        let text = html_to_clean_text(html);
+        assert!(text.contains("first\n\nsecond"), "got: {text}");
     }
 }
