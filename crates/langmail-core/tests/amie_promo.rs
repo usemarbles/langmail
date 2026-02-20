@@ -134,9 +134,6 @@ fn test_llm_context() {
         ctx.contains("SUBJECT: new: craft in Amie\n"),
         "wrong SUBJECT"
     );
-    assert!(
-        ctx.contains("DATE: 2026-02-10T14:28:26Z\n"),
-        "wrong DATE"
-    );
+    assert!(ctx.contains("DATE: 2026-02-10T14:28:26Z\n"), "wrong DATE");
     assert!(ctx.contains("CONTENT:\n"), "missing CONTENT marker");
 }

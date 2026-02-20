@@ -1,5 +1,5 @@
-use htmd::{Element, HtmlToMarkdown};
 use htmd::element_handler::Handlers;
+use htmd::{Element, HtmlToMarkdown};
 
 /// Convert an HTML email body to clean Markdown suitable for LLM processing.
 ///
@@ -30,9 +30,7 @@ pub fn html_to_markdown(html: &str) -> String {
         // simply walk children, with each cell treated as a paragraph.
         .add_handler(
             vec!["table", "thead", "tbody", "tfoot", "tr"],
-            |handlers: &dyn Handlers, element: Element| {
-                Some(handlers.walk_children(element.node))
-            },
+            |handlers: &dyn Handlers, element: Element| Some(handlers.walk_children(element.node)),
         )
         .add_handler(
             vec!["td", "th"],
@@ -145,7 +143,10 @@ mod tests {
         // Links render as [text] — href is dropped (tracking URLs have no semantic value).
         let html = r#"<p><a href="https://tracking.example.com/click/abc123">Click here</a></p>"#;
         let text = html_to_markdown(html);
-        assert!(text.contains("[Click here]"), "expected [Click here], got: {text}");
+        assert!(
+            text.contains("[Click here]"),
+            "expected [Click here], got: {text}"
+        );
         assert!(
             !text.contains("tracking.example.com"),
             "href should be dropped, got: {text}"
@@ -159,7 +160,10 @@ mod tests {
   <a href="https://example.com/unsubscribe?email=test%40example.com" style="color: #666;">Unsubscribe</a>
 </p>"#;
         let text = html_to_markdown(html);
-        assert!(text.contains("[Unsubscribe]"), "expected [Unsubscribe], got: {text}");
+        assert!(
+            text.contains("[Unsubscribe]"),
+            "expected [Unsubscribe], got: {text}"
+        );
         assert!(
             !text.contains("example.com/unsubscribe"),
             "href should be dropped, got: {text}"
@@ -262,7 +266,10 @@ mod tests {
             "pipe should not be escaped as &#124;, got: {text}"
         );
         // No Markdown table syntax
-        assert!(!text.contains("| ---"), "no table divider expected, got: {text}");
+        assert!(
+            !text.contains("| ---"),
+            "no table divider expected, got: {text}"
+        );
     }
 
     #[test]
