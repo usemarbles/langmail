@@ -124,7 +124,10 @@ fn extract_body(message: &mail_parser::Message) -> String {
     // mail-parser auto-generates HTML from plain text, so we check for a real part.
     if has_html_part(message) {
         if let Some(html_body) = message.body_html(0) {
-            return html::html_to_clean_text(&html_body);
+            // Strip invisible characters from the HTML before passing to the
+            // Markdown converter so they never appear in the output.
+            let clean_html = clean_invisible_characters(&html_body);
+            return html::html_to_markdown(&clean_html);
         }
     }
 
