@@ -34,7 +34,7 @@
   "license": "MIT OR Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nicely-done/langmail"
+    "url": "git+https://github.com/nicely-done/langmail.git"
   },
   "engines": {
     "node": ">= 18"
