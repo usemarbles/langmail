@@ -1,6 +1,6 @@
 {
 	"name": "langmail",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "Email preprocessing for LLMs — fast, typed, Rust-powered",
 	"main": "index.js",
 	"types": "index.d.ts",
@@ -49,10 +49,10 @@
 		"@napi-rs/cli": "^2.18.0"
 	},
 	"optionalDependencies": {
-		"langmail-win32-x64-msvc": "0.2.0",
-		"langmail-darwin-x64": "0.2.0",
-		"langmail-linux-x64-gnu": "0.2.0",
-		"langmail-darwin-arm64": "0.2.0",
-		"langmail-linux-arm64-gnu": "0.2.0"
+		"langmail-win32-x64-msvc": "0.2.1",
+		"langmail-darwin-x64": "0.2.1",
+		"langmail-linux-x64-gnu": "0.2.1",
+		"langmail-darwin-arm64": "0.2.1",
+		"langmail-linux-arm64-gnu": "0.2.1"
 	}
 }
