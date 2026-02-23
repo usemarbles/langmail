@@ -2,6 +2,10 @@
 
 **Email preprocessing for LLMs.** Fast, typed, Rust-powered.
 
+[![npm](https://img.shields.io/npm/v/langmail)](https://www.npmjs.com/package/langmail)
+[![CI](https://github.com/usemarbles/langmail/actions/workflows/ci.yml/badge.svg)](https://github.com/usemarbles/langmail/actions/workflows/ci.yml)
+[![license](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](#license)
+
 Emails are messy — nested MIME parts, quoted reply chains, HTML cruft, signatures, forwarded headers. LLMs don't need any of that. langmail strips it all away and gives you clean, structured text optimized for language model consumption.
 
 ```typescript
@@ -30,6 +34,8 @@ console.log(result.from);
 ```bash
 npm install langmail
 ```
+
+Requires **Node.js 18 or later**.
 
 Prebuilt native binaries for Linux (x64, arm64), macOS (x64, arm64), and Windows (x64). No Rust toolchain needed.
 
@@ -62,6 +68,26 @@ const result = preprocessWithOptions(raw, {
 });
 ```
 
+### Format for LLM prompts
+
+`toLlmContext` converts a `ProcessedEmail` into a compact, deterministic plain-text
+block ready to paste into an LLM prompt:
+
+```typescript
+import { preprocess, toLlmContext } from "langmail";
+
+const result = preprocess(raw);
+console.log(toLlmContext(result));
+// FROM: Bob <bob@example.com>
+// TO: Alice <alice@example.com>
+// SUBJECT: Re: Project update
+// DATE: 2024-01-15T10:30:00Z
+// CONTENT:
+// Hi Alice! Great to hear from you.
+```
+
+Missing fields (no `from`, empty `to`, etc.) are simply omitted. The `CONTENT:` line is always present.
+
 ### Output structure
 
 ```typescript
@@ -72,7 +98,7 @@ interface ProcessedEmail {
   to: { name?: string; email: string }[];
   cc: { name?: string; email: string }[];
   date?: string; // ISO 8601
-  messageId?: string;
+  rfcMessageId?: string; // RFC 2822 Message-ID header
   inReplyTo?: string[]; // Threading
   references?: string[]; // Threading
   signature?: string; // Extracted signature (if found)
@@ -80,6 +106,21 @@ interface ProcessedEmail {
   cleanBodyLength: number; // After cleaning
 }
 ```
+
+### Error handling
+
+`preprocess`, `preprocessWithOptions`, and `preprocessString` throw if the input
+cannot be parsed as a valid RFC 5322 message:
+
+```typescript
+try {
+  const result = preprocess(raw);
+} catch (err) {
+  // err.message === "Failed to parse email message"
+}
+```
+
+`toLlmContext` never throws.
 
 ## What it does
 

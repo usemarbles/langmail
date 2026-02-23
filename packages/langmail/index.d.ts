@@ -29,6 +29,17 @@ export interface ProcessedEmail {
   rawBodyLength: number
   /** Length of the cleaned body. */
   cleanBodyLength: number
+  /** Primary call-to-action link extracted from the HTML body, if any. */
+  primaryCta?: NapiCallToAction
+}
+/** A primary call-to-action link extracted from an HTML email. */
+export interface NapiCallToAction {
+  /** The URL the action points to. */
+  url: string
+  /** Human-readable label for the action. */
+  text: string
+  /** Confidence score between 0.0 and 1.0. */
+  confidence: number
 }
 /** An email address with optional display name. */
 export interface NapiAddress {
