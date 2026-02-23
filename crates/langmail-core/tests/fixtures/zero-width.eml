@@ -417,7 +417,7 @@ div.preheader
   <td style="padding-left: 48px;padding-right: 48px;padding-bottom: 16px; padding-top: 0px; "  class="sc-pl-24 sc-pr-24 ">
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
       <tr>
-        <td align="left" style="font-weight: 400; font-size: 16px; line-height: 25px; color: #3C3F41; text-align:left" ><p style="font-weight: 400; margin:0; font-size: 16px; line-height: 25px; color: #3C3F41; text-align:left" >Guten Tag Dominik Grusemann,</p></td>
+        <td align="left" style="font-weight: 400; font-size: 16px; line-height: 25px; color: #3C3F41; text-align:left" ><p style="font-weight: 400; margin:0; font-size: 16px; line-height: 25px; color: #3C3F41; text-align:left" >Guten Tag Max Mustermann,</p></td>
       </tr>
     </table>
   </td>
