@@ -59,14 +59,12 @@ jobs:
       - name: Build native module
         if: ${{ !matrix.docker && !matrix.use-cross }}
         working-directory: packages/langmail
-        run: npx napi build --platform --release --target ${{ matrix.target }} --js false --dts false --manifest-path ../../crates/langmail-node/Cargo.toml --output-dir .
+        run: npx napi build --platform --release --target ${{ matrix.target }} --no-js --manifest-path ../../crates/langmail-node/Cargo.toml --output-dir .
 
       - name: Build native module (cross)
         if: ${{ matrix.use-cross && !matrix.docker }}
         working-directory: packages/langmail
-        env:
-          CARGO: cross
-        run: npx napi build --platform --release --target ${{ matrix.target }} --js false --dts false --manifest-path ../../crates/langmail-node/Cargo.toml --output-dir .
+        run: npx napi build --platform --release --target ${{ matrix.target }} --no-js --use-cross --manifest-path ../../crates/langmail-node/Cargo.toml --output-dir .
 
 
       - uses: actions/upload-artifact@v4
@@ -104,7 +102,7 @@ jobs:
 
       - name: Distribute binaries to platform directories
         working-directory: packages/langmail
-        run: npx napi artifacts --dir artifacts --dist npm
+        run: npx napi artifacts --output-dir artifacts --npm-dir npm
 
       - name: Publish platform packages
         working-directory: packages/langmail
