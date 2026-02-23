@@ -59,7 +59,7 @@ jobs:
       - name: Build native module
         if: ${{ !matrix.docker && !matrix.use-cross }}
         working-directory: packages/langmail
-        run: npx napi build --platform --release --target ${{ matrix.target }} --js ${{ matrix.target == 'x86_64-unknown-linux-gnu' && 'index.js' || 'false' }} --dts false --cargo-cwd ../../crates/langmail-node .
+        run: npx napi build --platform --release --target ${{ matrix.target }} --js false --dts false --cargo-cwd ../../crates/langmail-node .
 
       - name: Build native module (cross)
         if: ${{ matrix.use-cross && !matrix.docker }}
@@ -73,14 +73,6 @@ jobs:
         with:
           name: bindings-${{ matrix.target }}
           path: packages/langmail/langmail.*.node
-          if-no-files-found: error
-          retention-days: 1
-
-      - uses: actions/upload-artifact@v4
-        if: matrix.target == 'x86_64-unknown-linux-gnu'
-        with:
-          name: js-binding
-          path: packages/langmail/index.js
           if-no-files-found: error
           retention-days: 1
 
@@ -105,11 +97,6 @@ jobs:
           path: packages/langmail/artifacts
           pattern: bindings-*
           merge-multiple: false
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: js-binding
-          path: packages/langmail
 
       - name: Generate platform npm package directories
         working-directory: packages/langmail

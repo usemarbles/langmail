@@ -16,7 +16,6 @@ lerna-debug.log*
 
 # Native bindings
 *.node
-index.js
 
 # Build outputs
 dist/
