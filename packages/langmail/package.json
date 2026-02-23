@@ -10,14 +10,14 @@
 		"*.node"
 	],
 	"napi": {
-		"name": "langmail",
-		"triples": {
-			"defaults": true,
-			"additional": [
-				"aarch64-apple-darwin",
-				"aarch64-unknown-linux-gnu"
-			]
-		}
+		"binaryName": "langmail",
+		"targets": [
+			"x86_64-unknown-linux-gnu",
+			"x86_64-pc-windows-msvc",
+			"x86_64-apple-darwin",
+			"aarch64-apple-darwin",
+			"aarch64-unknown-linux-gnu"
+		]
 	},
 	"keywords": [
 		"email",
@@ -40,14 +40,14 @@
 		"node": ">= 18"
 	},
 	"scripts": {
-		"build": "napi build --platform --release --js index.js --dts index.d.ts --cargo-cwd ../../crates/langmail-node .",
-		"build:debug": "napi build --platform --js index.js --dts index.d.ts --cargo-cwd ../../crates/langmail-node .",
+		"build": "napi build --platform --release --js index.js --dts index.d.ts --manifest-path ../../crates/langmail-node/Cargo.toml --output-dir .",
+		"build:debug": "napi build --platform --js index.js --dts index.d.ts --manifest-path ../../crates/langmail-node/Cargo.toml --output-dir .",
 		"version": "napi version",
 		"prepublishOnly": "napi version",
 		"test": "node --test"
 	},
 	"devDependencies": {
-		"@napi-rs/cli": "^2.18.0"
+		"@napi-rs/cli": "^3.5.1"
 	},
 	"optionalDependencies": {
 		"langmail-win32-x64-msvc": "0.3.0",
