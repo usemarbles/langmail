@@ -46,7 +46,7 @@ fn test_nbsp_converted_to_regular_space() {
 fn test_html_content_extracted() {
     let output = preprocess(ZERO_WIDTH_EML).unwrap();
     assert!(
-        output.body.contains("Guten Tag Dominik Grusemann"),
+        output.body.contains("Guten Tag Max Mustermann"),
         "body should contain the actual message from HTML part, got:\n{}",
         output.body
     );

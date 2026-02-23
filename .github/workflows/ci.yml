@@ -43,7 +43,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         working-directory: packages/langmail
         run: |
-          npx napi build --js index.js --dts index.d.ts --cargo-cwd ../../crates/langmail-node .
+          npx napi build --js index.js --dts index.d.ts --manifest-path ../../crates/langmail-node/Cargo.toml --output-dir .
           git diff --exit-code index.js index.d.ts
       - name: Run tests
         working-directory: packages/langmail

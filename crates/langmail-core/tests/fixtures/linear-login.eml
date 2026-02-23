@@ -10,7 +10,7 @@ MIME-Version: 1.0
 Precedence: Bulk
 X-Auto-Response-Suppress: All
 Content-Type: multipart/alternative; boundary=aa892fsracf
-X-SES-Outgoing: 2026.01.27-216.221.169.107
+X-SES-Outgoing: 2026.01.27-192.0.2.1
 
 --aa892fsracf
 Content-Type: text/plain; charset=UTF-8
@@ -42,7 +42,7 @@ We noticed a login to Max from a new device or browser.
 
 
 Platform: Max Desktop on macOS
-Location: Munich, BY, DE (88.217.174.126)
+Location: Munich, BY, DE (192.0.2.1)
 Time: Tue, 27 Jan 2026 13:15:35 (UTC)
 
 
@@ -521,8 +521,7 @@ important; white-space: pre-wrap;"> </span><span style=3D"line-height: 23px=
 pre-wrap;">Munich, BY, DE</span><span style=3D"line-height: 23px !=
 important; font-size: 15px; font-size: 15px !important; white-space: =
 pre-wrap;"> (</span><span style=3D"line-height: 23px !important; font-size:=
- 15px; font-size: 15px !important; white-space: pre-wrap;">88.217.174.=
-126</span><span style=3D"line-height: 23px !important; font-size: 15px; =
+ 15px; font-size: 15px !important; white-space: pre-wrap;">192.0.2.1</span><span style=3D"line-height: 23px !important; font-size: 15px; =
 font-size: 15px !important; white-space: pre-wrap;">)</span></div>
    =20
                 </td>
