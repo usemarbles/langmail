@@ -100,7 +100,7 @@ jobs:
 
       - name: Generate platform npm package directories
         working-directory: packages/langmail
-        run: npx napi create-npm-dirs -t .
+        run: npx napi create-npm-dirs --npm-dir npm
 
       - name: Distribute binaries to platform directories
         working-directory: packages/langmail
