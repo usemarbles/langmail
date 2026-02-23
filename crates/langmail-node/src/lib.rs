@@ -22,8 +22,8 @@ pub struct ProcessedEmail {
     /// Date as ISO 8601 string.
     pub date: Option<String>,
 
-    /// Message-ID header value.
-    pub message_id: Option<String>,
+    /// RFC 2822 Message-ID header value.
+    pub rfc_message_id: Option<String>,
 
     /// In-Reply-To header values (for threading).
     pub in_reply_to: Option<Vec<String>>,
@@ -152,7 +152,7 @@ fn to_core_email(email: ProcessedEmail) -> langmail_core::ProcessedEmail {
             })
             .collect(),
         date: email.date,
-        message_id: email.message_id,
+        rfc_message_id: email.rfc_message_id,
         in_reply_to: email.in_reply_to,
         references: email.references,
         signature: email.signature,
@@ -186,7 +186,7 @@ fn to_napi_output(result: langmail_core::ProcessedEmail) -> ProcessedEmail {
             })
             .collect(),
         date: result.date,
-        message_id: result.message_id,
+        rfc_message_id: result.rfc_message_id,
         in_reply_to: result.in_reply_to,
         references: result.references,
         signature: result.signature,

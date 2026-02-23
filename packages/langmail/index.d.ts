@@ -17,8 +17,8 @@ export interface ProcessedEmail {
   cc: Array<NapiAddress>
   /** Date as ISO 8601 string. */
   date?: string
-  /** Message-ID header value. */
-  messageId?: string
+  /** RFC 2822 Message-ID header value. */
+  rfcMessageId?: string
   /** In-Reply-To header values (for threading). */
   inReplyTo?: Array<string>
   /** References header values (for threading). */

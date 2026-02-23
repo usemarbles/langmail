@@ -26,8 +26,8 @@ pub struct ProcessedEmail {
     /// Date as ISO 8601 string.
     pub date: Option<String>,
 
-    /// Message-ID header value.
-    pub message_id: Option<String>,
+    /// RFC 2822 Message-ID header value.
+    pub rfc_message_id: Option<String>,
 
     /// In-Reply-To header values (for threading).
     pub in_reply_to: Option<Vec<String>>,

@@ -47,7 +47,7 @@ pub fn preprocess_with_options(
 
     let date = message.date().map(datetime_to_utc_iso8601);
 
-    let message_id = message.message_id().map(|id| id.to_string());
+    let rfc_message_id = message.message_id().map(|id| id.to_string());
 
     let in_reply_to = message
         .in_reply_to()
@@ -100,7 +100,7 @@ pub fn preprocess_with_options(
         to,
         cc,
         date,
-        message_id,
+        rfc_message_id,
         in_reply_to,
         references,
         signature,
