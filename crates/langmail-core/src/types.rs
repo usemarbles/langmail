@@ -1,6 +1,18 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// A primary call-to-action link extracted from an HTML email.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CallToAction {
+    /// The URL the action points to.
+    pub url: String,
+    /// Human-readable label for the action.
+    pub text: String,
+    /// Confidence score between 0.0 and 1.0.
+    pub confidence: f64,
+}
+
 /// The primary output of langmail preprocessing.
 ///
 /// Contains a cleaned email body optimized for LLM consumption,
@@ -43,6 +55,9 @@ pub struct ProcessedEmail {
 
     /// Length of the cleaned body.
     pub clean_body_length: usize,
+
+    /// Primary call-to-action link extracted from the HTML body, if any.
+    pub primary_cta: Option<CallToAction>,
 }
 
 /// An email address with optional display name.

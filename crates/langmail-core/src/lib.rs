@@ -1,3 +1,4 @@
+mod cta;
 mod html;
 mod quotes;
 mod signature;
@@ -59,6 +60,14 @@ pub fn preprocess_with_options(
         .as_text_list()
         .map(|list| list.iter().map(|s| s.to_string()).collect());
 
+    // Extract raw HTML for CTA detection before text conversion
+    let raw_html: Option<String> = if has_html_part(&message) {
+        message.body_html(0).map(|h| clean_invisible_characters(&h))
+    } else {
+        None
+    };
+    let primary_cta = raw_html.as_deref().and_then(cta::extract_cta);
+
     // Extract body: prefer HTML (richer content), fall back to plain text
     let raw_body = extract_body(&message);
     let raw_body = clean_invisible_characters(&raw_body);
@@ -105,6 +114,7 @@ pub fn preprocess_with_options(
         references,
         signature,
         raw_body_length: raw_body.len(),
+        primary_cta,
     })
 }
 

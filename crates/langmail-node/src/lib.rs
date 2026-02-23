@@ -39,6 +39,20 @@ pub struct ProcessedEmail {
 
     /// Length of the cleaned body.
     pub clean_body_length: u32,
+
+    /// Primary call-to-action link extracted from the HTML body, if any.
+    pub primary_cta: Option<NapiCallToAction>,
+}
+
+/// A primary call-to-action link extracted from an HTML email.
+#[napi(object)]
+pub struct NapiCallToAction {
+    /// The URL the action points to.
+    pub url: String,
+    /// Human-readable label for the action.
+    pub text: String,
+    /// Confidence score between 0.0 and 1.0.
+    pub confidence: f64,
 }
 
 /// An email address with optional display name.
@@ -158,6 +172,11 @@ fn to_core_email(email: ProcessedEmail) -> langmail_core::ProcessedEmail {
         signature: email.signature,
         raw_body_length: email.raw_body_length as usize,
         clean_body_length: email.clean_body_length as usize,
+        primary_cta: email.primary_cta.map(|c| langmail_core::CallToAction {
+            url: c.url,
+            text: c.text,
+            confidence: c.confidence,
+        }),
     }
 }
 
@@ -192,5 +211,10 @@ fn to_napi_output(result: langmail_core::ProcessedEmail) -> ProcessedEmail {
         signature: result.signature,
         raw_body_length: result.raw_body_length as u32,
         clean_body_length: result.clean_body_length as u32,
+        primary_cta: result.primary_cta.map(|c| NapiCallToAction {
+            url: c.url,
+            text: c.text,
+            confidence: c.confidence,
+        }),
     }
 }
