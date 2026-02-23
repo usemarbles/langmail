@@ -39,6 +39,12 @@ jobs:
       - name: Build native module
         working-directory: packages/langmail
         run: npm run build
+      - name: Check index.js is up to date
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: packages/langmail
+        run: |
+          npx napi build --js index.js --dts index.d.ts --cargo-cwd ../../crates/langmail-node .
+          git diff --exit-code index.js index.d.ts
       - name: Run tests
         working-directory: packages/langmail
         run: npm test
