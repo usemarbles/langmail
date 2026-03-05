@@ -97,6 +97,24 @@ GitHub Actions runs three jobs:
 
 The CI workflows are located in `.github/workflows/` and test across multiple platforms.
 
+### Releasing
+
+The project uses `git-cliff` for changelog generation. The publish workflow (`.github/workflows/publish.yml`) triggers on `v*` tags and automatically creates a GitHub Release with generated notes.
+
+To cut a release:
+
+```bash
+# 1. Bump version in Cargo.toml and package.json
+# 2. Update changelog
+git-cliff --tag vX.Y.Z -o CHANGELOG.md
+# 3. Commit, tag, and push
+git add -A && git commit -m "chore: release vX.Y.Z"
+git tag vX.Y.Z
+git push && git push --tags
+```
+
+Use conventional commits (`feat:`, `fix:`, `refactor:`, etc.) so the changelog groups entries automatically.
+
 ## Key Implementation Notes
 
 ### Quote Detection Patterns
