@@ -1,6 +1,17 @@
 # Changelog
 
 All notable changes to this project will be automatically documented in this file.
+## [0.3.2] - 2026-03-05
+
+### CI
+
+- Remove manual changelog commit from publish workflow([fe80017](https://github.com/usemarbles/langmail/commit/fe80017a0a99c3b70dd85a34976f0acdd384b2fe))
+- Auto-commit updated CHANGELOG.md on release([81388e3](https://github.com/usemarbles/langmail/commit/81388e30cf5e3fcf828a77a2593b54a8651aecad))
+- Generate GitHub Release notes with git-cliff on publish([705027b](https://github.com/usemarbles/langmail/commit/705027b75c85fa95649caf08ab83956dd7ff4792))
+
+### Miscellaneous
+
+- Add git-cliff config and generate changelog([7a7d569](https://github.com/usemarbles/langmail/commit/7a7d5692567090aac82eec3275a8eae83123c040))
 ## [0.3.1] - 2026-02-23
 
 ### Build

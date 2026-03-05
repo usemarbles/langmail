@@ -18,9 +18,6 @@ langmail-core = { path = "crates/langmail-core" }
 [workspace.metadata.release]
 shared-version = true
 tag-name = "v{{version}}"
-pre-release-hook = ["./scripts/release-prep.sh", "{{version}}"]
-pre-release-replacements = [
-    { file = "packages/langmail/package.json", search = "\"version\": \"[^\"]+\"", replace = "\"version\": \"{{version}}\"", exactly = 1 },
-]
+pre-release-hook = ["../../scripts/release-prep.sh", "{{version}}"]
 pre-release-commit-message = "chore(release): v{{version}}"
 publish = false

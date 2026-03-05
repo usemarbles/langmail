@@ -1,6 +1,6 @@
 {
 	"name": "langmail",
-	"version": "0.3.1",
+	"version": "0.3.2",
 	"description": "Email preprocessing for LLMs — fast, typed, Rust-powered",
 	"main": "index.js",
 	"types": "index.d.ts",
@@ -42,7 +42,7 @@
 	"scripts": {
 		"build": "napi build --platform --release --js index.js --dts index.d.ts --manifest-path ../../crates/langmail-node/Cargo.toml --output-dir .",
 		"build:debug": "napi build --platform --js index.js --dts index.d.ts --manifest-path ../../crates/langmail-node/Cargo.toml --output-dir .",
-		"version": "napi version",
+		"version": "0.3.2",
 		"prepublishOnly": "napi version",
 		"test": "node --test"
 	},
@@ -50,10 +50,10 @@
 		"@napi-rs/cli": "^3.5.1"
 	},
 	"optionalDependencies": {
-		"langmail-win32-x64-msvc": "0.3.1",
-		"langmail-darwin-x64": "0.3.1",
-		"langmail-linux-x64-gnu": "0.3.1",
-		"langmail-darwin-arm64": "0.3.1",
-		"langmail-linux-arm64-gnu": "0.3.1"
+		"langmail-win32-x64-msvc": "0.3.2",
+		"langmail-darwin-x64": "0.3.2",
+		"langmail-linux-x64-gnu": "0.3.2",
+		"langmail-darwin-arm64": "0.3.2",
+		"langmail-linux-arm64-gnu": "0.3.2"
 	}
 }
