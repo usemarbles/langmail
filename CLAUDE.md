@@ -105,13 +105,13 @@ To cut a release:
 
 ```bash
 # 1. Bump version in Cargo.toml and package.json
-# 2. Update changelog
-git-cliff --tag vX.Y.Z -o CHANGELOG.md
-# 3. Commit, tag, and push
+# 2. Commit, tag, and push
 git add -A && git commit -m "chore: release vX.Y.Z"
 git tag vX.Y.Z
 git push && git push --tags
 ```
+
+CI automatically updates `CHANGELOG.md` and commits it to `main`, then creates a GitHub Release with the notes for the new tag.
 
 Use conventional commits (`feat:`, `fix:`, `refactor:`, etc.) so the changelog groups entries automatically.
 
