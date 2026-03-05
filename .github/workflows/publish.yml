@@ -95,18 +95,6 @@ jobs:
           git-cliff --latest --strip header >> "$GITHUB_OUTPUT"
           echo "$EOF" >> "$GITHUB_OUTPUT"
 
-      - name: Update CHANGELOG.md
-        run: git-cliff -o CHANGELOG.md
-
-      - name: Commit and push changelog
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add CHANGELOG.md
-          git diff --cached --quiet && exit 0
-          git commit -m "docs: update changelog for ${GITHUB_REF_NAME}"
-          git push origin HEAD:main
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:

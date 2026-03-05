@@ -99,19 +99,13 @@ The CI workflows are located in `.github/workflows/` and test across multiple pl
 
 ### Releasing
 
-The project uses `git-cliff` for changelog generation. The publish workflow (`.github/workflows/publish.yml`) triggers on `v*` tags and automatically creates a GitHub Release with generated notes.
-
-To cut a release:
+The project uses `cargo-release` and `git-cliff` for releases. `cargo-release` bumps versions in `Cargo.toml` and `package.json`, runs `git-cliff` via a pre-release hook to update `CHANGELOG.md` and `optionalDependencies`, commits, tags, and pushes. CI then builds, publishes to npm, and creates a GitHub Release.
 
 ```bash
-# 1. Bump version in Cargo.toml and package.json
-# 2. Commit, tag, and push
-git add -A && git commit -m "chore: release vX.Y.Z"
-git tag vX.Y.Z
-git push && git push --tags
+cargo release patch   # or: minor / major
 ```
 
-CI automatically updates `CHANGELOG.md` and commits it to `main`, then creates a GitHub Release with the notes for the new tag.
+This single command handles everything locally. CI (`.github/workflows/publish.yml`) triggers on the `v*` tag push.
 
 Use conventional commits (`feat:`, `fix:`, `refactor:`, etc.) so the changelog groups entries automatically.
 
