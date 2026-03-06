@@ -17,7 +17,7 @@ use mail_parser::{MessageParser, MimeHeaders};
 /// # Example
 /// ```
 /// let raw = b"From: alice@example.com\r\nTo: bob@example.com\r\nSubject: Hello\r\n\r\nHi Bob!";
-/// let output = langmail_core::preprocess(raw).unwrap();
+/// let output = langmail::preprocess(raw).unwrap();
 /// assert!(output.body.contains("Hi Bob!"));
 /// ```
 pub fn preprocess(raw: &[u8]) -> Result<ProcessedEmail, LangmailError> {

@@ -1,4 +1,4 @@
-use langmail_core::preprocess;
+use langmail::preprocess;
 
 const RAW: &[u8] = include_bytes!("fixtures/linear-login.eml");
 

@@ -1,8 +1,8 @@
-use langmail_core::preprocess;
+use langmail::preprocess;
 
 static FORWARDED_EML: &[u8] = include_bytes!("fixtures/forwarded.eml");
 
-fn output() -> langmail_core::ProcessedEmail {
+fn output() -> langmail::ProcessedEmail {
     preprocess(FORWARDED_EML).unwrap()
 }
 

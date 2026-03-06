@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
-  "crates/langmail-core",
+  "crates/langmail",
   "crates/langmail-node",
   "crates/langmail-python",
 ]
@@ -14,4 +14,4 @@ repository = "https://github.com/usemarbles/langmail"
 description = "Email preprocessing for LLMs"
 
 [workspace.dependencies]
-langmail-core = { path = "crates/langmail-core" }
+langmail-core = { path = "crates/langmail", package = "langmail" }

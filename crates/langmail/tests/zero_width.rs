@@ -1,4 +1,4 @@
-use langmail_core::preprocess;
+use langmail::preprocess;
 
 static ZERO_WIDTH_EML: &[u8] = include_bytes!("fixtures/zero-width.eml");
 
