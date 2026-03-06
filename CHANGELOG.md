@@ -1,6 +1,11 @@
 # Changelog
 
 All notable changes to this project will be automatically documented in this file.
+## [0.5.1] - 2026-03-06
+
+### Refactor
+
+- Rename langmail-core workspace dependency to langmail([a05b6ec](https://github.com/usemarbles/langmail/commit/a05b6ecc4675dbe945a190a1054ea0cd8471d429))
 ## [0.5.0] - 2026-03-06
 
 ### Features
