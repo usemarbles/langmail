@@ -86,6 +86,7 @@ jobs:
       contents: write
     outputs:
       release_notes: ${{ steps.notes.outputs.body }}
+      release_sha: ${{ steps.commit.outputs.sha }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -111,10 +112,10 @@ jobs:
 
           # Bump packages/langmail/package.json — version and optionalDependencies
           PKG="packages/langmail/package.json"
-          sed -i -E \
-            -e 's/("version": )"[^"]+"/\1"'"${NEXT_VERSION}"'"/' \
-            -e 's/("langmail-(win32|darwin|linux)-[^"]+": )"[^"]+"/\1"'"${NEXT_VERSION}"'"/g' \
-            "$PKG"
+          jq --arg v "$NEXT_VERSION" '
+            .version = $v |
+            .optionalDependencies |= with_entries(.value = $v)
+          ' "$PKG" > "${PKG}.tmp" && mv "${PKG}.tmp" "$PKG"
 
       - name: Generate changelog
         env:
@@ -122,6 +123,7 @@ jobs:
         run: git-cliff --tag "v${NEXT_VERSION}" -o CHANGELOG.md
 
       - name: Commit, tag, and push
+        id: commit
         env:
           NEXT_VERSION: ${{ needs.check-release.outputs.next_version }}
         run: |
@@ -129,6 +131,7 @@ jobs:
           git commit -m "chore: release v${NEXT_VERSION}"
           git tag "v${NEXT_VERSION}"
           git push origin main --follow-tags
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Generate release notes
         id: notes
@@ -149,7 +152,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: v${{ needs.check-release.outputs.next_version }}
+          ref: ${{ needs.prepare-release.outputs.release_sha }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -180,7 +183,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: v${{ needs.check-release.outputs.next_version }}
+          ref: ${{ needs.prepare-release.outputs.release_sha }}
 
       - uses: actions/setup-node@v4
         with:
@@ -222,14 +225,14 @@ jobs:
 
   publish-npm:
     name: Publish to npm
-    needs: [check-release, build-node-binaries]
+    needs: [check-release, prepare-release, build-node-binaries]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: v${{ needs.check-release.outputs.next_version }}
+          ref: ${{ needs.prepare-release.outputs.release_sha }}
 
       - uses: actions/setup-node@v4
         with:
