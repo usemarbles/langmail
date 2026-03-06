@@ -1,6 +1,11 @@
 # Changelog
 
 All notable changes to this project will be automatically documented in this file.
+## [0.4.1] - 2026-03-06
+
+### Bug Fixes
+
+- Correct maturin cross-compilation for aarch64 wheels([b5d685b](https://github.com/usemarbles/langmail/commit/b5d685b4c7875ce57ed908af8d0ed88ebe3333bb))
 ## [0.4.0] - 2026-03-06
 
 ### Features
