@@ -1,10 +1,13 @@
 [package]
-name = "langmail-core"
+name = "langmail"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
 description.workspace = true
+readme = "../../README.md"
+keywords = ["email", "llm", "preprocessing", "mime", "nlp"]
+categories = ["email", "text-processing"]
 
 [dependencies]
 mail-parser = "0.11"

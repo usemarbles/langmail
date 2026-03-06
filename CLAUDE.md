@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture
 
-### Rust Core (`crates/langmail-core/src/`)
+### Rust Core (`crates/langmail/src/`)
 
 The core processing pipeline (in `lib.rs`, `html.rs`, `quotes.rs`, `signature.rs`, `types.rs`):
 
@@ -38,7 +38,7 @@ CI will fail (`git diff --exit-code`) if these files are stale.
 
 ### Node.js Bindings (`crates/langmail-node/src/`)
 
-Built with NAPI-RS (v2.16) for native Node.js bindings. The `lib.rs` file wraps `langmail-core` functions and converts between Rust and N-API types.
+Built with NAPI-RS (v2.16) for native Node.js bindings. The `lib.rs` file wraps `langmail` functions and converts between Rust and N-API types.
 
 ### Node.js Package (`packages/langmail/`)
 
@@ -141,7 +141,7 @@ This approach is fast and sufficient for email content.
 
 ## Testing
 
-- Rust tests are inline with `#[cfg(test)]` modules in each source file under `crates/langmail-core/src/`
+- Rust tests are inline with `#[cfg(test)]` modules in each source file under `crates/langmail/src/`
 - Node.js tests are in `packages/langmail/test/` and use Node's built-in test runner (requires Node 18+)
 - Test fixtures are defined inline as strings/bytes (no external `.eml` files needed)
 

@@ -1,4 +1,4 @@
-use langmail_core::preprocess;
+use langmail::preprocess;
 
 static LINKEDIN_EML: &[u8] = include_bytes!("fixtures/linkedin.eml");
 

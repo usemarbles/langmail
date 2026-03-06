@@ -87,7 +87,7 @@ pub struct PreprocessOptions {
 /// @returns Preprocessed email output
 #[napi]
 pub fn preprocess(raw: Buffer) -> Result<ProcessedEmail> {
-    let result = langmail_core::preprocess(&raw)
+    let result = langmail::preprocess(&raw)
         .map_err(|e| Error::new(Status::GenericFailure, format!("{}", e)))?;
 
     Ok(to_napi_output(result))
@@ -100,13 +100,13 @@ pub fn preprocess(raw: Buffer) -> Result<ProcessedEmail> {
 /// @returns Preprocessed email output
 #[napi]
 pub fn preprocess_with_options(raw: Buffer, options: PreprocessOptions) -> Result<ProcessedEmail> {
-    let core_options = langmail_core::PreprocessOptions {
+    let core_options = langmail::PreprocessOptions {
         strip_quotes: options.strip_quotes.unwrap_or(true),
         strip_signature: options.strip_signature.unwrap_or(true),
         max_body_length: options.max_body_length.unwrap_or(0) as usize,
     };
 
-    let result = langmail_core::preprocess_with_options(&raw, &core_options)
+    let result = langmail::preprocess_with_options(&raw, &core_options)
         .map_err(|e| Error::new(Status::GenericFailure, format!("{}", e)))?;
 
     Ok(to_napi_output(result))
@@ -141,18 +141,18 @@ pub fn to_llm_context(email: ProcessedEmail) -> String {
 // Internal conversion
 // ---------------------------------------------------------------------------
 
-fn to_core_email(email: ProcessedEmail) -> langmail_core::ProcessedEmail {
-    langmail_core::ProcessedEmail {
+fn to_core_email(email: ProcessedEmail) -> langmail::ProcessedEmail {
+    langmail::ProcessedEmail {
         body: email.body,
         subject: email.subject,
-        from: email.from.map(|a| langmail_core::Address {
+        from: email.from.map(|a| langmail::Address {
             name: a.name,
             email: a.email,
         }),
         to: email
             .to
             .into_iter()
-            .map(|a| langmail_core::Address {
+            .map(|a| langmail::Address {
                 name: a.name,
                 email: a.email,
             })
@@ -160,7 +160,7 @@ fn to_core_email(email: ProcessedEmail) -> langmail_core::ProcessedEmail {
         cc: email
             .cc
             .into_iter()
-            .map(|a| langmail_core::Address {
+            .map(|a| langmail::Address {
                 name: a.name,
                 email: a.email,
             })
@@ -172,7 +172,7 @@ fn to_core_email(email: ProcessedEmail) -> langmail_core::ProcessedEmail {
         signature: email.signature,
         raw_body_length: email.raw_body_length as usize,
         clean_body_length: email.clean_body_length as usize,
-        primary_cta: email.primary_cta.map(|c| langmail_core::CallToAction {
+        primary_cta: email.primary_cta.map(|c| langmail::CallToAction {
             url: c.url,
             text: c.text,
             confidence: c.confidence,
@@ -180,7 +180,7 @@ fn to_core_email(email: ProcessedEmail) -> langmail_core::ProcessedEmail {
     }
 }
 
-fn to_napi_output(result: langmail_core::ProcessedEmail) -> ProcessedEmail {
+fn to_napi_output(result: langmail::ProcessedEmail) -> ProcessedEmail {
     ProcessedEmail {
         body: result.body,
         subject: result.subject,
