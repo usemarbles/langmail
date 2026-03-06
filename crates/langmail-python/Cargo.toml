@@ -11,5 +11,5 @@ name = "langmail"
 crate-type = ["cdylib"]
 
 [dependencies]
-langmail-core.workspace = true
+langmail.workspace = true
 pyo3 = { version = "0.23", features = ["extension-module", "generate-import-lib"] }

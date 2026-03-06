@@ -125,7 +125,7 @@ pyo3::create_exception!(langmail, ParseError, pyo3::exceptions::PyValueError);
 /// object with clean body text and metadata.
 #[pyfunction]
 fn preprocess(raw: &[u8]) -> PyResult<ProcessedEmail> {
-    let result = langmail_core::preprocess(raw).map_err(|e| ParseError::new_err(e.to_string()))?;
+    let result = ::langmail::preprocess(raw).map_err(|e| ParseError::new_err(e.to_string()))?;
     Ok(to_py_output(result))
 }
 
@@ -140,13 +140,13 @@ fn preprocess_string(raw: &str) -> PyResult<ProcessedEmail> {
 /// Preprocess a raw email with custom options.
 #[pyfunction]
 fn preprocess_with_options(raw: &[u8], options: &PreprocessOptions) -> PyResult<ProcessedEmail> {
-    let core_options = langmail_core::PreprocessOptions {
+    let core_options = ::langmail::PreprocessOptions {
         strip_quotes: options.strip_quotes,
         strip_signature: options.strip_signature,
         max_body_length: options.max_body_length,
     };
 
-    let result = langmail_core::preprocess_with_options(raw, &core_options)
+    let result = ::langmail::preprocess_with_options(raw, &core_options)
         .map_err(|e| ParseError::new_err(e.to_string()))?;
 
     Ok(to_py_output(result))
@@ -166,22 +166,22 @@ fn to_llm_context(email: &ProcessedEmail) -> String {
 // Internal conversion
 // ---------------------------------------------------------------------------
 
-fn to_core_address(addr: &Address) -> langmail_core::Address {
-    langmail_core::Address {
+fn to_core_address(addr: &Address) -> ::langmail::Address {
+    ::langmail::Address {
         name: addr.name.clone(),
         email: addr.email.clone(),
     }
 }
 
-fn to_py_address(addr: langmail_core::Address) -> Address {
+fn to_py_address(addr: ::langmail::Address) -> Address {
     Address {
         name: addr.name,
         email: addr.email,
     }
 }
 
-fn to_core_email(email: &ProcessedEmail) -> langmail_core::ProcessedEmail {
-    langmail_core::ProcessedEmail {
+fn to_core_email(email: &ProcessedEmail) -> ::langmail::ProcessedEmail {
+    ::langmail::ProcessedEmail {
         body: email.body.clone(),
         subject: email.subject.clone(),
         from: email.from_address.as_ref().map(to_core_address),
@@ -197,7 +197,7 @@ fn to_core_email(email: &ProcessedEmail) -> langmail_core::ProcessedEmail {
         primary_cta: email
             .primary_cta
             .as_ref()
-            .map(|c| langmail_core::CallToAction {
+            .map(|c| ::langmail::CallToAction {
                 url: c.url.clone(),
                 text: c.text.clone(),
                 confidence: c.confidence,
@@ -205,7 +205,7 @@ fn to_core_email(email: &ProcessedEmail) -> langmail_core::ProcessedEmail {
     }
 }
 
-fn to_py_output(result: langmail_core::ProcessedEmail) -> ProcessedEmail {
+fn to_py_output(result: ::langmail::ProcessedEmail) -> ProcessedEmail {
     ProcessedEmail {
         body: result.body,
         subject: result.subject,

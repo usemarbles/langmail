@@ -14,4 +14,4 @@ repository = "https://github.com/usemarbles/langmail"
 description = "Email preprocessing for LLMs"
 
 [workspace.dependencies]
-langmail-core = { path = "crates/langmail", package = "langmail" }
+langmail = { path = "crates/langmail" }

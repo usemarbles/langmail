@@ -10,7 +10,7 @@ description = "Node.js bindings for langmail"
 crate-type = ["cdylib"]
 
 [dependencies]
-langmail-core.workspace = true
+langmail.workspace = true
 napi = { version = "3", default-features = false, features = ["napi8"] }
 napi-derive = "3"
 
