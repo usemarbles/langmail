@@ -194,11 +194,14 @@ fn to_core_email(email: &ProcessedEmail) -> langmail_core::ProcessedEmail {
         signature: email.signature.clone(),
         raw_body_length: email.raw_body_length,
         clean_body_length: email.clean_body_length,
-        primary_cta: email.primary_cta.as_ref().map(|c| langmail_core::CallToAction {
-            url: c.url.clone(),
-            text: c.text.clone(),
-            confidence: c.confidence,
-        }),
+        primary_cta: email
+            .primary_cta
+            .as_ref()
+            .map(|c| langmail_core::CallToAction {
+                url: c.url.clone(),
+                text: c.text.clone(),
+                confidence: c.confidence,
+            }),
     }
 }
 
