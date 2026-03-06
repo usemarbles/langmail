@@ -31,18 +31,20 @@ footer = ""
 conventional_commits = true
 filter_unconventional = false
 split_commits = false
+protect_breaking_commits = true
 commit_parsers = [
     { message = "^feat", group = "Features" },
     { message = "^fix", group = "Bug Fixes" },
     { message = "^perf", group = "Performance" },
     { message = "^refactor", group = "Refactor" },
-    { message = "^test", group = "Testing" },
-    { message = "^doc|^docs", group = "Documentation" },
-    { message = "^ci", group = "CI" },
-    { message = "^build", group = "Build" },
-    { message = "^ops", group = "Operations" },
+    { message = "^test", skip = true },
+    { message = "^doc|^docs", skip = true },
+    { message = "^ci", skip = true },
+    { message = "^build", skip = true },
+    { message = "^ops", skip = true },
     { message = "^chore\\(release\\)", skip = true },
-    { message = "^chore|^style", group = "Miscellaneous" },
+    { message = "^chore: release", skip = true },
+    { message = "^chore|^style", skip = true },
     { message = "^Merge", skip = true },
 ]
 filter_commits = false

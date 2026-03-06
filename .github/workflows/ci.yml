@@ -13,6 +13,7 @@ jobs:
   test-rust:
     name: Rust Tests
     runs-on: ubuntu-latest
+    if: "!startsWith(github.event.head_commit.message, 'chore: release')"
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -21,6 +22,7 @@ jobs:
 
   test-node:
     name: Node.js Tests (${{ matrix.os }})
+    if: "!startsWith(github.event.head_commit.message, 'chore: release')"
     needs: test-rust
     strategy:
       matrix:
@@ -52,6 +54,7 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    if: "!startsWith(github.event.head_commit.message, 'chore: release')"
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
