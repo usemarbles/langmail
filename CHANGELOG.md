@@ -1,6 +1,11 @@
 # Changelog
 
 All notable changes to this project will be automatically documented in this file.
+## [0.5.0] - 2026-03-06
+
+### Features
+
+- **langmail-python**: Add generate-import-lib feature to pyo3([b1f90fc](https://github.com/usemarbles/langmail/commit/b1f90fc407a7ba6f391ea478c87f2e288ef12122))
 ## [0.4.2] - 2026-03-06
 
 ### Bug Fixes
