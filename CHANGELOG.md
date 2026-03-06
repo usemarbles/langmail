@@ -1,6 +1,11 @@
 # Changelog
 
 All notable changes to this project will be automatically documented in this file.
+## [0.4.2] - 2026-03-06
+
+### Bug Fixes
+
+- Specify python versions for maturin build([090670a](https://github.com/usemarbles/langmail/commit/090670ac51ffd94f0d70423644591a9d88f0a4b3))
 ## [0.4.1] - 2026-03-06
 
 ### Bug Fixes

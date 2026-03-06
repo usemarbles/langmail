@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "langmail"
-version = "0.4.1"
+version = "0.4.2"
 description = "Email preprocessing for LLMs"
 requires-python = ">=3.9"
 license = "MIT OR Apache-2.0"
