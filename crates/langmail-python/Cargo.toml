@@ -1,0 +1,15 @@
+[package]
+name = "langmail-python"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Python bindings for langmail"
+
+[lib]
+name = "langmail"
+crate-type = ["cdylib"]
+
+[dependencies]
+langmail-core.workspace = true
+pyo3 = { version = "0.23", features = ["extension-module"] }

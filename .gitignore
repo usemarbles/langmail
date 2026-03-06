@@ -6,6 +6,12 @@ target/
 # Cargo
 Cargo.lock
 
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
 # Node.js
 node_modules/
 /package-lock.json
