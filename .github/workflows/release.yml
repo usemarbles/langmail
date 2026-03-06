@@ -112,7 +112,7 @@ jobs:
 
           # Bump packages/langmail/package.json — version and optionalDependencies
           PKG="packages/langmail/package.json"
-          jq --arg v "$NEXT_VERSION" '
+          jq --tab --arg v "$NEXT_VERSION" '
             .version = $v |
             .optionalDependencies |= with_entries(.value = $v)
           ' "$PKG" > "${PKG}.tmp" && mv "${PKG}.tmp" "$PKG"
