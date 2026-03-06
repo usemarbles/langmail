@@ -3,6 +3,7 @@ resolver = "2"
 members = [
   "crates/langmail-core",
   "crates/langmail-node",
+  "crates/langmail-python",
 ]
 
 [workspace.package]
