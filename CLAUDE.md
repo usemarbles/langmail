@@ -105,7 +105,7 @@ The project uses `cargo-release` and `git-cliff` for releases. `cargo-release` b
 cargo release patch   # or: minor / major
 ```
 
-This single command handles everything locally. CI (`.github/workflows/publish.yml`) triggers on the `v*` tag push.
+This single command handles everything locally. CI (`.github/workflows/release.yml`) triggers on push to `main`.
 
 Use conventional commits (`feat:`, `fix:`, `refactor:`, etc.) so the changelog groups entries automatically.
 

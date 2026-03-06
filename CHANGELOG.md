@@ -1,74 +1,32 @@
 # Changelog
 
 All notable changes to this project will be automatically documented in this file.
-## [0.3.2] - 2026-03-05
+## [Unreleased]
 
-### CI
+### Bug Fixes
 
-- Remove manual changelog commit from publish workflow([fe80017](https://github.com/usemarbles/langmail/commit/fe80017a0a99c3b70dd85a34976f0acdd384b2fe))
-- Auto-commit updated CHANGELOG.md on release([81388e3](https://github.com/usemarbles/langmail/commit/81388e30cf5e3fcf828a77a2593b54a8651aecad))
-- Generate GitHub Release notes with git-cliff on publish([705027b](https://github.com/usemarbles/langmail/commit/705027b75c85fa95649caf08ab83956dd7ff4792))
-
-### Miscellaneous
-
-- Add git-cliff config and generate changelog([7a7d569](https://github.com/usemarbles/langmail/commit/7a7d5692567090aac82eec3275a8eae83123c040))
-## [0.3.1] - 2026-02-23
-
-### Build
-
-- **napi**: Upgrade to napi-rs v3 and update build configuration([5998665](https://github.com/usemarbles/langmail/commit/5998665678c296f740a64530a354e4c0420f45e3))
-
-### CI
-
-- Update napi-rs build and artifact commands([6cc56e4](https://github.com/usemarbles/langmail/commit/6cc56e4af80c1cf25b1becb009e3f597728433c3))
-- Update napi create-npm-dirs command syntax([904e096](https://github.com/usemarbles/langmail/commit/904e0963a7339a6a8ab3d005e27228ab1f2303d5))
-
-### Miscellaneous
-
-- Regenerate index.js with version 0.3.1([5778983](https://github.com/usemarbles/langmail/commit/57789837c3dc960fe1f101b674d12ca37b22eea0))
-- Bump version to 0.3.1([18e282b](https://github.com/usemarbles/langmail/commit/18e282b1d427cab8ce781e8ca5bf3fdbf45a39b0))
+- **ci**: Align Cargo.toml version with package.json (0.3.2)([865a8b1](https://github.com/usemarbles/langmail/commit/865a8b13d810e690fab1d6f36de55c3d028d6e8e))
+- **ci**: Switch code review to manual prompt approach([7482c72](https://github.com/usemarbles/langmail/commit/7482c72a975321c0b6ace33052e6c90033f63bd7))
+- **ci**: Use --comment flag in code-review plugin prompt([1d8c6f3](https://github.com/usemarbles/langmail/commit/1d8c6f33fadcbf8bbee2d857d2100f122869cb18))
 ## [0.3.0] - 2026-02-23
 
 ### Bug Fixes
 
 - Commit index.js to repo, remove CI artifact dance([76e4841](https://github.com/usemarbles/langmail/commit/76e484149f5bd6708a0e627125f723527a2afa68))
 
-### CI
-
-- Grant write permission to pull-requests in code review workflow([7162afe](https://github.com/usemarbles/langmail/commit/7162afe73465a1fdded2f6137f1a541e921c94da))
-- Add generated files staleness check([422de13](https://github.com/usemarbles/langmail/commit/422de134d646c7fefedc26e34fb5fbd8b4d6d7b9))
-
 ### Features
 
 - Feat(core): add call-to-action extraction with json-ld and heuristic
 scoring([3adc0f9](https://github.com/usemarbles/langmail/commit/3adc0f935909966bbd8d2e0f0bca7278d6503a12))
 
-### Miscellaneous
-
-- **langmail**: Bump platform-specific dependencies to 0.3.0([25e8ce6](https://github.com/usemarbles/langmail/commit/25e8ce6c065512cfc621ac10997e673081a59627))
-- Bump version to 0.3.0([28ae8f0](https://github.com/usemarbles/langmail/commit/28ae8f0a6fea35a404443a13485720fd9de415f8))
-
 ### Refactor
 
 - Rename message_id to rfc_message_id for clarity([9c18ed8](https://github.com/usemarbles/langmail/commit/9c18ed8edcdd47897694528d37a8b1fad5434c21))
-
-### Testing
-
-- Replace personally identifiable information in fixtures([d1a2594](https://github.com/usemarbles/langmail/commit/d1a259477e02526ee828ca455eb58529ee1ce247))
-## [0.2.2] - 2026-02-23
-
-### Miscellaneous
-
-- Bump version to 0.2.2 and include js binding in publish([504701f](https://github.com/usemarbles/langmail/commit/504701f4977036502858722b67a74ded1d6920f0))
 ## [0.2.1] - 2026-02-23
 
 ### Bug Fixes
 
 - Package name([05cb868](https://github.com/usemarbles/langmail/commit/05cb868a9044e17fd4e1dac93185c43311d38b12))
-
-### Miscellaneous
-
-- Bump version to 0.2.1([bb43ccb](https://github.com/usemarbles/langmail/commit/bb43ccb0cf779b22e3d6ba1e0495b853ff9dc1e8))
 ## [0.2.0] - 2026-02-20
 
 ### Bug Fixes
@@ -83,10 +41,6 @@ scoring([3adc0f9](https://github.com/usemarbles/langmail/commit/3adc0f935909966b
 - **scripts**: Handle MIME epilogue and avoid global regex footgun in anonymizer([c3512e2](https://github.com/usemarbles/langmail/commit/c3512e286bbf151c25c9ddec3500d868ccab9806))
 - **scripts**: Improve robustness of email anonymization script([f131601](https://github.com/usemarbles/langmail/commit/f131601bfe8bd5e11972f3ac833a008a47bab3db))
 - **types**: Add deprecated EmailOutput type alias for backwards compatibility([4510535](https://github.com/usemarbles/langmail/commit/4510535eb06a182412ebcc9660f00c1f3430ce99))
-
-### Documentation
-
-- Increase version([05d646d](https://github.com/usemarbles/langmail/commit/05d646d731c8a34a45b93196daba2d616ca7bbf2))
 
 ### Features
 
@@ -103,13 +57,6 @@ scoring([3adc0f9](https://github.com/usemarbles/langmail/commit/3adc0f935909966b
 - **anonymize**: Enhance pii anonymization in email fixtures([a26f85d](https://github.com/usemarbles/langmail/commit/a26f85d15b728084042cba48dbc1c098acb729a4))
 - **scripts**: Add email fixture anonymization script([b31e47c](https://github.com/usemarbles/langmail/commit/b31e47ce5bd06ba935aa1656808138f6f67a67eb))
 
-### Operations
-
-- Drop aarch64-unknown-linux-musl build target for now([b767603](https://github.com/usemarbles/langmail/commit/b767603a1ab52726f2c2a8a1b12a5bb32dab4f1c))
-- Update Rust in musl Docker build step([dbb22f8](https://github.com/usemarbles/langmail/commit/dbb22f87fed6e635da83936c1028c68740ed0604))
-- Fix napi build command to use --cargo-cwd flag([f66cbae](https://github.com/usemarbles/langmail/commit/f66cbaef6d68eeea29771c9c58a0902add04a542))
-- Improve publishing workflow([f065b0a](https://github.com/usemarbles/langmail/commit/f065b0a86978d9f22dac6dbdfbeedfa5d82cb0a9))
-
 ### Refactor
 
 - Formatting([fd33ed3](https://github.com/usemarbles/langmail/commit/fd33ed377f015c7c467230cac758025e8f41a865))
@@ -117,10 +64,4 @@ scoring([3adc0f9](https://github.com/usemarbles/langmail/commit/3adc0f935909966b
 - Refactor: improve whitespace and invisible character handling in email
 preprocessing([8a6f1fa](https://github.com/usemarbles/langmail/commit/8a6f1fa83b62ca6d271bfcd9c49a22816f06f52c))
 - Rename `EmailOutput` to `ProcessedEmail`([7ca0dd3](https://github.com/usemarbles/langmail/commit/7ca0dd346da11fc1c7a1f424217df5b39efcf3d4))
-- Improve code formatting and iterator usage([14fede1](https://github.com/usemarbles/langmail/commit/14fede11cbed36b7d6129ce1a1e3aca6f0f8102f))
-
-### Testing
-
-- **linkedin**: Add test fixtures and parsing for linkedin emails([c294d4c](https://github.com/usemarbles/langmail/commit/c294d4c7dbfc96499217e6346a07331520bdd60f))
-- **core**: Add linkedin email fixture([1790952](https://github.com/usemarbles/langmail/commit/1790952b6d8cc70328e9efa3506384e68ee5fe9b))
 
