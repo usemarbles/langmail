@@ -1,7 +1,7 @@
 # Changelog
 
 All notable changes to this project will be automatically documented in this file.
-## [Unreleased]
+## [0.3.2] - 2026-03-06
 
 ### Bug Fixes
 
@@ -22,15 +22,11 @@ scoring([3adc0f9](https://github.com/usemarbles/langmail/commit/3adc0f935909966b
 ### Refactor
 
 - Rename message_id to rfc_message_id for clarity([9c18ed8](https://github.com/usemarbles/langmail/commit/9c18ed8edcdd47897694528d37a8b1fad5434c21))
-## [0.2.1] - 2026-02-23
+## [0.2.0] - 2026-02-23
 
 ### Bug Fixes
 
 - Package name([05cb868](https://github.com/usemarbles/langmail/commit/05cb868a9044e17fd4e1dac93185c43311d38b12))
-## [0.2.0] - 2026-02-20
-
-### Bug Fixes
-
 - Do not strip forwarded messages([3711bc1](https://github.com/usemarbles/langmail/commit/3711bc145218e8231ccb2871897bb195c2d2a7a1))
 - Strip tables([07deed1](https://github.com/usemarbles/langmail/commit/07deed198e95a8850c02264a6461aa0db5211b6d))
 - Remove leading space([a97a5f2](https://github.com/usemarbles/langmail/commit/a97a5f252b4fae885dc6033f4ff9c5209002a61f))
