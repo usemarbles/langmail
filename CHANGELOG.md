@@ -1,6 +1,11 @@
 # Changelog
 
 All notable changes to this project will be automatically documented in this file.
+## [0.4.0] - 2026-03-06
+
+### Features
+
+- Add python bindings via pyo3/maturin([24becc6](https://github.com/usemarbles/langmail/commit/24becc6342b81e2f605dbb0deda33fab5cd56fa5))
 ## [0.3.2] - 2026-03-06
 
 ### Bug Fixes
