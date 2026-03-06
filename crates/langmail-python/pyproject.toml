@@ -8,6 +8,7 @@ version = "0.5.0"
 description = "Email preprocessing for LLMs"
 requires-python = ">=3.9"
 license = "MIT OR Apache-2.0"
+readme = "README.md"
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
