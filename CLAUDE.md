@@ -97,6 +97,18 @@ GitHub Actions runs three jobs:
 
 The CI workflows are located in `.github/workflows/` and test across multiple platforms.
 
+### Releasing
+
+The project uses `cargo-release` and `git-cliff` for releases. `cargo-release` bumps versions in `Cargo.toml` and `package.json`, runs `git-cliff` via a pre-release hook to update `CHANGELOG.md` and `optionalDependencies`, commits, tags, and pushes. CI then builds, publishes to npm, and creates a GitHub Release.
+
+```bash
+cargo release patch   # or: minor / major
+```
+
+This single command handles everything locally. CI (`.github/workflows/release.yml`) triggers on push to `main`.
+
+Use conventional commits (`feat:`, `fix:`, `refactor:`, etc.) so the changelog groups entries automatically.
+
 ## Key Implementation Notes
 
 ### Quote Detection Patterns
