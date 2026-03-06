@@ -164,6 +164,8 @@ fn to_llm_context(email: &ProcessedEmail) -> String {
 
 // ---------------------------------------------------------------------------
 // Internal conversion
+// Uses `::langmail::` (absolute path) to avoid collision with the #[pymodule]
+// also named `langmail`.
 // ---------------------------------------------------------------------------
 
 fn to_core_address(addr: &Address) -> ::langmail::Address {
