@@ -1,6 +1,44 @@
 # Changelog
 
 All notable changes to this project will be automatically documented in this file.
+## [0.6.0] - 2026-03-10
+
+### Bug Fixes
+
+- **types**: Add message separator in thread history rendering([a7f8edc](https://github.com/usemarbles/langmail/commit/a7f8edcce6e0c327f5ef6ffa392c4f943e1eb95d))
+
+### Features
+
+- Feat(thread): add spanish language support and improve timestamp
+handling
+
+- Add Spanish attribution pattern for email threading
+- Add Spanish month names to month_to_number mapping
+- Remove 'Z' suffix from ISO 8601 timestamps for consistency
+- Optimize selector creation with lazy static initialization
+- Replace Vec with HashSet for message deduplication
+- Add documentation for to_llm_context_with_options method([acd54b7](https://github.com/usemarbles/langmail/commit/acd54b74b56298711408db45f92f44532b36a5fd))
+- Add anonymize-fixture skill for LLM-based email anonymization([4c7387d](https://github.com/usemarbles/langmail/commit/4c7387d61b60f092ba61cfabea182d6099f451a3))
+- Add thread history rendering with toLlmContextWithOptions([e9c8d7b](https://github.com/usemarbles/langmail/commit/e9c8d7b17feeec9eebfdcbbe7802c8c9f954cff5))
+- Add thread message extraction and llm context rendering options([9d8def4](https://github.com/usemarbles/langmail/commit/9d8def4abf81c501da47610d056333e47b890a45))
+- Feat: add thread message extraction and render modes for email
+conversations
+
+Add support for extracting and rendering email thread history from
+quoted replies. Introduces:
+
+- New `thread.rs` module for parsing blockquote attribution lines
+  (German, English, French)
+- `ThreadMessage` type with sender, timestamp, and body fields
+- `RenderMode` enum and `LlmContextOptions` for controlling
+  `to_llm_context` output
+- `LatestOnly` mode (default) strips all quotes; `ThreadHistory` appends
+  prior messages
+- Attribution parsing extracts ISO 8601 timestamps and sender names from
+  quote headers
+- Direct HTML extraction from blockquotes excludes nested quotes and
+  signatures
+- Comprehensive tests with German Eventspace booking email fixtures([058b42a](https://github.com/usemarbles/langmail/commit/058b42aea6d779123d8bded647c3d9f930d0ef2a))
 ## [0.5.1] - 2026-03-06
 
 ### Refactor
