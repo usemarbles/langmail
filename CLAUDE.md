@@ -1,7 +1,3 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
 **langmail** is a Rust library with Node.js bindings for preprocessing email content for LLM consumption. It strips HTML noise, quoted replies, signatures, and excessive whitespace while preserving structured metadata (headers, threading info, etc.).
