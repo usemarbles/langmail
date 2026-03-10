@@ -42,6 +42,36 @@ pub struct ProcessedEmail {
 
     /// Primary call-to-action link extracted from the HTML body, if any.
     pub primary_cta: Option<NapiCallToAction>,
+
+    /// Thread messages extracted from quoted reply blocks (oldest first).
+    pub thread_messages: Vec<NapiThreadMessage>,
+}
+
+/// A single message extracted from a quoted reply chain.
+#[napi(object)]
+pub struct NapiThreadMessage {
+    /// The sender attribution (e.g. "Max Mustermann <test@example.com>").
+    pub sender: String,
+    /// ISO 8601 timestamp, if parseable from the attribution.
+    pub timestamp: Option<String>,
+    /// The message body (cleaned, no nested quotes).
+    pub body: String,
+}
+
+/// Controls how `toLlmContextWithOptions` renders the email body.
+#[napi(string_enum)]
+pub enum NapiRenderMode {
+    /// Strip all quoted content — only the latest message is rendered.
+    LatestOnly,
+    /// Render quoted replies as a chronological transcript below the main content.
+    ThreadHistory,
+}
+
+/// Options for `toLlmContextWithOptions`.
+#[napi(object)]
+pub struct NapiLlmContextOptions {
+    /// How to render the email body. Default: "LatestOnly".
+    pub render_mode: Option<NapiRenderMode>,
 }
 
 /// A primary call-to-action link extracted from an HTML email.
@@ -137,6 +167,29 @@ pub fn to_llm_context(email: ProcessedEmail) -> String {
     core_email.to_llm_context()
 }
 
+/// Format a preprocessed email as an LLM-ready context string with options.
+///
+/// Same as `toLlmContext` but accepts options to control rendering, e.g.
+/// `{ renderMode: "ThreadHistory" }` to include quoted reply history.
+///
+/// @param email - A ProcessedEmail object
+/// @param options - LLM context options
+/// @returns Formatted context string
+#[napi]
+pub fn to_llm_context_with_options(
+    email: ProcessedEmail,
+    options: NapiLlmContextOptions,
+) -> String {
+    let core_email = to_core_email(email);
+    let core_options = langmail::LlmContextOptions {
+        render_mode: match options.render_mode {
+            Some(NapiRenderMode::ThreadHistory) => langmail::RenderMode::ThreadHistory,
+            _ => langmail::RenderMode::LatestOnly,
+        },
+    };
+    core_email.to_llm_context_with_options(&core_options)
+}
+
 // ---------------------------------------------------------------------------
 // Internal conversion
 // ---------------------------------------------------------------------------
@@ -177,6 +230,15 @@ fn to_core_email(email: ProcessedEmail) -> langmail::ProcessedEmail {
             text: c.text,
             confidence: c.confidence,
         }),
+        thread_messages: email
+            .thread_messages
+            .into_iter()
+            .map(|m| langmail::ThreadMessage {
+                sender: m.sender,
+                timestamp: m.timestamp,
+                body: m.body,
+            })
+            .collect(),
     }
 }
 
@@ -216,5 +278,14 @@ fn to_napi_output(result: langmail::ProcessedEmail) -> ProcessedEmail {
             text: c.text,
             confidence: c.confidence,
         }),
+        thread_messages: result
+            .thread_messages
+            .into_iter()
+            .map(|m| NapiThreadMessage {
+                sender: m.sender,
+                timestamp: m.timestamp,
+                body: m.body,
+            })
+            .collect(),
     }
 }

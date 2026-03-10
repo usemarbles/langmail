@@ -190,6 +190,9 @@ const STRIP_HEADERS = new Set([
   "feedback-id",
   "require-recipient-valid-since",
   "return-path",
+  "sender",
+  "x-google-sender-delegation",
+  "x-google-sender-auth",
 ]);
 
 /** Headers whose values contain PII that needs targeted replacement. */
@@ -201,7 +204,7 @@ function anonymizeHeaderValue(
 ): string {
   const lower = name.toLowerCase();
 
-  if (lower === "delivered-to" || lower === "to") {
+  if (lower === "delivered-to" || lower === "to" || lower === "cc" || lower === "bcc") {
     return value.replace(/[^\s<>@,]+@[^\s<>@,]+/g, REPLACEMENTS.email)
                 .replace(/([^,<]+?)(\s*<)/g, `${REPLACEMENTS.fullName} $2`);
   }
@@ -308,6 +311,41 @@ function anonymizeUrls(text: string, rep: TextReplacer = defaultReplace): string
   text = rep(
     text,
     /https?:\/\/(?:[\w-]+\.)?linkedin\.com\/[^\s"'>)]+/g,
+    REPLACEMENTS.genericUrl
+  );
+
+  // Google user content (signature images)
+  text = rep(
+    text,
+    /https?:\/\/lh[0-9]*\.googleusercontent\.com\/[^\s"'>)]+/g,
+    "https://example.com/image.png"
+  );
+
+  // g.page review URLs
+  text = rep(
+    text,
+    /https?:\/\/g\.page\/[^\s"'>)]+/g,
+    REPLACEMENTS.genericUrl
+  );
+
+  // meetup.com URLs
+  text = rep(
+    text,
+    /https?:\/\/(?:[\w-]+\.)?meetup\.com\/[^\s"'>)]+/g,
+    REPLACEMENTS.genericUrl
+  );
+
+  // monday.com form URLs
+  text = rep(
+    text,
+    /https?:\/\/(?:[\w-]+\.)?monday\.com\/[^\s"'>)]+/g,
+    REPLACEMENTS.genericUrl
+  );
+
+  // Catch-all: any remaining URL not pointing to example* or standard domains
+  text = rep(
+    text,
+    /https?:\/\/(?!(?:www\.)?example[\w-]*\.com\b)(?!(?:www\.)?w3\.org\b)[^\s"'>)]+/g,
     REPLACEMENTS.genericUrl
   );
 
@@ -428,7 +466,31 @@ function extractSenderInfo(headers: Array<{ name: string; value: string; raw: st
   // Generic From: "Display Name <email@example.com>"
   const displayNameMatch = from.match(/^([^<]+?)\s*</);
   if (displayNameMatch) {
-    const parts = displayNameMatch[1].trim().split(/\s+/);
+    const displayName = displayNameMatch[1].trim();
+
+    // Detect organizational / non-personal senders and skip name replacement
+    const ROLE_ADDRESSES = new Set([
+      "noreply", "no-reply", "events", "info", "support", "team", "hello",
+      "contact", "office", "booking", "sales", "admin", "press", "marketing",
+      "newsletter", "notifications", "service",
+    ]);
+    const emailMatch = from.match(/<([^@]+)@/);
+    const localPart = emailMatch?.[1]?.toLowerCase() ?? "";
+    if (ROLE_ADDRESSES.has(localPart)) {
+      return { firstName: "", lastName: "" };
+    }
+
+    const BUSINESS_WORDS = /\b(?:Events|Team|Support|GmbH|Inc|LLC|Ltd|Corp|Foundation|Services?|Newsletter|News|Notifications|Alerts)\b/i;
+    if (BUSINESS_WORDS.test(displayName)) {
+      return { firstName: "", lastName: "" };
+    }
+
+    // All-caps with digits and length > 2 (e.g. "WERK1")
+    if (/^[A-Z0-9]{3,}$/.test(displayName) || displayName.split(/\s+/).some(w => /^[A-Z0-9]{3,}$/.test(w) && /\d/.test(w))) {
+      return { firstName: "", lastName: "" };
+    }
+
+    const parts = displayName.split(/\s+/);
     if (parts.length >= 2) {
       return { firstName: parts[0], lastName: parts.slice(1).join(" ") };
     } else if (parts.length === 1 && parts[0]) {

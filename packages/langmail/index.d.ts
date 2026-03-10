@@ -18,6 +18,30 @@ export interface NapiCallToAction {
   confidence: number
 }
 
+/** Options for `toLlmContextWithOptions`. */
+export interface NapiLlmContextOptions {
+  /** How to render the email body. Default: "LatestOnly". */
+  renderMode?: NapiRenderMode
+}
+
+/** Controls how `toLlmContextWithOptions` renders the email body. */
+export declare const enum NapiRenderMode {
+  /** Strip all quoted content — only the latest message is rendered. */
+  LatestOnly = 'LatestOnly',
+  /** Render quoted replies as a chronological transcript below the main content. */
+  ThreadHistory = 'ThreadHistory'
+}
+
+/** A single message extracted from a quoted reply chain. */
+export interface NapiThreadMessage {
+  /** The sender attribution (e.g. "Max Mustermann <test@example.com>"). */
+  sender: string
+  /** ISO 8601 timestamp, if parseable from the attribution. */
+  timestamp?: string
+  /** The message body (cleaned, no nested quotes). */
+  body: string
+}
+
 /**
  * Preprocess a raw email into an LLM-ready structure.
  *
@@ -86,6 +110,8 @@ export interface ProcessedEmail {
   cleanBodyLength: number
   /** Primary call-to-action link extracted from the HTML body, if any. */
   primaryCta?: NapiCallToAction
+  /** Thread messages extracted from quoted reply blocks (oldest first). */
+  threadMessages: Array<NapiThreadMessage>
 }
 
 /**
@@ -99,3 +125,15 @@ export interface ProcessedEmail {
  * @returns Formatted context string
  */
 export declare function toLlmContext(email: ProcessedEmail): string
+
+/**
+ * Format a preprocessed email as an LLM-ready context string with options.
+ *
+ * Same as `toLlmContext` but accepts options to control rendering, e.g.
+ * `{ renderMode: "ThreadHistory" }` to include quoted reply history.
+ *
+ * @param email - A ProcessedEmail object
+ * @param options - LLM context options
+ * @returns Formatted context string
+ */
+export declare function toLlmContextWithOptions(email: ProcessedEmail, options: NapiLlmContextOptions): string

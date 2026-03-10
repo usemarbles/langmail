@@ -1,0 +1,93 @@
+FROM: Max Mustermann <noreply@example.com>
+TO: Max Mustermann <test@example.com>
+SUBJECT: Re: Buchung Eventspace
+DATE: 2026-03-02T15:41:22Z
+CONTENT:
+Hallo Max,
+
+korrekt, in diesem Fall gilt auch der Samstag als Werktag.
+
+Bevor ich dir das Angebot erstelle, bräuchte ich noch ein paar weitere Informationen von dir:
+– An welche Adresse soll das Angebot ausgestellt werden?
+– Ist Catering oder sind Getränke gewünscht?
+
+Beste Grüße,
+
+Thomas
+
+**VENUE1 Events Team**
+
+Thomas Schmidt, Anna Mueller & Leon Weber
+
+Team VENUE1 Events: +49 89 1234567 00 | [test@example.com]
+
+Venue1 GmbH
+
+Musterstrasse 42, D-80331 München (Germany)
+
+[example-venue.com] | [LinkedIn] | [meetup] | [Wegbeschreibung]
+
+🚀 **Startup oder Scaleup Büro** & **Unterstützung** gesucht? Searching for a new home for your startup or scaleup? **Apply** for an [startup office]at VENUE1!
+🛌 VENUE1 **Coliving** - DAS Softlanding Paket in München! Max [**Coliving**] - THE soft landing package in Munich!
+**💼 Der** angesagteste **Coworking** Space in München? Tired of working from home? Joinour **[Coworking]** community!
+**🍸 Coole Events** aus dem Bereich Startups, Tech? Meet me at one of our **[events]** at VENUE1!
+💡 Wir lieben **Feedback**! We are always happy to receive your [ideas & feedback]on our services!
+
+**⭐️** Bewerte uns auf **Google**. Feel free to **[rate]** us on Google!
+
+Venue1 GmbH
+
+Sitz der Gesellschaft: München
+
+Registergericht: Amtsgericht München, HRB 000000
+
+Geschäftsführer: Dr. Maria Fischer
+
+Im Rahmen unserer Geschäftstätigkeit verarbeiten wir personenbezogene Daten.
+
+Informationen dazu und zu Ihren Rechten finden Sie unter [example-venue.com/datenschutzerklaerung]
+
+Gefördert durch:
+
+---
+
+THREAD HISTORY:
+
+[2026-02-26T17:33:00] Max Mustermann <test@example.com>
+Liebes VENUE1.
+
+Wir würden gerne den Eventspace für den 24.04. von 9:00-13:30 Uhr mieten. Wir haben vor, einen "Vibe Coding Workshop" zu veranstalten.
+
+Noch ein paar Fragen:
+
+\- Wir wissen noch nicht wie groß die Resonanz ist zu dem was wir vorhaben. Bis wann können wir spätestens unsere Buchung stornieren?
+
+\- Besteht die Möglichkeit, den Eventspace mit Tischen für 30 Personen auszustatten, wo die Leute arbeiten können.
+
+Danke euch!
+
+---
+
+[2026-02-27T09:16:00] Max Mustermann <test@example.com>
+Hallo Max,
+
+vielen Dank für deine E-Mail und dein Interesse an unserer Location.
+
+Am 24. April ist unser Event Space noch verfügbar. Die Location bietet ausreichend Platz für 30 Teilnehmende mit Tischen.
+
+Anbei findest du unsere AGB, in denen alle Informationen zu Stornierungsfristen, Gebühren und weiteren Details enthalten sind.
+
+Beste Grüße,
+
+Thomas
+
+---
+
+[2026-02-27T11:53:00] Max Mustermann <test@example.com>
+Super, danke dir.
+
+Dann buchen wir den Event Space für Freitag, den 24. April von 13-16 Uhr (Uhrzeit hat sich nochmal geändert).
+
+Wegen der Stornierungsfristen: Samstage sind Werktage in dem Fall, richtig?
+
+Danke dir!

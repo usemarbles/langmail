@@ -1,6 +1,38 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// Controls how `to_llm_context_with_options` renders the email body.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum RenderMode {
+    /// Strip all quoted content — only the latest message is rendered.
+    #[default]
+    LatestOnly,
+    /// Render quoted replies as a chronological transcript below the main content.
+    ThreadHistory,
+}
+
+/// Options for `to_llm_context_with_options`.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LlmContextOptions {
+    /// How to render the email body. Default: `LatestOnly`.
+    #[serde(default)]
+    pub render_mode: RenderMode,
+}
+
+/// A single message extracted from a quoted reply chain.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ThreadMessage {
+    /// The sender attribution line (e.g. "Max Mustermann <test@example.com>").
+    pub sender: String,
+    /// ISO 8601 timestamp, if parseable from the attribution.
+    pub timestamp: Option<String>,
+    /// The message body (cleaned, markdown-converted, no nested quotes).
+    pub body: String,
+}
+
 /// A primary call-to-action link extracted from an HTML email.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -58,6 +90,12 @@ pub struct ProcessedEmail {
 
     /// Primary call-to-action link extracted from the HTML body, if any.
     pub primary_cta: Option<CallToAction>,
+
+    /// Thread messages extracted from quoted reply blocks in the HTML.
+    /// Present when the email contains `<blockquote>` quoted replies.
+    /// Ordered oldest-first (chronological).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub thread_messages: Vec<ThreadMessage>,
 }
 
 /// An email address with optional display name.
@@ -86,6 +124,14 @@ impl ProcessedEmail {
     /// SUBJECT, DATE) followed by a CONTENT section.  Missing fields are
     /// omitted; the CONTENT line is always present.
     pub fn to_llm_context(&self) -> String {
+        self.to_llm_context_with_options(&LlmContextOptions::default())
+    }
+
+    /// Format the email as a plain-text string with rendering options.
+    ///
+    /// When `options.render_mode` is [`RenderMode::ThreadHistory`], appends a
+    /// chronological transcript of quoted reply messages after a `---` separator.
+    pub fn to_llm_context_with_options(&self, options: &LlmContextOptions) -> String {
         let mut parts: Vec<String> = Vec::new();
 
         if let Some(from) = &self.from {
@@ -103,6 +149,25 @@ impl ProcessedEmail {
         }
         parts.push("CONTENT:".to_string());
         parts.push(self.body.clone());
+
+        if matches!(options.render_mode, RenderMode::ThreadHistory)
+            && !self.thread_messages.is_empty()
+        {
+            parts.push("\n---\n\nTHREAD HISTORY:\n".to_string());
+
+            for (i, msg) in self.thread_messages.iter().enumerate() {
+                if i > 0 {
+                    parts.push("\n---\n".to_string());
+                }
+                let header = if let Some(ts) = &msg.timestamp {
+                    format!("[{}] {}", ts, msg.sender)
+                } else {
+                    format!("[?] {}", msg.sender)
+                };
+                parts.push(header);
+                parts.push(msg.body.clone());
+            }
+        }
 
         parts.join("\n")
     }

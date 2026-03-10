@@ -1,7 +1,3 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
 **langmail** is a Rust library with Node.js bindings for preprocessing email content for LLM consumption. It strips HTML noise, quoted replies, signatures, and excessive whitespace while preserving structured metadata (headers, threading info, etc.).
@@ -144,10 +140,3 @@ This approach is fast and sufficient for email content.
 - Rust tests are inline with `#[cfg(test)]` modules in each source file under `crates/langmail/src/`
 - Node.js tests are in `packages/langmail/test/` and use Node's built-in test runner (requires Node 18+)
 - Test fixtures are defined inline as strings/bytes (no external `.eml` files needed)
-
-## mail-parser API Notes
-
-The project uses `mail-parser` v0.11+. Key API details:
-- `message.to()` and `message.cc()` return `Option<&Address>` (not `HeaderValue`)
-- Use `.iter()` on `Address` to iterate over individual `Addr` items
-- Each `Addr` has `name()` and `address()` methods returning `Option<&str>`
