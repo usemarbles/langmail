@@ -177,6 +177,7 @@ fn to_core_email(email: ProcessedEmail) -> langmail::ProcessedEmail {
             text: c.text,
             confidence: c.confidence,
         }),
+        thread_messages: Vec::new(),
     }
 }
 

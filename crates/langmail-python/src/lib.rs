@@ -204,6 +204,7 @@ fn to_core_email(email: &ProcessedEmail) -> ::langmail::ProcessedEmail {
                 text: c.text.clone(),
                 confidence: c.confidence,
             }),
+        thread_messages: Vec::new(),
     }
 }
 

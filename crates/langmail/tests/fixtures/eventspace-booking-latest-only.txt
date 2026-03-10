@@ -1,0 +1,50 @@
+FROM: Max Mustermann <noreply@example.com>
+TO: Max Mustermann <test@example.com>
+SUBJECT: Re: Buchung Eventspace
+DATE: 2026-03-02T15:41:22Z
+CONTENT:
+Hallo Max,
+
+korrekt, in diesem Fall gilt auch der Samstag als Werktag.
+
+Bevor ich dir das Angebot erstelle, bräuchte ich noch ein paar weitere Informationen von dir:
+– An welche Adresse soll das Angebot ausgestellt werden?
+– Ist Catering oder sind Getränke gewünscht?
+
+Beste Grüße,
+
+Thomas
+
+**VENUE1 Events Team**
+
+Thomas Schmidt, Anna Mueller & Leon Weber
+
+Team VENUE1 Events: +49 89 1234567 00 | [test@example.com]
+
+Venue1 GmbH
+
+Musterstrasse 42, D-80331 München (Germany)
+
+[example-venue.com] | [LinkedIn] | [meetup] | [Wegbeschreibung]
+
+🚀 **Startup oder Scaleup Büro** & **Unterstützung** gesucht? Searching for a new home for your startup or scaleup? **Apply** for an [startup office]at VENUE1!
+🛌 VENUE1 **Coliving** - DAS Softlanding Paket in München! Max [**Coliving**] - THE soft landing package in Munich!
+**💼 Der** angesagteste **Coworking** Space in München? Tired of working from home? Joinour **[Coworking]** community!
+**🍸 Coole Events** aus dem Bereich Startups, Tech? Meet me at one of our **[events]** at VENUE1!
+💡 Wir lieben **Feedback**! We are always happy to receive your [ideas & feedback]on our services!
+
+**⭐️** Bewerte uns auf **Google**. Feel free to **[rate]** us on Google!
+
+Venue1 GmbH
+
+Sitz der Gesellschaft: München
+
+Registergericht: Amtsgericht München, HRB 000000
+
+Geschäftsführer: Dr. Maria Fischer
+
+Im Rahmen unserer Geschäftstätigkeit verarbeiten wir personenbezogene Daten.
+
+Informationen dazu und zu Ihren Rechten finden Sie unter [example-venue.com/datenschutzerklaerung]
+
+Gefördert durch:

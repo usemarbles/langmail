@@ -2,6 +2,7 @@ mod cta;
 mod html;
 mod quotes;
 mod signature;
+mod thread;
 mod types;
 
 pub use types::*;
@@ -101,6 +102,12 @@ pub fn preprocess_with_options(
         }
     }
 
+    // Extract thread messages from HTML blockquotes (for ThreadHistory render mode)
+    let thread_messages = raw_html
+        .as_deref()
+        .map(thread::extract_thread_messages)
+        .unwrap_or_default();
+
     Ok(ProcessedEmail {
         clean_body_length: body.len(),
         body,
@@ -115,6 +122,7 @@ pub fn preprocess_with_options(
         signature,
         raw_body_length: raw_body.len(),
         primary_cta,
+        thread_messages,
     })
 }
 
@@ -178,7 +186,7 @@ fn clean_invisible_characters(s: &str) -> String {
 }
 
 /// Trims trailing whitespace from every line, collapsing whitespace-only lines to empty.
-fn trim_whitespace_lines(s: &str) -> String {
+pub(crate) fn trim_whitespace_lines(s: &str) -> String {
     s.lines()
         .map(|line| line.trim_end())
         .collect::<Vec<_>>()
@@ -187,7 +195,7 @@ fn trim_whitespace_lines(s: &str) -> String {
 
 /// Collapses 3+ consecutive newlines to maximum 2 newlines.
 /// Preserves paragraph breaks (2 newlines) but removes excessive spacing.
-fn collapse_empty_lines(s: &str) -> String {
+pub(crate) fn collapse_empty_lines(s: &str) -> String {
     let mut result = String::with_capacity(s.len());
     let mut newline_count = 0u32;
     for c in s.chars() {
