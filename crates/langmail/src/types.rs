@@ -127,6 +127,10 @@ impl ProcessedEmail {
         self.to_llm_context_with_options(&LlmContextOptions::default())
     }
 
+    /// Format the email as a plain-text string with rendering options.
+    ///
+    /// When `options.render_mode` is [`RenderMode::ThreadHistory`], appends a
+    /// chronological transcript of quoted reply messages after a `---` separator.
     pub fn to_llm_context_with_options(&self, options: &LlmContextOptions) -> String {
         let mut parts: Vec<String> = Vec::new();
 

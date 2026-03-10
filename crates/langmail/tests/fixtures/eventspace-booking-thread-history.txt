@@ -53,7 +53,7 @@ Gefördert durch:
 
 THREAD HISTORY:
 
-[2026-02-26T17:33:00Z] Max Mustermann <test@example.com>
+[2026-02-26T17:33:00] Max Mustermann <test@example.com>
 Liebes VENUE1.
 
 Wir würden gerne den Eventspace für den 24.04. von 9:00-13:30 Uhr mieten. Wir haben vor, einen "Vibe Coding Workshop" zu veranstalten.
@@ -66,7 +66,7 @@ Noch ein paar Fragen:
 
 Danke euch!
 
-[2026-02-27T09:16:00Z] Max Mustermann <test@example.com>
+[2026-02-27T09:16:00] Max Mustermann <test@example.com>
 Hallo Max,
 
 vielen Dank für deine E-Mail und dein Interesse an unserer Location.
@@ -79,7 +79,7 @@ Beste Grüße,
 
 Thomas
 
-[2026-02-27T11:53:00Z] Max Mustermann <test@example.com>
+[2026-02-27T11:53:00] Max Mustermann <test@example.com>
 Super, danke dir.
 
 Dann buchen wir den Event Space für Freitag, den 24. April von 13-16 Uhr (Uhrzeit hat sich nochmal geändert).

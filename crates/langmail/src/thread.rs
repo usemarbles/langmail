@@ -16,6 +16,8 @@ static ATTRIBUTION_PATTERNS: Lazy<Vec<Regex>> = Lazy::new(|| {
         r"On\s+\w+,\s+(\d{1,2})\s+(\w+)\s+(\d{4})\s+at\s+(\d{1,2}):(\d{2}),\s*(.+?)\s+wrote:",
         // French: "Le <date> à <time>, <sender> a écrit :"
         r"Le\s+.+?(\d{1,2})\s+(\w+)\.?\s+(\d{4})\s+à\s+(\d{1,2}):(\d{2}),?\s*(.+?)\s+a\s+écrit\s*:",
+        // Spanish: "El <date> a las <time>, <sender> escribió:"
+        r"El\s+.+?(\d{1,2})\s+de\s+(\w+)\.?\s+de\s+(\d{4})\s+a\s+las\s+(\d{1,2}):(\d{2}),?\s*(.+?)\s+escribió\s*:",
     ]
     .iter()
     .filter_map(|p| Regex::new(p).ok())
@@ -25,18 +27,18 @@ static ATTRIBUTION_PATTERNS: Lazy<Vec<Regex>> = Lazy::new(|| {
 fn month_to_number(month: &str) -> Option<u32> {
     let m = month.to_lowercase();
     match m.as_str() {
-        "jan" | "january" | "januar" | "janvier" => Some(1),
-        "feb" | "february" | "februar" | "février" => Some(2),
-        "mar" | "march" | "märz" | "mär" | "mars" => Some(3),
-        "apr" | "april" | "avril" => Some(4),
-        "may" | "mai" => Some(5),
-        "jun" | "june" | "juni" | "juin" => Some(6),
-        "jul" | "july" | "juli" | "juillet" => Some(7),
-        "aug" | "august" | "août" => Some(8),
-        "sep" | "september" | "septembre" => Some(9),
-        "oct" | "october" | "okt" | "oktober" | "octobre" => Some(10),
-        "nov" | "november" | "novembre" => Some(11),
-        "dec" | "december" | "dez" | "dezember" | "décembre" => Some(12),
+        "jan" | "january" | "januar" | "janvier" | "enero" => Some(1),
+        "feb" | "february" | "februar" | "février" | "febrero" => Some(2),
+        "mar" | "march" | "märz" | "mär" | "mars" | "marzo" => Some(3),
+        "apr" | "april" | "avril" | "abril" => Some(4),
+        "may" | "mai" | "mayo" => Some(5),
+        "jun" | "june" | "juni" | "juin" | "junio" => Some(6),
+        "jul" | "july" | "juli" | "juillet" | "julio" => Some(7),
+        "aug" | "august" | "août" | "agosto" => Some(8),
+        "sep" | "september" | "septembre" | "septiembre" => Some(9),
+        "oct" | "october" | "okt" | "oktober" | "octobre" | "octubre" => Some(10),
+        "nov" | "november" | "novembre" | "noviembre" => Some(11),
+        "dec" | "december" | "dez" | "dezember" | "décembre" | "diciembre" => Some(12),
         _ => None,
     }
 }
@@ -47,7 +49,7 @@ fn parse_timestamp(day: &str, month: &str, year: &str, hour: &str, minute: &str)
     let y: u32 = year.parse().ok()?;
     let h: u32 = hour.parse().ok()?;
     let min: u32 = minute.parse().ok()?;
-    Some(format!("{y:04}-{m:02}-{d:02}T{h:02}:{min:02}:00Z"))
+    Some(format!("{y:04}-{m:02}-{d:02}T{h:02}:{min:02}:00"))
 }
 
 fn parse_sender(raw: &str) -> String {
@@ -78,22 +80,24 @@ fn parse_attribution(text: &str) -> (String, Option<String>) {
     (parse_sender(text.trim().trim_end_matches(':')), None)
 }
 
+static BLOCKQUOTE_SEL: Lazy<Selector> = Lazy::new(|| Selector::parse("blockquote").unwrap());
+static GMAIL_QUOTE_SEL: Lazy<Selector> =
+    Lazy::new(|| Selector::parse("div.gmail_quote, div.gmail_quote_container").unwrap());
+static SIGNATURE_SEL: Lazy<Selector> =
+    Lazy::new(|| Selector::parse("div.gmail_signature").unwrap());
+
 /// Extract the inner HTML of an element, excluding nested blockquotes,
 /// gmail_quote containers, and gmail_signature divs.
 fn extract_direct_html(element: &scraper::ElementRef) -> String {
-    let blockquote_sel = Selector::parse("blockquote").unwrap();
-    let gmail_quote_sel = Selector::parse("div.gmail_quote, div.gmail_quote_container").unwrap();
-    let signature_sel = Selector::parse("div.gmail_signature").unwrap();
-
     // Collect node IDs to exclude
     let mut exclude_ids = std::collections::HashSet::new();
-    for el in element.select(&blockquote_sel) {
+    for el in element.select(&BLOCKQUOTE_SEL) {
         exclude_ids.insert(el.id());
     }
-    for el in element.select(&gmail_quote_sel) {
+    for el in element.select(&GMAIL_QUOTE_SEL) {
         exclude_ids.insert(el.id());
     }
-    for el in element.select(&signature_sel) {
+    for el in element.select(&SIGNATURE_SEL) {
         exclude_ids.insert(el.id());
     }
 
@@ -158,12 +162,11 @@ fn write_node_html(
 /// content and attribution. Returns messages in chronological order (oldest first).
 pub fn extract_thread_messages(html: &str) -> Vec<ThreadMessage> {
     let document = Html::parse_document(html);
-    let blockquote_sel = Selector::parse("blockquote").unwrap();
 
     let mut messages: Vec<ThreadMessage> = Vec::new();
-    let mut seen_bodies: Vec<String> = Vec::new();
+    let mut seen_bodies: std::collections::HashSet<String> = std::collections::HashSet::new();
 
-    for bq in document.select(&blockquote_sel) {
+    for bq in document.select(&BLOCKQUOTE_SEL) {
         let attribution_text = find_attribution_for_blockquote(&document, &bq);
 
         let (sender, timestamp) = if let Some(attr_text) = &attribution_text {
@@ -187,10 +190,9 @@ pub fn extract_thread_messages(html: &str) -> Vec<ThreadMessage> {
         }
 
         // Deduplication
-        if seen_bodies.contains(&body) {
+        if !seen_bodies.insert(body.clone()) {
             continue;
         }
-        seen_bodies.push(body.clone());
 
         messages.push(ThreadMessage {
             sender,
@@ -262,7 +264,7 @@ mod tests {
             "Am Fr., 27. Feb. 2026 um 11:53\u{a0}Uhr schrieb Max Mustermann <test@example.com>:";
         let (sender, ts) = parse_attribution(text);
         assert_eq!(sender, "Max Mustermann <test@example.com>");
-        assert_eq!(ts, Some("2026-02-27T11:53:00Z".to_string()));
+        assert_eq!(ts, Some("2026-02-27T11:53:00".to_string()));
     }
 
     #[test]
@@ -270,7 +272,7 @@ mod tests {
         let text = "On Fri, 27 Feb 2026 at 09:16, Max Mustermann <test@example.com> wrote:";
         let (sender, ts) = parse_attribution(text);
         assert_eq!(sender, "Max Mustermann <test@example.com>");
-        assert_eq!(ts, Some("2026-02-27T09:16:00Z".to_string()));
+        assert_eq!(ts, Some("2026-02-27T09:16:00".to_string()));
     }
 
     #[test]
