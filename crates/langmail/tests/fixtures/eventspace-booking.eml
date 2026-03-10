@@ -6,7 +6,6 @@ Sender: staff@example-venue.com
 X-Google-Sender-Delegation: staff@example-venue.com; h=REDACTED
 From: Max Mustermann <noreply@example.com>
 Date: Mon, 2 Mar 2026 16:41:22 +0100
-X-Google-Sender-Auth: TJtRGeqWOdWaGZPkdK3bYbEw8sc
 Message-ID: <test-message-id@example.com>
 Subject: Re: Buchung Eventspace
 To: Max Mustermann  <test@example.com>
@@ -221,9 +220,7 @@ family:Helvetica;font-size:12px">Thomas Schmidt, Anna Mueller &amp; Leon Web=
 er=C2=A0</span><font color=3D"#000000" face=3D"Helvetica"><span s=
 tyle=3D"font-size:12px"><br></span></font><div style=3D"color:rgb(0,0,0);fo=
 nt-family:Helvetica;font-size:12px"><br></div><div style=3D"color:rgb(0,0,0=
-);font-family:Helvetica;font-size:12px"><b><img src=3D"https://ci3.googleus=
-ercontent.com/mail-sig/AIorK4yvXgfs3h_t3zUsIGNEgWBrib1Ixr85AZ3oUwSjtqq5LKgu=
-XjhxkkRMQbvMKs7wRWPopLSOz-M" width=3D"200" height=3D"86"></b></div><div sty=
+);font-family:Helvetica;font-size:12px"><b><img src=3D"https://example.com/sig-image.png" width=3D"200" height=3D"86"></b></div><div sty=
 le=3D"color:rgb(0,0,0);font-family:Helvetica;font-size:12px"><b></b></div><=
 div style=3D"color:rgb(0,0,0);font-family:Helvetica;font-size:12px"><b><img=
  width=3D"200" height=3D"60" src=3D"https://example.com/sig-image2.png">=C2=
@@ -308,8 +305,7 @@ amily:arial,sans-serif;font-size:x-small;color:rgb(0,0,0)">=F0=9F=92=A1=C2=
 =A0Wir lieben=C2=A0</span><b style=3D"font-family:arial,sans-serif;font-siz=
 e:x-small;color:rgb(0,0,0)">Feedback</b><span style=3D"font-family:arial,sa=
 ns-serif;font-size:x-small;color:rgb(0,0,0)">! We are always happy to=C2=A0=
-receive your=C2=A0</span><a href=3D"https://forms.monday.com/forms/da368b79=
-976cef87c1adb48132ece36f?r=3Duse1" style=3D"font-family:arial,sans-serif;fo=
+receive your=C2=A0</span><a href=3D"https://example.com/feedback-form?r=3Duse1" style=3D"font-family:arial,sans-serif;fo=
 nt-size:x-small;color:rgb(17,85,204);font-weight:bold" target=3D"_blank">id=
 eas &amp;=C2=A0feedback</a><b style=3D"font-family:arial,sans-serif;font-si=
 ze:x-small;color:rgb(0,0,0)">=C2=A0</b><span style=3D"font-family:arial,san=
@@ -409,7 +405,7 @@ com</font></a>=C2=A0<font color=3D"#000000">=C2=A0</font><font color=3D"#00=
 0000">|=C2=A0=C2=A0<a href=3D"https://example.com/" style=
 =3D"color:rgb(17,85,204)" target=3D"_blank">LinkedIn</a>=C2=A0=C2=A0</font>=
 <span style=3D"color:rgb(11,83,148)">|=C2=A0=C2=A0</span><a href=3D"https:/=
-/www.meetup.com/de-DE/VENUE1munich/" style=3D"color:rgb(17,85,204)" target=
+/example.com/meetup" style=3D"color:rgb(17,85,204)" target=
 =3D"_blank">meetup</a>=C2=A0=C2=A0<span style=3D"color:rgb(11,83,148)">|=C2=
 =A0=C2=A0</span><a href=3D"https://www.example-venue.com/das-venue1/anfahrt/" style=
 =3D"color:rgb(17,85,204)" target=3D"_blank"><font color=3D"#0b5394">Wegbesc=
@@ -472,8 +468,7 @@ use1" style=3D"font-family:arial,sans-serif;font-size:x-small;color:rgb(17,=
 or:rgb(0,0,0)">on our services!</span><br><div><div style=3D"color:rgb(0,0,=
 0)"><div style=3D"font-family:Arial,Helvetica,sans-serif"><font face=3D"ari=
 al, sans-serif" size=3D"1"><b>=E2=AD=90=EF=B8=8F=C2=A0</b>Bewerte uns auf=
-=C2=A0<b>Google</b>. Feel free to=C2=A0<b><a href=3D"https://g.page/r/CURZt=
-vE31SoaEBM/review" style=3D"color:rgb(17,85,204)" target=3D"_blank">rate</a=
+=C2=A0<b>Google</b>. Feel free to=C2=A0<b><a href=3D"https://example.com/review" style=3D"color:rgb(17,85,204)" target=3D"_blank">rate</a=
 >=C2=A0</b>us on Google!</font></div></div></div></div></div><div style=3D"=
 color:rgb(34,34,34);font-family:Arial,Helvetica,sans-serif;font-size:small"=
 ><p style=3D"line-height:1.38;margin-left:60pt;margin-top:0pt;margin-bottom=
