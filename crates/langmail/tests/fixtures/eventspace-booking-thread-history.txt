@@ -66,6 +66,8 @@ Noch ein paar Fragen:
 
 Danke euch!
 
+---
+
 [2026-02-27T09:16:00] Max Mustermann <test@example.com>
 Hallo Max,
 
@@ -78,6 +80,8 @@ Anbei findest du unsere AGB, in denen alle Informationen zu Stornierungsfristen,
 Beste Grüße,
 
 Thomas
+
+---
 
 [2026-02-27T11:53:00] Max Mustermann <test@example.com>
 Super, danke dir.

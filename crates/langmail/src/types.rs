@@ -153,12 +153,11 @@ impl ProcessedEmail {
         if matches!(options.render_mode, RenderMode::ThreadHistory)
             && !self.thread_messages.is_empty()
         {
-            parts.push("\n---\n".to_string());
-            parts.push("THREAD HISTORY:\n".to_string());
+            parts.push("\n---\n\nTHREAD HISTORY:\n".to_string());
 
             for (i, msg) in self.thread_messages.iter().enumerate() {
                 if i > 0 {
-                    parts.push(String::new()); // blank line between messages
+                    parts.push("\n---\n".to_string());
                 }
                 let header = if let Some(ts) = &msg.timestamp {
                     format!("[{}] {}", ts, msg.sender)
