@@ -13,7 +13,8 @@ jobs:
   check-release:
     name: Check Release
     runs-on: ubuntu-latest
-    if: "!startsWith(github.event.head_commit.message, 'chore: release')"
+    if: >-
+      !startsWith(github.event.head_commit.message, 'chore: release')
     outputs:
       needs_release: ${{ steps.check.outputs.needs_release }}
       next_version: ${{ steps.check.outputs.next_version }}
