@@ -10,6 +10,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # ─── Path A: Releasable commits land on main → create release PR ───
+
   check-release:
     name: Check Release
     runs-on: ubuntu-latest
@@ -86,14 +88,12 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    outputs:
-      release_notes: ${{ steps.notes.outputs.body }}
-      release_sha: ${{ steps.commit.outputs.sha }}
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_TOKEN }}
 
       - name: Install git-cliff
         uses: taiki-e/install-action@v2
@@ -104,6 +104,17 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Clean up existing release PR/branch
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          # Close any existing release PRs
+          EXISTING_PRS=$(gh pr list --head "release/" --json number --jq '.[].number')
+          for pr in $EXISTING_PRS; do
+            echo "Closing existing release PR #${pr}"
+            gh pr close "$pr" --delete-branch || true
+          done
 
       - name: Bump versions
         env:
@@ -127,53 +138,102 @@ jobs:
           NEXT_VERSION: ${{ needs.check-release.outputs.next_version }}
         run: git-cliff --tag "v${NEXT_VERSION}" -o CHANGELOG.md
 
-      - name: Commit, tag, and push
-        id: commit
+      - name: Create release branch and PR
         env:
           NEXT_VERSION: ${{ needs.check-release.outputs.next_version }}
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
+          BRANCH="release/v${NEXT_VERSION}"
+
+          git checkout -b "$BRANCH"
           git add Cargo.toml packages/langmail/package.json crates/langmail-python/pyproject.toml CHANGELOG.md
           git commit -m "chore: release v${NEXT_VERSION}"
-          git tag "v${NEXT_VERSION}"
-          git push origin main --follow-tags
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --title "chore: release v${NEXT_VERSION}" \
+            --body "Automated release PR for v${NEXT_VERSION}." \
+            --base main \
+            --head "$BRANCH"
+
+          PR_NUMBER=$(gh pr view "$BRANCH" --json number --jq '.number')
+          gh pr merge "$PR_NUMBER" --auto --squash
+
+  # ─── Path B: Release PR merged → tag, build, publish ───
+
+  create-tag:
+    name: Create Tag
+    runs-on: ubuntu-latest
+    if: >-
+      startsWith(github.event.head_commit.message, 'chore: release')
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.extract.outputs.version }}
+      release_notes: ${{ steps.notes.outputs.body }}
+      release_sha: ${{ steps.extract.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install git-cliff
+        uses: taiki-e/install-action@v2
+        with:
+          tool: git-cliff
+
+      - name: Extract version and create tag
+        id: extract
+        run: |
+          VERSION=$(echo "${{ github.event.head_commit.message }}" | grep -oP 'v\d+\.\d+\.\d+')
+          echo "version=${VERSION#v}" >> "$GITHUB_OUTPUT"
+          echo "sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git tag "$VERSION"
+          git push origin "$VERSION"
 
       - name: Generate release notes
         id: notes
         env:
-          NEXT_VERSION: ${{ needs.check-release.outputs.next_version }}
+          VERSION: ${{ steps.extract.outputs.version }}
         run: |
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           echo "body<<$EOF" >> "$GITHUB_OUTPUT"
-          git-cliff --tag "v${NEXT_VERSION}" --latest --strip header >> "$GITHUB_OUTPUT"
+          git-cliff --tag "v${VERSION}" --latest --strip header >> "$GITHUB_OUTPUT"
           echo "$EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Delete release branch
+        run: git push origin --delete "release/v${{ steps.extract.outputs.version }}" || true
 
   github-release:
     name: Create GitHub Release
-    needs: [check-release, prepare-release]
+    needs: [create-tag]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.prepare-release.outputs.release_sha }}
+          ref: ${{ needs.create-tag.outputs.release_sha }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.check-release.outputs.next_version }}
-          body: ${{ needs.prepare-release.outputs.release_notes }}
+          tag_name: v${{ needs.create-tag.outputs.version }}
+          body: ${{ needs.create-tag.outputs.release_notes }}
           make_latest: true
 
   publish-crates:
     name: Publish to crates.io
-    needs: [check-release, prepare-release]
+    needs: [create-tag]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.prepare-release.outputs.release_sha }}
+          ref: ${{ needs.create-tag.outputs.release_sha }}
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Publish langmail
@@ -183,7 +243,7 @@ jobs:
 
   build-node-binaries:
     name: Build - ${{ matrix.target }}
-    needs: [check-release, prepare-release]
+    needs: [create-tag]
     strategy:
       fail-fast: false
       matrix:
@@ -203,7 +263,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.prepare-release.outputs.release_sha }}
+          ref: ${{ needs.create-tag.outputs.release_sha }}
 
       - uses: actions/setup-node@v4
         with:
@@ -245,14 +305,14 @@ jobs:
 
   publish-npm:
     name: Publish to npm
-    needs: [check-release, prepare-release, build-node-binaries]
+    needs: [create-tag, build-node-binaries]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.prepare-release.outputs.release_sha }}
+          ref: ${{ needs.create-tag.outputs.release_sha }}
 
       - uses: actions/setup-node@v4
         with:
@@ -294,7 +354,7 @@ jobs:
 
   build-python-wheels:
     name: Python Wheels - ${{ matrix.os }} (${{ matrix.target }})
-    needs: [check-release, prepare-release]
+    needs: [create-tag]
     strategy:
       fail-fast: false
       matrix:
@@ -313,7 +373,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.prepare-release.outputs.release_sha }}
+          ref: ${{ needs.create-tag.outputs.release_sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
@@ -330,12 +390,12 @@ jobs:
 
   build-python-sdist:
     name: Python sdist
-    needs: [check-release, prepare-release]
+    needs: [create-tag]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.prepare-release.outputs.release_sha }}
+          ref: ${{ needs.create-tag.outputs.release_sha }}
       - uses: PyO3/maturin-action@v1
         with:
           command: sdist
@@ -347,7 +407,7 @@ jobs:
 
   publish-pypi:
     name: Publish to PyPI
-    needs: [check-release, prepare-release, build-python-wheels, build-python-sdist]
+    needs: [create-tag, build-python-wheels, build-python-sdist]
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
