@@ -82,6 +82,52 @@ fn body_does_not_contain_quoted_replies() {
 }
 
 #[test]
+fn signature_is_stripped() {
+    let output = preprocess(EVENTSPACE_EML).unwrap();
+    assert!(
+        output.signature.is_some(),
+        "signature should be detected and extracted"
+    );
+    assert!(
+        !output.body.contains("VENUE1 Events Team"),
+        "signature block (team name) should not appear in body"
+    );
+    assert!(
+        !output.body.contains("Thomas Schmidt, Anna Mueller"),
+        "signature block (team members) should not appear in body"
+    );
+    assert!(
+        !output.body.contains("Venue1 GmbH"),
+        "company legal info should not appear in body"
+    );
+    assert!(
+        !output.body.contains("Musterstrasse 42"),
+        "company address should not appear in body"
+    );
+    assert!(
+        !output.body.contains("Gefördert durch"),
+        "promotional footer should not appear in body"
+    );
+}
+
+#[test]
+fn body_ends_after_message_content() {
+    let output = preprocess(EVENTSPACE_EML).unwrap();
+    // The actual message content ends with the questions about the offer
+    assert!(
+        output.body.contains("Ist Catering oder sind Getränke gewünscht"),
+        "body should contain the last question"
+    );
+    // Body should end around the sign-off, not contain the long signature
+    assert!(
+        output.body.lines().count() < 15,
+        "body should be short (got {} lines): {}",
+        output.body.lines().count(),
+        output.body
+    );
+}
+
+#[test]
 fn german_quote_header_stripped() {
     let output = preprocess(EVENTSPACE_EML).unwrap();
     assert!(
