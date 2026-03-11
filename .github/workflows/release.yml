@@ -112,7 +112,7 @@ jobs:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
           # Close any existing release PRs
-          EXISTING_PRS=$(gh pr list --head "release/" --json number --jq '.[].number')
+          EXISTING_PRS=$(gh pr list --json number,headRefName --jq '.[] | select(.headRefName | startswith("release/")) | .number')
           for pr in $EXISTING_PRS; do
             echo "Closing existing release PR #${pr}"
             gh pr close "$pr" --delete-branch || true
@@ -218,7 +218,9 @@ jobs:
           echo "$EOF" >> "$GITHUB_OUTPUT"
 
       - name: Delete release branch
-        run: git push origin --delete "release/v${{ steps.extract.outputs.version }}" || true
+        env:
+          VERSION: ${{ steps.extract.outputs.version }}
+        run: git push origin --delete "release/v${VERSION}" || true
 
   github-release:
     name: Create GitHub Release
