@@ -84,15 +84,6 @@ npm test
 node --test test/preprocess.test.js
 ```
 
-### CI
-
-GitHub Actions runs three jobs:
-1. `test-rust` - Cargo test on Ubuntu
-2. `test-node` - Matrix build/test on Ubuntu/macOS/Windows
-3. `lint` - Cargo fmt + clippy checks
-
-The CI workflows are located in `.github/workflows/` and test across multiple platforms.
-
 ### Releasing
 
 The project uses `cargo-release` and `git-cliff` for releases. `cargo-release` bumps versions in `Cargo.toml` and `package.json`, runs `git-cliff` via a pre-release hook to update `CHANGELOG.md` and `optionalDependencies`, commits, tags, and pushes. CI then builds, publishes to npm, and creates a GitHub Release.
@@ -105,35 +96,8 @@ This single command handles everything locally. CI (`.github/workflows/release.y
 
 Use conventional commits (`feat:`, `fix:`, `refactor:`, etc.) so the changelog groups entries automatically.
 
-## Key Implementation Notes
-
-### Quote Detection Patterns
-
-The `quotes.rs` module uses regex patterns to detect various quote header styles. When adding support for new email clients or languages:
-- Add patterns to the `QUOTE_HEADERS` static
-- Ensure patterns use `(?m)` for multiline mode
-- Test against actual email samples
-
-### Signature Heuristics
-
-Signature detection combines:
-- Explicit delimiters (RFC 3676 `-- ` delimiter)
-- "Sent from" patterns (mobile clients)
-- Sign-off phrases ("Best regards", "Mit freundlichen Grüßen", etc.)
-- Length constraints (max 10 lines)
-
-The `looks_like_signature()` heuristic validates that remaining content after sign-off is short-form (not paragraphs).
-
-### HTML Processing
-
-The HTML→text converter is intentionally simple and doesn't use a full HTML parser. It:
-- Manually tracks tag state
-- Strips `<script>` and `<style>` blocks entirely
-- Converts block elements to newlines
-- Handles common HTML entities
-- Collapses excessive whitespace
-
-This approach is fast and sufficient for email content.
+## Implementation
+- After code changes always run the `test`, `format` and `clippy` scripts. Fix any issues that arise.
 
 ## Testing
 

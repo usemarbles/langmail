@@ -1,9 +1,14 @@
 use once_cell::sync::Lazy;
 use regex::Regex;
 
-/// Maximum number of lines a signature can span.
+/// Maximum number of lines a short signature can span (delimiter-based).
 /// Most email signatures are 1-8 lines; we're generous with 10.
 const MAX_SIGNATURE_LINES: usize = 10;
+
+/// Maximum number of lines a corporate signature can span after a sign-off.
+/// Corporate signatures often include name, title, company, address,
+/// phone numbers, promotional links, and legal disclaimers.
+const MAX_CORPORATE_SIGNATURE_LINES: usize = 60;
 
 /// Patterns that indicate the start of an email signature.
 static SIGNATURE_PATTERNS: Lazy<Vec<Regex>> = Lazy::new(|| {
@@ -35,7 +40,7 @@ static SIGNATURE_PATTERNS: Lazy<Vec<Regex>> = Lazy::new(|| {
 static SIGNOFF_PATTERNS: Lazy<Vec<Regex>> = Lazy::new(|| {
     [
         r"(?mi)^(Best( regards)?|Kind regards|Regards|Cheers|Thanks|Thank you|Sincerely|Yours truly|Warm regards|With thanks|Many thanks|All the best|Take care),?\s*$",
-        r"(?mi)^(Mit freundlichen Grüßen|Viele Grüße|Liebe Grüße|MfG),?\s*$",  // German
+        r"(?mi)^(Mit freundlichen Grüßen|Beste Grüße|Viele Grüße|Liebe Grüße|MfG),?\s*$",  // German
         r"(?mi)^(Cordialement|Bien cordialement|Merci|Cdlt),?\s*$",              // French
         r"(?mi)^(Saludos|Atentamente|Gracias),?\s*$",                            // Spanish
     ]
@@ -68,19 +73,13 @@ pub fn extract_signature(body: &str) -> (String, Option<String>) {
     }
 
     // Strategy 2: Look for sign-off patterns near the end of the message
-    let search_window = lines.len().saturating_sub(MAX_SIGNATURE_LINES);
+    let search_window = lines.len().saturating_sub(MAX_CORPORATE_SIGNATURE_LINES);
     for (i, _line) in lines[search_window..].iter().enumerate() {
         let abs_idx = search_window + i;
-        let _line_start = lines[..abs_idx]
-            .iter()
-            .map(|l| l.len() + 1) // +1 for newline
-            .sum::<usize>();
 
         for pattern in SIGNOFF_PATTERNS.iter() {
             if let Some(line_text) = lines.get(abs_idx) {
                 if pattern.is_match(line_text) {
-                    // Check that remaining content looks like a signature
-                    // (name, title, phone number, etc. — generally short lines)
                     let remaining = &lines[abs_idx..];
                     if looks_like_signature(remaining) {
                         let text = lines[..abs_idx].join("\n");
@@ -97,21 +96,54 @@ pub fn extract_signature(body: &str) -> (String, Option<String>) {
 
 /// Heuristic check: does this block of lines look like an email signature?
 ///
-/// Signatures tend to be short (< 10 lines) with relatively short lines.
-/// They often contain phone numbers, URLs, or titles.
+/// Signatures tend to have relatively short lines (not full paragraphs).
+/// Short signatures (≤10 lines) just need a name line after the sign-off.
+/// Longer corporate signatures (up to 60 lines) must also contain typical
+/// signature markers like phone numbers, URLs, email addresses, or company info.
 fn looks_like_signature(lines: &[&str]) -> bool {
-    if lines.is_empty() || lines.len() > MAX_SIGNATURE_LINES {
+    if lines.is_empty() || lines.len() > MAX_CORPORATE_SIGNATURE_LINES {
         return false;
     }
 
-    // All lines should be relatively short (signatures aren't paragraphs)
-    let all_short = lines.iter().all(|l| l.len() < 120);
+    // All lines should be relatively short (signatures aren't paragraphs).
+    // Corporate signatures with promo lines can be up to ~200 chars.
+    let all_short = lines.iter().all(|l| l.len() < 200);
 
     // At least one non-empty line after the sign-off
     let has_content = lines.iter().skip(1).any(|l| !l.trim().is_empty());
 
-    all_short && (has_content || lines.len() <= 2)
+    if !all_short || !has_content {
+        // Still allow a bare sign-off (e.g., "Best,\n")
+        return lines.len() <= 2;
+    }
+
+    // Short signatures pass with basic checks
+    if lines.len() <= MAX_SIGNATURE_LINES {
+        return true;
+    }
+
+    // Longer blocks must look like a corporate signature:
+    // they should contain typical markers like phone, email, URL, or company info.
+    has_corporate_signature_markers(lines)
 }
+
+/// Check whether a block of lines contains typical corporate signature markers.
+fn has_corporate_signature_markers(lines: &[&str]) -> bool {
+    let joined = lines.join("\n");
+    let has_phone = PHONE_PATTERN.is_match(&joined);
+    let has_email = EMAIL_PATTERN.is_match(&joined);
+    let has_url =
+        joined.contains("http://") || joined.contains("https://") || joined.contains("www.");
+
+    // Need at least 2 of these markers to qualify as corporate sig
+    let marker_count = has_phone as u8 + has_email as u8 + has_url as u8;
+    marker_count >= 2
+}
+
+static PHONE_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"\+?\d[\d\s\-()]{6,}").unwrap());
+
+static EMAIL_PATTERN: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}").unwrap());
 
 #[cfg(test)]
 mod tests {
@@ -169,5 +201,41 @@ mod tests {
         let (text, sig) = extract_signature(body);
         assert!(text.contains("Here is my response."));
         assert!(sig.is_some());
+    }
+
+    #[test]
+    fn test_german_beste_gruesse_signoff() {
+        let body = "Hier ist meine Antwort.\n\nBeste Grüße,\nThomas\n";
+        let (text, sig) = extract_signature(body);
+        assert!(text.contains("Hier ist meine Antwort."));
+        assert!(sig.is_some());
+        assert!(sig.unwrap().contains("Beste Grüße"));
+    }
+
+    #[test]
+    fn test_corporate_signature_with_markers() {
+        let body = "Message content.\n\nBest regards,\nJane Doe\nCTO\n\nAcme Corp\n123 Main St\n+1 555-0100\njane@acme.com\nhttps://acme.com\n\nDisclaimer text.\nMore legal.\nLine 3.\nLine 4.\nLine 5.\nLine 6.\n";
+        let (text, sig) = extract_signature(body);
+        assert!(text.contains("Message content."));
+        assert!(sig.is_some());
+        let sig_text = sig.unwrap();
+        assert!(sig_text.contains("Best regards"));
+        assert!(sig_text.contains("Acme Corp"));
+    }
+
+    #[test]
+    fn test_long_block_without_markers_not_stripped() {
+        // A long block after a sign-off that doesn't look like a corporate sig
+        // (no phone, no email, no URL) should not be stripped
+        let mut body = "Message content.\n\nBest regards,\nSomeone\n".to_string();
+        for i in 0..20 {
+            body.push_str(&format!("Random line {i}\n"));
+        }
+        let (text, sig) = extract_signature(&body);
+        assert!(text.contains("Message content."));
+        assert!(
+            sig.is_none(),
+            "should not strip long block without corporate markers"
+        );
     }
 }
