@@ -5,16 +5,15 @@ on:
     branches: [main]
   workflow_dispatch:
 
-concurrency:
-  group: release
-  cancel-in-progress: true
-
 jobs:
   # ─── Path A: Releasable commits land on main → create release PR ───
 
   check-release:
     name: Check Release
     runs-on: ubuntu-latest
+    concurrency:
+      group: release-prepare
+      cancel-in-progress: true
     if: >-
       !startsWith(github.event.head_commit.message, 'chore: release')
     outputs:
@@ -86,6 +85,9 @@ jobs:
     needs: check-release
     if: needs.check-release.outputs.needs_release == 'true'
     runs-on: ubuntu-latest
+    concurrency:
+      group: release-prepare
+      cancel-in-progress: true
     permissions:
       contents: write
       pull-requests: write
@@ -164,6 +166,9 @@ jobs:
   create-tag:
     name: Create Tag
     runs-on: ubuntu-latest
+    concurrency:
+      group: release-publish
+      cancel-in-progress: false
     if: >-
       startsWith(github.event.head_commit.message, 'chore: release')
     permissions:
@@ -184,10 +189,17 @@ jobs:
 
       - name: Extract version and create tag
         id: extract
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          SHA: ${{ github.sha }}
         run: |
-          VERSION=$(echo "${{ github.event.head_commit.message }}" | grep -oP 'v\d+\.\d+\.\d+')
+          VERSION=$(echo "$COMMIT_MSG" | grep -oP 'v\d+\.\d+\.\d+')
+          if [ -z "$VERSION" ]; then
+            echo "::error::Could not extract version from commit message"
+            exit 1
+          fi
           echo "version=${VERSION#v}" >> "$GITHUB_OUTPUT"
-          echo "sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
