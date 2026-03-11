@@ -115,7 +115,9 @@ fn body_ends_after_message_content() {
     let output = preprocess(EVENTSPACE_EML).unwrap();
     // The actual message content ends with the questions about the offer
     assert!(
-        output.body.contains("Ist Catering oder sind Getränke gewünscht"),
+        output
+            .body
+            .contains("Ist Catering oder sind Getränke gewünscht"),
         "body should contain the last question"
     );
     // Body should end around the sign-off, not contain the long signature

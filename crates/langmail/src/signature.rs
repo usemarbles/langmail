@@ -132,15 +132,15 @@ fn has_corporate_signature_markers(lines: &[&str]) -> bool {
     let joined = lines.join("\n");
     let has_phone = PHONE_PATTERN.is_match(&joined);
     let has_email = EMAIL_PATTERN.is_match(&joined);
-    let has_url = joined.contains("http://") || joined.contains("https://") || joined.contains("www.");
+    let has_url =
+        joined.contains("http://") || joined.contains("https://") || joined.contains("www.");
 
     // Need at least 2 of these markers to qualify as corporate sig
     let marker_count = has_phone as u8 + has_email as u8 + has_url as u8;
     marker_count >= 2
 }
 
-static PHONE_PATTERN: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"\+?\d[\d\s\-()]{6,}").unwrap());
+static PHONE_PATTERN: Lazy<Regex> = Lazy::new(|| Regex::new(r"\+?\d[\d\s\-()]{6,}").unwrap());
 
 static EMAIL_PATTERN: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}").unwrap());
@@ -233,6 +233,9 @@ mod tests {
         }
         let (text, sig) = extract_signature(&body);
         assert!(text.contains("Message content."));
-        assert!(sig.is_none(), "should not strip long block without corporate markers");
+        assert!(
+            sig.is_none(),
+            "should not strip long block without corporate markers"
+        );
     }
 }
