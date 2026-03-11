@@ -96,6 +96,9 @@ This single command handles everything locally. CI (`.github/workflows/release.y
 
 Use conventional commits (`feat:`, `fix:`, `refactor:`, etc.) so the changelog groups entries automatically.
 
+## Implementation
+- After code changes always run the `test`, `format` and `clippy` scripts. Fix any issues that arise.
+
 ## Testing
 
 - Rust tests are inline with `#[cfg(test)]` modules in each source file under `crates/langmail/src/`
