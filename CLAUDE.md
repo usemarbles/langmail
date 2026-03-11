@@ -84,15 +84,6 @@ npm test
 node --test test/preprocess.test.js
 ```
 
-### CI
-
-GitHub Actions runs three jobs:
-1. `test-rust` - Cargo test on Ubuntu
-2. `test-node` - Matrix build/test on Ubuntu/macOS/Windows
-3. `lint` - Cargo fmt + clippy checks
-
-The CI workflows are located in `.github/workflows/` and test across multiple platforms.
-
 ### Releasing
 
 The project uses `cargo-release` and `git-cliff` for releases. `cargo-release` bumps versions in `Cargo.toml` and `package.json`, runs `git-cliff` via a pre-release hook to update `CHANGELOG.md` and `optionalDependencies`, commits, tags, and pushes. CI then builds, publishes to npm, and creates a GitHub Release.
