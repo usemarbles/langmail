@@ -16,12 +16,13 @@ jobs:
       cancel-in-progress: true
     if: >-
       !startsWith(github.event.head_commit.message, 'chore: release')
+      && !contains(github.event.head_commit.message, 'release/v')
     outputs:
       needs_release: ${{ steps.check.outputs.needs_release }}
       next_version: ${{ steps.check.outputs.next_version }}
       bump: ${{ steps.check.outputs.bump }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -92,10 +93,18 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
 
       - name: Install git-cliff
         uses: taiki-e/install-action@v2
@@ -135,6 +144,12 @@ jobs:
             .optionalDependencies |= with_entries(.value = $v)
           ' "$PKG" > "${PKG}.tmp" && mv "${PKG}.tmp" "$PKG"
 
+      - name: Regenerate Node.js bindings index
+        working-directory: packages/langmail
+        run: |
+          npm ci
+          npm run build:debug
+
       - name: Generate changelog
         env:
           NEXT_VERSION: ${{ needs.check-release.outputs.next_version }}
@@ -148,7 +163,7 @@ jobs:
           BRANCH="release/v${NEXT_VERSION}"
 
           git checkout -b "$BRANCH"
-          git add Cargo.toml packages/langmail/package.json crates/langmail-python/pyproject.toml CHANGELOG.md
+          git add Cargo.toml packages/langmail/package.json packages/langmail/index.js packages/langmail/index.d.ts crates/langmail-python/pyproject.toml CHANGELOG.md
           git commit -m "chore: release v${NEXT_VERSION}"
           git push origin "$BRANCH"
 
@@ -171,6 +186,7 @@ jobs:
       cancel-in-progress: false
     if: >-
       startsWith(github.event.head_commit.message, 'chore: release')
+      || contains(github.event.head_commit.message, 'release/v')
     permissions:
       contents: write
     outputs:
@@ -178,7 +194,7 @@ jobs:
       release_notes: ${{ steps.notes.outputs.body }}
       release_sha: ${{ steps.extract.outputs.sha }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -229,7 +245,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.create-tag.outputs.release_sha }}
 
@@ -245,7 +261,7 @@ jobs:
     needs: [create-tag]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.create-tag.outputs.release_sha }}
       - uses: dtolnay/rust-toolchain@stable
@@ -275,11 +291,11 @@ jobs:
             use-cross: true
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.create-tag.outputs.release_sha }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "24"
 
@@ -324,11 +340,11 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.create-tag.outputs.release_sha }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
@@ -385,10 +401,10 @@ jobs:
             target: x64
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.create-tag.outputs.release_sha }}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
       - name: Build wheels
@@ -407,7 +423,7 @@ jobs:
     needs: [create-tag]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.create-tag.outputs.release_sha }}
       - uses: PyO3/maturin-action@v1

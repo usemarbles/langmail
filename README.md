@@ -8,26 +8,26 @@
 
 Emails are messy — nested MIME parts, quoted reply chains, HTML cruft, signatures, forwarded headers. LLMs don't need any of that. langmail strips it all away and gives you clean, structured text optimized for language model consumption.
 
-```typescript
-import { preprocessString } from "langmail";
+## Table of Contents
 
-const result = preprocessString(rawEmail);
-
-console.log(result.body);
-// → "Hi Alice! Great to hear from you."
-// (no quoted replies, no signature, no HTML noise)
-
-console.log(result.from);
-// → { name: "Bob", email: "bob@example.com" }
-```
-
-## Why langmail?
-
-- **Built for LLMs** — minimizes token waste by stripping quoted replies, signatures, and HTML noise
-- **Fast** — Rust core with zero-copy parsing via [mail-parser](https://github.com/stalwartlabs/mail-parser)
-- **Typed** — full TypeScript definitions, every field documented
-- **Multilingual** — detects quote patterns in English, German, French, and Spanish
-- **One function** — `preprocess()` does everything; options available when you need them
+- [Install](#install)
+- [Quick Start](#quick-start)
+- [API Reference](#api-reference)
+  - [preprocess(raw)](#preprocessraw)
+  - [preprocessString(raw)](#preprocessstringraw)
+  - [preprocessWithOptions(raw, options)](#preprocesswithoptionsraw-options)
+  - [toLlmContext(email)](#tollmcontextemail)
+  - [toLlmContextWithOptions(email, options)](#tollmcontextwithoptionsemail-options)
+- [Output Structure](#output-structure)
+  - [ProcessedEmail](#processedemail)
+  - [Address](#address)
+  - [CallToAction](#calltoaction)
+  - [ThreadMessage](#threadmessage)
+  - [PreprocessOptions](#preprocessoptions)
+  - [LlmContextOptions / RenderMode](#llmcontextoptions--rendermode)
+- [Features](#features)
+- [Performance](#performance)
+- [License](#license)
 
 ## Install
 
@@ -35,49 +35,29 @@ console.log(result.from);
 npm install langmail
 ```
 
-Requires **Node.js 18 or later**.
+Requires **Node.js 18 or later**. Prebuilt native binaries are included — no Rust toolchain needed.
 
-Prebuilt native binaries for Linux (x64, arm64), macOS (x64, arm64), and Windows (x64). No Rust toolchain needed.
-
-## Usage
-
-### Basic
+## Quick Start
 
 ```typescript
-import { preprocess } from "langmail";
+import { preprocess, preprocessString, toLlmContext } from "langmail";
 import { readFileSync } from "fs";
 
-// From raw .eml file
+// From a raw .eml file
 const raw = readFileSync("message.eml");
-const result = preprocess(raw);
+const email = preprocess(raw);
 
 // Or from a string (e.g. Gmail API response)
-import { preprocessString } from "langmail";
-const result = preprocessString(rawEmailString);
-```
+const fromString = preprocessString(rawEmailString);
 
-### With options
+console.log(email.body);
+// → "Hi Alice! Great to hear from you."
 
-```typescript
-import { preprocessWithOptions } from "langmail";
+console.log(email.from);
+// → { name: "Bob", email: "bob@example.com" }
 
-const result = preprocessWithOptions(raw, {
-  stripQuotes: true, // Remove quoted replies (default: true)
-  stripSignature: true, // Remove email signatures (default: true)
-  maxBodyLength: 4000, // Truncate body to N chars (default: 0 = no limit)
-});
-```
-
-### Format for LLM prompts
-
-`toLlmContext` converts a `ProcessedEmail` into a compact, deterministic plain-text
-block ready to paste into an LLM prompt:
-
-```typescript
-import { preprocess, toLlmContext } from "langmail";
-
-const result = preprocess(raw);
-console.log(toLlmContext(result));
+// Format for an LLM prompt
+console.log(toLlmContext(email));
 // FROM: Bob <bob@example.com>
 // TO: Alice <alice@example.com>
 // SUBJECT: Re: Project update
@@ -86,66 +66,239 @@ console.log(toLlmContext(result));
 // Hi Alice! Great to hear from you.
 ```
 
-Missing fields (no `from`, empty `to`, etc.) are simply omitted. The `CONTENT:` line is always present.
+## API Reference
 
-### Output structure
+### `preprocess(raw)`
+
+Parse and preprocess a raw email from a `Buffer`.
+
+```typescript
+import { preprocess } from "langmail";
+import { readFileSync } from "fs";
+
+const raw = readFileSync("message.eml");
+const email = preprocess(raw);
+```
+
+**Parameters:**
+
+| Name  | Type     | Description                          |
+| ----- | -------- | ------------------------------------ |
+| `raw` | `Buffer` | Raw email bytes (RFC 5322 / EML)     |
+
+**Returns:** [`ProcessedEmail`](#processedemail)
+
+**Throws:** If the input cannot be parsed as a valid RFC 5322 message.
+
+---
+
+### `preprocessString(raw)`
+
+Convenience wrapper that accepts a `string` instead of a `Buffer`.
+
+```typescript
+import { preprocessString } from "langmail";
+
+const email = preprocessString(rawEmailString);
+```
+
+**Parameters:**
+
+| Name  | Type     | Description         |
+| ----- | -------- | ------------------- |
+| `raw` | `string` | Raw email as string |
+
+**Returns:** [`ProcessedEmail`](#processedemail)
+
+**Throws:** If the input cannot be parsed as a valid RFC 5322 message.
+
+---
+
+### `preprocessWithOptions(raw, options)`
+
+Preprocess with custom options to control quote stripping, signature removal, and body length.
+
+```typescript
+import { preprocessWithOptions } from "langmail";
+
+const email = preprocessWithOptions(raw, {
+  stripQuotes: true,      // Remove quoted replies (default: true)
+  stripSignature: true,   // Remove email signatures (default: true)
+  maxBodyLength: 4000,    // Truncate body to N chars (default: 0 = no limit)
+});
+```
+
+**Parameters:**
+
+| Name      | Type                                      | Description            |
+| --------- | ----------------------------------------- | ---------------------- |
+| `raw`     | `Buffer`                                  | Raw email bytes        |
+| `options` | [`PreprocessOptions`](#preprocessoptions) | Preprocessing options  |
+
+**Returns:** [`ProcessedEmail`](#processedemail)
+
+**Throws:** If the input cannot be parsed as a valid RFC 5322 message.
+
+---
+
+### `toLlmContext(email)`
+
+Format a `ProcessedEmail` as a deterministic plain-text block for LLM prompts. Missing fields are omitted; the `CONTENT:` line is always present.
+
+```typescript
+import { preprocess, toLlmContext } from "langmail";
+
+const email = preprocess(raw);
+console.log(toLlmContext(email));
+// FROM: Bob <bob@example.com>
+// TO: Alice <alice@example.com>
+// SUBJECT: Re: Project update
+// DATE: 2024-01-15T10:30:00Z
+// CONTENT:
+// Hi Alice! Great to hear from you.
+```
+
+**Parameters:**
+
+| Name    | Type                                    | Description            |
+| ------- | --------------------------------------- | ---------------------- |
+| `email` | [`ProcessedEmail`](#processedemail)     | A preprocessed email   |
+
+**Returns:** `string`
+
+**Never throws.**
+
+---
+
+### `toLlmContextWithOptions(email, options)`
+
+Same as `toLlmContext` but accepts options to control rendering. Use `renderMode: "ThreadHistory"` to include quoted reply history as a chronological transcript.
+
+```typescript
+import { preprocess, toLlmContextWithOptions } from "langmail";
+
+const email = preprocess(raw);
+
+// Default: only the latest message
+console.log(toLlmContextWithOptions(email, { renderMode: "LatestOnly" }));
+
+// Include thread history
+console.log(toLlmContextWithOptions(email, { renderMode: "ThreadHistory" }));
+// FROM: Bob <bob@example.com>
+// SUBJECT: Re: Project update
+// CONTENT:
+// Hi Alice! Great to hear from you.
+//
+// THREAD HISTORY (oldest first):
+// ---
+// FROM: Alice <alice@example.com>
+// DATE: 2024-01-14T09:00:00Z
+// Alice's original message here...
+// ---
+```
+
+**Parameters:**
+
+| Name      | Type                                                    | Description          |
+| --------- | ------------------------------------------------------- | -------------------- |
+| `email`   | [`ProcessedEmail`](#processedemail)                     | A preprocessed email |
+| `options` | [`LlmContextOptions`](#llmcontextoptions--rendermode)   | Rendering options    |
+
+**Returns:** `string`
+
+**Never throws.**
+
+## Output Structure
+
+### `ProcessedEmail`
 
 ```typescript
 interface ProcessedEmail {
-  body: string; // Clean text, ready for your LLM
+  body: string;                    // Clean text, ready for your LLM
   subject?: string;
-  from?: { name?: string; email: string };
-  to: { name?: string; email: string }[];
-  cc: { name?: string; email: string }[];
-  date?: string; // ISO 8601
-  rfcMessageId?: string; // RFC 2822 Message-ID header
-  inReplyTo?: string[]; // Threading
-  references?: string[]; // Threading
-  signature?: string; // Extracted signature (if found)
-  rawBodyLength: number; // Before cleaning
-  cleanBodyLength: number; // After cleaning
+  from?: Address;
+  to: Address[];
+  cc: Address[];
+  date?: string;                   // ISO 8601
+  rfcMessageId?: string;           // RFC 2822 Message-ID header
+  inReplyTo?: string[];            // In-Reply-To header (threading)
+  references?: string[];           // References header (threading)
+  signature?: string;              // Extracted signature, if found
+  rawBodyLength: number;           // Body length before cleaning
+  cleanBodyLength: number;         // Body length after cleaning
+  primaryCta?: CallToAction;       // Primary call-to-action from HTML body
+  threadMessages: ThreadMessage[]; // Quoted replies, oldest first
 }
 ```
 
-### Error handling
-
-`preprocess`, `preprocessWithOptions`, and `preprocessString` throw if the input
-cannot be parsed as a valid RFC 5322 message:
+### `Address`
 
 ```typescript
-try {
-  const result = preprocess(raw);
-} catch (err) {
-  // err.message === "Failed to parse email message"
+interface Address {
+  name?: string;  // Display name (e.g. "Alice")
+  email: string;  // Email address (e.g. "alice@example.com")
 }
 ```
 
-`toLlmContext` never throws.
+### `CallToAction`
 
-## What it does
+```typescript
+interface CallToAction {
+  url: string;        // The URL the action points to
+  text: string;       // Human-readable label
+  confidence: number; // Score between 0.0 and 1.0
+}
+```
 
-| Step                  | Before                                       | After                              |
-| --------------------- | -------------------------------------------- | ---------------------------------- |
-| MIME parsing           | Raw RFC 5322 bytes                           | Structured parts                   |
-| HTML → text           | `<p>Hello <b>world</b></p>`                  | `Hello world`                      |
-| Quote stripping        | Gmail/Outlook/Apple Mail quoted replies       | Just the new message               |
-| Signature removal      | `-- \nJohn Doe\nCEO, Acme Corp\n555-0123`    | Body without signature             |
-| Whitespace cleanup     | Excessive blank lines, trailing spaces        | Clean, normalized text             |
+### `ThreadMessage`
 
-## Supported quote patterns
+```typescript
+interface ThreadMessage {
+  sender: string;     // Sender attribution (e.g. "Max <max@example.com>")
+  timestamp?: string; // ISO 8601, if parseable from the attribution
+  body: string;       // Message body (cleaned, no nested quotes)
+}
+```
 
-- **Gmail**: `On <date>, <name> <email> wrote:`
-- **Outlook**: `-----Original Message-----` and `From: ... Sent: ...`
-- **Apple Mail**: `On <date>, at <time>, <name> wrote:`
-- **Forwarded**: `-------- Forwarded Message --------`
-- **German**: `Am <date> schrieb <name>:`
-- **French**: `Le <date>, <name> a écrit :`
-- **Spanish**: `El <date>, <name> escribió:`
-- **Generic**: `> ` prefixed quote lines
+### `PreprocessOptions`
+
+```typescript
+interface PreprocessOptions {
+  stripQuotes?: boolean;    // Remove quoted replies (default: true)
+  stripSignature?: boolean; // Remove email signatures (default: true)
+  maxBodyLength?: number;   // Max body chars, 0 = no limit (default: 0)
+}
+```
+
+### `LlmContextOptions` / `RenderMode`
+
+```typescript
+interface LlmContextOptions {
+  renderMode?: RenderMode; // Default: "LatestOnly"
+}
+
+// TypeScript enum — JS users pass the string literals directly ("LatestOnly" or "ThreadHistory")
+const enum RenderMode {
+  /** Only the latest message — all quoted content stripped. */
+  LatestOnly = "LatestOnly",
+  /** Chronological transcript of quoted replies below the main content. */
+  ThreadHistory = "ThreadHistory",
+}
+```
+
+## Features
+
+- **MIME parsing** — handles nested multipart messages, attachments, and encoded headers
+- **HTML to text** — converts HTML email bodies to clean plain text, preserving links and structure
+- **Quote stripping** — detects and removes quoted replies from Gmail, Outlook, Apple Mail, forwarded messages, and `>` prefixed lines; supports English, German, French, and Spanish
+- **Signature removal** — strips signatures (preserved in the `signature` field); detected via `-- ` delimiter and heuristics
+- **CTA extraction** — extracts the primary call-to-action from HTML emails via JSON-LD (`potentialAction`) or heuristic link scoring; filters out unsubscribe/privacy/logo links
+- **Thread history** — extracts quoted reply blocks into structured `ThreadMessage[]` (oldest first); render with `toLlmContextWithOptions({ renderMode: "ThreadHistory" })`
+- **Whitespace cleanup** — normalizes excessive blank lines and trailing spaces
 
 ## Performance
 
-langmail uses [mail-parser](https://github.com/stalwartlabs/mail-parser) under the hood — a zero-copy Rust MIME parser with no external dependencies. The preprocessing pipeline adds minimal overhead on top of the parse step.
+langmail uses [mail-parser](https://github.com/stalwartlabs/mail-parser) under the hood — a zero-copy Rust MIME parser. The preprocessing pipeline adds minimal overhead on top of the parse step.
 
 Typical throughput on a modern machine: **10,000+ emails/second** for plain text messages.
 
@@ -155,4 +308,4 @@ MIT OR Apache-2.0
 
 ---
 
-Built by the team behind [Marbles](https://marbles.dev). If you need the full pipeline — email ingestion, AI classification, routing, and response generation — check us out.
+Built by the team behind [Marbles](https://marbles.dev).
