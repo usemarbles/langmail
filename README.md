@@ -26,12 +26,6 @@ Emails are messy — nested MIME parts, quoted reply chains, HTML cruft, signatu
   - [PreprocessOptions](#preprocessoptions)
   - [LlmContextOptions / RenderMode](#llmcontextoptions--rendermode)
 - [Features](#features)
-  - [Processing Pipeline](#processing-pipeline)
-  - [Quote Stripping](#quote-stripping)
-  - [Signature Removal](#signature-removal)
-  - [CTA Extraction](#cta-extraction)
-  - [Thread History](#thread-history)
-  - [HTML to Text](#html-to-text)
 - [Error Handling](#error-handling)
 - [Performance](#performance)
 - [Supported Platforms](#supported-platforms)
@@ -295,86 +289,13 @@ const enum RenderMode {
 
 ## Features
 
-### Processing Pipeline
-
-| Step               | Before                                    | After                          |
-| ------------------ | ----------------------------------------- | ------------------------------ |
-| MIME parsing        | Raw RFC 5322 bytes                        | Structured parts               |
-| HTML to text        | `<p>Hello <b>world</b></p>`               | `Hello world`                  |
-| Quote stripping     | Gmail/Outlook/Apple Mail quoted replies    | Just the new message           |
-| Signature removal   | `-- \nJohn Doe\nCEO, Acme Corp\n555-0123` | Body without signature         |
-| CTA extraction      | `<a class="btn" href="...">Confirm</a>`   | `{ url, text, confidence }`    |
-| Thread extraction   | Nested quoted reply blocks                | `ThreadMessage[]` (oldest first) |
-| Whitespace cleanup  | Excessive blank lines, trailing spaces    | Clean, normalized text         |
-
-### Quote Stripping
-
-langmail detects and strips quoted reply patterns across multiple email clients and languages:
-
-| Pattern           | Example                                        |
-| ----------------- | ---------------------------------------------- |
-| Gmail             | `On Jan 15, 2024, Bob <bob@ex.com> wrote:`     |
-| Outlook           | `-----Original Message-----`                   |
-| Outlook (header)  | `From: ... Sent: ...`                          |
-| Apple Mail        | `On Jan 15, 2024, at 10:30, Bob wrote:`        |
-| Forwarded         | `-------- Forwarded Message --------`          |
-| German            | `Am 15.01.2024 schrieb Bob:`                   |
-| French            | `Le 15/01/2024, Bob a écrit :`                 |
-| Spanish           | `El 15/01/2024, Bob escribió:`                 |
-| Generic           | `> ` prefixed quote lines                      |
-
-### Signature Removal
-
-Signatures are detected by the standard `-- ` delimiter and common heuristics. The removed signature is preserved in the `signature` field so you can use it if needed:
-
-```typescript
-const email = preprocess(raw);
-console.log(email.body);       // Body without signature
-console.log(email.signature);  // "John Doe\nCEO, Acme Corp\n555-0123"
-```
-
-### CTA Extraction
-
-langmail extracts the primary call-to-action from HTML emails using two strategies:
-
-1. **JSON-LD fast path** — parses `<script type="application/ld+json">` blocks for `potentialAction.target` URLs (confidence: 1.0)
-2. **Heuristic scoring** — scores each link based on button styling, action keywords, prominence, and ARIA labels, then picks the highest-scoring link above the threshold
-
-Common non-CTA links (unsubscribe, privacy policy, bare homepages, logo images) are filtered out automatically.
-
-```typescript
-const email = preprocess(raw);
-
-if (email.primaryCta) {
-  console.log(email.primaryCta.url);        // "https://example.com/confirm"
-  console.log(email.primaryCta.text);       // "Confirm your email"
-  console.log(email.primaryCta.confidence); // 0.85
-}
-```
-
-### Thread History
-
-When an email contains quoted replies, langmail extracts them into structured `ThreadMessage` objects (oldest first). Use `toLlmContextWithOptions` with `renderMode: "ThreadHistory"` to include the full conversation:
-
-```typescript
-import { preprocess, toLlmContextWithOptions } from "langmail";
-
-const email = preprocess(raw);
-
-// Access thread messages directly
-for (const msg of email.threadMessages) {
-  console.log(`${msg.sender} (${msg.timestamp}): ${msg.body}`);
-}
-
-// Or render as a transcript for your LLM
-const context = toLlmContextWithOptions(email, {
-  renderMode: "ThreadHistory",
-});
-```
-
-### HTML to Text
-
-HTML email bodies are converted to clean plain text. Structural elements like links, lists, and headings are preserved in a readable format while all styling, scripts, and layout markup is removed.
+- **MIME parsing** — handles nested multipart messages, attachments, and encoded headers
+- **HTML to text** — converts HTML email bodies to clean plain text, preserving links and structure
+- **Quote stripping** — detects and removes quoted replies from Gmail, Outlook, Apple Mail, forwarded messages, and `>` prefixed lines; supports English, German, French, and Spanish
+- **Signature removal** — strips signatures (preserved in the `signature` field); detected via `-- ` delimiter and heuristics
+- **CTA extraction** — extracts the primary call-to-action from HTML emails via JSON-LD (`potentialAction`) or heuristic link scoring; filters out unsubscribe/privacy/logo links
+- **Thread history** — extracts quoted reply blocks into structured `ThreadMessage[]` (oldest first); render with `toLlmContextWithOptions({ renderMode: "ThreadHistory" })`
+- **Whitespace cleanup** — normalizes excessive blank lines and trailing spaces
 
 ## Error Handling
 
