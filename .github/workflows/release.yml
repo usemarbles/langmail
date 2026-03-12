@@ -148,7 +148,7 @@ jobs:
         working-directory: packages/langmail
         run: |
           npm install
-          npx napi build --js index.js --dts index.d.ts --manifest-path ../../crates/langmail-node/Cargo.toml --output-dir .
+          npm run build:debug
 
       - name: Generate changelog
         env:
