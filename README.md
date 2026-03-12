@@ -26,9 +26,7 @@ Emails are messy — nested MIME parts, quoted reply chains, HTML cruft, signatu
   - [PreprocessOptions](#preprocessoptions)
   - [LlmContextOptions / RenderMode](#llmcontextoptions--rendermode)
 - [Features](#features)
-- [Error Handling](#error-handling)
 - [Performance](#performance)
-- [Supported Platforms](#supported-platforms)
 - [License](#license)
 
 ## Install
@@ -297,39 +295,11 @@ const enum RenderMode {
 - **Thread history** — extracts quoted reply blocks into structured `ThreadMessage[]` (oldest first); render with `toLlmContextWithOptions({ renderMode: "ThreadHistory" })`
 - **Whitespace cleanup** — normalizes excessive blank lines and trailing spaces
 
-## Error Handling
-
-`preprocess`, `preprocessWithOptions`, and `preprocessString` throw if the input cannot be parsed as a valid RFC 5322 message:
-
-```typescript
-try {
-  const email = preprocess(raw);
-} catch (err) {
-  // err.message === "Failed to parse email message"
-}
-```
-
-`toLlmContext` and `toLlmContextWithOptions` never throw.
-
 ## Performance
 
 langmail uses [mail-parser](https://github.com/stalwartlabs/mail-parser) under the hood — a zero-copy Rust MIME parser. The preprocessing pipeline adds minimal overhead on top of the parse step.
 
 Typical throughput on a modern machine: **10,000+ emails/second** for plain text messages.
-
-## Supported Platforms
-
-Prebuilt native binaries are published for the following platforms:
-
-| Platform               | Architecture | Package                      |
-| ---------------------- | ------------ | ---------------------------- |
-| macOS                  | arm64        | `langmail-darwin-arm64`      |
-| macOS                  | x64          | `langmail-darwin-x64`        |
-| Linux (glibc)          | x64          | `langmail-linux-x64-gnu`     |
-| Linux (glibc)          | arm64        | `langmail-linux-arm64-gnu`   |
-| Windows                | x64          | `langmail-win32-x64-msvc`    |
-
-These are installed automatically as optional dependencies — `npm install langmail` picks the right binary for your platform.
 
 ## License
 
