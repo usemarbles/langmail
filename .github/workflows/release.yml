@@ -97,6 +97,14 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
       - name: Install git-cliff
         uses: taiki-e/install-action@v2
         with:
@@ -135,6 +143,12 @@ jobs:
             .optionalDependencies |= with_entries(.value = $v)
           ' "$PKG" > "${PKG}.tmp" && mv "${PKG}.tmp" "$PKG"
 
+      - name: Regenerate Node.js bindings index
+        working-directory: packages/langmail
+        run: |
+          npm install
+          npx napi build --js index.js --dts index.d.ts --manifest-path ../../crates/langmail-node/Cargo.toml --output-dir .
+
       - name: Generate changelog
         env:
           NEXT_VERSION: ${{ needs.check-release.outputs.next_version }}
@@ -148,7 +162,7 @@ jobs:
           BRANCH="release/v${NEXT_VERSION}"
 
           git checkout -b "$BRANCH"
-          git add Cargo.toml packages/langmail/package.json crates/langmail-python/pyproject.toml CHANGELOG.md
+          git add Cargo.toml packages/langmail/package.json packages/langmail/index.js packages/langmail/index.d.ts crates/langmail-python/pyproject.toml CHANGELOG.md
           git commit -m "chore: release v${NEXT_VERSION}"
           git push origin "$BRANCH"
 
