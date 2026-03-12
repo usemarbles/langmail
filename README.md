@@ -6,7 +6,7 @@
 [![CI](https://github.com/usemarbles/langmail/actions/workflows/ci.yml/badge.svg)](https://github.com/usemarbles/langmail/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](#license)
 
-Emails are messy — nested MIME parts, quoted reply chains, HTML cruft, signatures, forwarded headers. LLMs don't need any of that. langmail strips it all away and gives you clean, structured text optimized for language model consumption.
+Emails are messy — nested MIME parts, quoted reply chains, HTML cruft, signatures, forwarded headers. LLMs don't need any of that. langmail strips it all away and gives you clean, structured **Markdown** optimized for language model consumption.
 
 ## Table of Contents
 
@@ -214,7 +214,7 @@ console.log(toLlmContextWithOptions(email, { renderMode: "ThreadHistory" }));
 
 ```typescript
 interface ProcessedEmail {
-  body: string;                    // Clean text, ready for your LLM
+  body: string;                    // Clean Markdown, ready for your LLM
   subject?: string;
   from?: Address;
   to: Address[];
@@ -289,7 +289,7 @@ const enum RenderMode {
 ## Features
 
 - **MIME parsing** — handles nested multipart messages, attachments, and encoded headers
-- **HTML to text** — converts HTML email bodies to clean plain text, preserving links and structure
+- **HTML to Markdown** — converts HTML email bodies to clean Markdown, preserving links, headings, and structure
 - **Quote stripping** — detects and removes quoted replies from Gmail, Outlook, Apple Mail, forwarded messages, and `>` prefixed lines; supports English, German, French, and Spanish
 - **Signature removal** — strips signatures (preserved in the `signature` field); detected via `-- ` delimiter and heuristics
 - **CTA extraction** — extracts the primary call-to-action from HTML emails via JSON-LD (`potentialAction`) or heuristic link scoring; filters out unsubscribe/privacy/logo links
