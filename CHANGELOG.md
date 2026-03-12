@@ -5,6 +5,10 @@ All notable changes to this project will be automatically documented in this fil
 
 ### Bug Fixes
 
+- Address code review findings([8528f90](https://github.com/usemarbles/langmail/commit/8528f9076f26b43104b545b6ef5cff9bfa8e366c))
+- **ci**: Fix release workflow and regenerate index.js for v0.7.0([888d333](https://github.com/usemarbles/langmail/commit/888d33343bf1328dd1a32f5facdfd002728f4d4b))
+- **ci**: Regenerate Node.js bindings index in release workflow([36dc31e](https://github.com/usemarbles/langmail/commit/36dc31eadacfeeb9543aa2b14c180bac318e7329))
+- **ci**: Regenerate Node.js bindings index in release workflow([0e7df60](https://github.com/usemarbles/langmail/commit/0e7df6031258a1b53bdda7935a5aa1fade838c7f))
 - **ci**: Address code review findings in release workflow([50dbc4c](https://github.com/usemarbles/langmail/commit/50dbc4c0f2c0be51ae89fbda2638068466948308))
 
 ### Features
