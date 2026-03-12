@@ -111,8 +111,7 @@ jobs:
         with:
           tool: git-cliff
 
-      - name: Configure git
-        run: |
+      - run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
@@ -191,7 +190,6 @@ jobs:
       contents: write
     outputs:
       version: ${{ steps.extract.outputs.version }}
-      release_notes: ${{ steps.notes.outputs.body }}
       release_sha: ${{ steps.extract.outputs.sha }}
     steps:
       - uses: actions/checkout@v6
@@ -238,22 +236,10 @@ jobs:
           VERSION: ${{ steps.extract.outputs.version }}
         run: git push origin --delete "release/v${VERSION}" || true
 
-  github-release:
-    name: Create GitHub Release
-    needs: [create-tag]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v6
+      - uses: softprops/action-gh-release@v2
         with:
-          ref: ${{ needs.create-tag.outputs.release_sha }}
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ needs.create-tag.outputs.version }}
-          body: ${{ needs.create-tag.outputs.release_notes }}
+          tag_name: v${{ steps.extract.outputs.version }}
+          body: ${{ steps.notes.outputs.body }}
           make_latest: true
 
   publish-crates:
@@ -266,8 +252,7 @@ jobs:
           ref: ${{ needs.create-tag.outputs.release_sha }}
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - name: Publish langmail
-        run: cargo publish -p langmail
+      - run: cargo publish -p langmail
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
@@ -418,10 +403,13 @@ jobs:
           name: wheels-${{ matrix.os }}-${{ matrix.target }}
           path: dist
 
-  build-python-sdist:
-    name: Python sdist
-    needs: [create-tag]
+  publish-pypi:
+    name: Publish to PyPI
+    needs: [create-tag, build-python-wheels]
     runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@v6
         with:
@@ -430,19 +418,6 @@ jobs:
         with:
           command: sdist
           args: --out dist --manifest-path crates/langmail-python/Cargo.toml
-      - uses: actions/upload-artifact@v7
-        with:
-          name: wheels-sdist
-          path: dist
-
-  publish-pypi:
-    name: Publish to PyPI
-    needs: [create-tag, build-python-wheels, build-python-sdist]
-    runs-on: ubuntu-latest
-    environment: pypi
-    permissions:
-      id-token: write
-    steps:
       - uses: actions/download-artifact@v4
         with:
           path: dist
