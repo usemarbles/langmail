@@ -1,6 +1,15 @@
 # Changelog
 
 All notable changes to this project will be automatically documented in this file.
+## [0.7.0] - 2026-03-12
+
+### Bug Fixes
+
+- **ci**: Address code review findings in release workflow([50dbc4c](https://github.com/usemarbles/langmail/commit/50dbc4c0f2c0be51ae89fbda2638068466948308))
+
+### Features
+
+- **signature**: Improve corporate signature detection with markers([47576dc](https://github.com/usemarbles/langmail/commit/47576dc6ef6e3383cc3b3b83860e6fc505bd72e2))
 ## [0.6.0] - 2026-03-10
 
 ### Bug Fixes
