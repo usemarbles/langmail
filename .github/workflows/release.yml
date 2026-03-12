@@ -147,7 +147,7 @@ jobs:
       - name: Regenerate Node.js bindings index
         working-directory: packages/langmail
         run: |
-          npm install
+          npm ci
           npm run build:debug
 
       - name: Generate changelog

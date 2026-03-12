@@ -48,7 +48,7 @@ const raw = readFileSync("message.eml");
 const email = preprocess(raw);
 
 // Or from a string (e.g. Gmail API response)
-const email = preprocessString(rawEmailString);
+const fromString = preprocessString(rawEmailString);
 
 console.log(email.body);
 // → "Hi Alice! Great to hear from you."
@@ -277,6 +277,7 @@ interface LlmContextOptions {
   renderMode?: RenderMode; // Default: "LatestOnly"
 }
 
+// TypeScript enum — JS users pass the string literals directly ("LatestOnly" or "ThreadHistory")
 const enum RenderMode {
   /** Only the latest message — all quoted content stripped. */
   LatestOnly = "LatestOnly",
