@@ -21,7 +21,7 @@ jobs:
       next_version: ${{ steps.check.outputs.next_version }}
       bump: ${{ steps.check.outputs.bump }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -92,7 +92,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
@@ -192,7 +192,7 @@ jobs:
       release_notes: ${{ steps.notes.outputs.body }}
       release_sha: ${{ steps.extract.outputs.sha }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -243,7 +243,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.create-tag.outputs.release_sha }}
 
@@ -259,7 +259,7 @@ jobs:
     needs: [create-tag]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.create-tag.outputs.release_sha }}
       - uses: dtolnay/rust-toolchain@stable
@@ -289,7 +289,7 @@ jobs:
             use-cross: true
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.create-tag.outputs.release_sha }}
 
@@ -338,7 +338,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.create-tag.outputs.release_sha }}
 
@@ -399,7 +399,7 @@ jobs:
             target: x64
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.create-tag.outputs.release_sha }}
       - uses: actions/setup-python@v5
@@ -421,7 +421,7 @@ jobs:
     needs: [create-tag]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.create-tag.outputs.release_sha }}
       - uses: PyO3/maturin-action@v1
