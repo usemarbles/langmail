@@ -1,0 +1,60 @@
+/* langmail brand overrides for Zensical / Material */
+
+/* Fonts (Lora + Geist) are loaded via <link rel="stylesheet"> in
+   docs/overrides/main.html so the browser can preconnect and parallelise
+   the request — @import in CSS blocks rendering on the imported sheet. */
+
+/* ─────────── Typography (shared) ─────────── */
+:root {
+  --md-text-font: "Geist", system-ui, sans-serif;
+  --md-code-font: "Geist Mono", monospace;
+}
+
+.md-typeset h1,
+.md-typeset h2 {
+  font-family: "Lora", Georgia, serif;
+}
+
+/* ─────────── Dark scheme ─────────── */
+[data-md-color-scheme="slate"] {
+  /* Brand tokens (dark) */
+  --lm-bg:        #0F0D0A;
+  --lm-surface:   #1A1610;
+  --lm-border:    #2E2618;
+  --lm-amber:     #E8A838;
+  --lm-amber-sub: #F0C878;
+  --lm-text-1:    #F4F0E8;
+  --lm-text-2:    #8A7A5A;
+  --lm-code-bg:   #130F08;
+
+  /* Material vars */
+  --md-default-bg-color:   var(--lm-bg);
+  --md-default-fg-color:   var(--lm-text-1);
+  --md-primary-fg-color:   var(--lm-amber);
+  --md-accent-fg-color:    var(--lm-amber);
+  --md-code-bg-color:      var(--lm-code-bg);
+  --md-typeset-a-color:    var(--lm-amber);
+  color-scheme: dark;
+}
+
+/* ─────────── Light scheme ─────────── */
+[data-md-color-scheme="default"] {
+  /* Brand tokens (light) — warm cream + dark warm text, same amber accent */
+  --lm-bg:        #FBF8F1;
+  --lm-surface:   #F5F0E5;
+  --lm-border:    #E4DCC8;
+  --lm-amber:     #C48A20;   /* darker amber for AA contrast on cream */
+  --lm-amber-sub: #8A6212;
+  --lm-text-1:    #1A1610;
+  --lm-text-2:    #5A4F38;
+  --lm-code-bg:   #F0EADC;
+
+  /* Material vars */
+  --md-default-bg-color:   var(--lm-bg);
+  --md-default-fg-color:   var(--lm-text-1);
+  --md-primary-fg-color:   var(--lm-amber);
+  --md-accent-fg-color:    var(--lm-amber);
+  --md-code-bg-color:      var(--lm-code-bg);
+  --md-typeset-a-color:    var(--lm-amber);
+  color-scheme: light;
+}

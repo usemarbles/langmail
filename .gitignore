@@ -29,6 +29,9 @@ dist/
 build/
 *.tgz
 
+# Zensical docs build output
+/site/
+
 # Test coverage
 coverage/
 *.lcov

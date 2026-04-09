@@ -5,3 +5,8 @@
 ## Implementation
 - After code changes always run the `test`, `format` and `clippy` scripts. Fix any issues that arise.
 - Use conventional commits (`feat:`, `fix:`, `refactor:`, etc.) so the changelog groups entries automatically.
+
+## Documentation
+- Lives in `/docs`, built with [Zensical](https://zensical.org) (config at `zensical.toml`).
+- Build: `make docs` (output → `site/`). Serve locally: `make serve-docs`.
+- Deployed to `langmail.dev` via `.github/workflows/docs.yml` on push to `main`.
