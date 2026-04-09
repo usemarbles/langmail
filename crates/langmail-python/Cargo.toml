@@ -5,6 +5,7 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "Python bindings for langmail"
+publish = false
 
 [lib]
 name = "langmail"
