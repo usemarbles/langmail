@@ -1,7 +1,8 @@
 /* langmail brand overrides for Zensical / Material */
 
-/* Lora + Geist (Google Fonts at runtime) */
-@import url("https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Geist:wght@300;400;500&family=Geist+Mono:wght@400;500&display=swap");
+/* Fonts (Lora + Geist) are loaded via <link rel="stylesheet"> in
+   docs/overrides/main.html so the browser can preconnect and parallelise
+   the request — @import in CSS blocks rendering on the imported sheet. */
 
 /* ─────────── Typography (shared) ─────────── */
 :root {
@@ -9,8 +10,9 @@
   --md-code-font: "Geist Mono", monospace;
 }
 
-h1, h2 {
-  font-family: "Lora", Georgia, serif !important;
+.md-typeset h1,
+.md-typeset h2 {
+  font-family: "Lora", Georgia, serif;
 }
 
 /* ─────────── Dark scheme ─────────── */

@@ -5,13 +5,14 @@ description: langmail exposes two functions. Everything else is implementation d
 
 ## preprocess()
 
-Accepts a raw RFC 5322 email string and returns a structured `ParsedEmail` object. Handles MIME multipart messages, HTML and plain-text body variants, and normalises all character encodings including zero-width characters and HTML entities.
+Accepts raw RFC 5322 email bytes and returns a structured `ProcessedEmail` object. Handles MIME multipart messages, HTML and plain-text body variants, and normalises character encodings.
 
 ```ts
-function preprocess(
-  raw: string
-): Promise<ParsedEmail>
+function preprocess(raw: Buffer): ProcessedEmail
+function preprocessString(raw: string): ProcessedEmail
 ```
+
+`preprocess` is **synchronous** and takes a `Buffer`. Use `preprocessString` as a convenience wrapper if you already have the email as a string.
 
 What it does internally:
 
@@ -22,36 +23,46 @@ What it does internally:
 - Normalises zero-width characters and HTML entities
 - Strips URLs while preserving anchor text
 
-### ParsedEmail type
+### ProcessedEmail type
 
 | Field | Type | Description |
 | --- | --- | --- |
-| subject | string \| null | Decoded subject line |
-| sender | Address | From field, parsed into name and email |
-| recipients | Address[] | To, Cc recipients |
+| body | string | Cleaned body text, with quotes and signature removed |
+| subject | string \| null | Subject line |
+| from | Address \| null | Sender |
+| to | Address[] | To recipients |
+| cc | Address[] | Cc recipients |
 | date | string \| null | ISO 8601 date string |
-| body | string | Cleaned Markdown body |
-| ctas | CTA[] | Extracted calls-to-action |
-| rfc_message_id | string \| null | RFC 5322 Message-ID header |
+| rfcMessageId | string \| null | RFC 2822 Message-ID header value |
+| inReplyTo | string[] \| null | In-Reply-To header values (for threading) |
+| references | string[] \| null | References header values (for threading) |
+| signature | string \| null | Extracted signature, if found |
+| rawBodyLength | number | Length of the original body before cleaning |
+| cleanBodyLength | number | Length of the cleaned body |
+| primaryCta | CallToAction \| null | Primary call-to-action link extracted from the HTML body |
+| threadMessages | ThreadMessage[] | Quoted reply messages, oldest first |
 
-## toLLMContext()
+`Address` is `{ name?: string, email: string }`. `CallToAction` is `{ url: string, text: string, confidence: number }`. `ThreadMessage` is `{ sender: string, timestamp?: string, body: string }`.
 
-Accepts a `ParsedEmail` and returns a Markdown string formatted for direct inclusion in a prompt. The output includes a structured header block followed by the cleaned body.
+## toLlmContext()
+
+Accepts a `ProcessedEmail` and returns a deterministic plain-text string formatted for direct inclusion in a prompt. The output includes a header block (FROM / TO / SUBJECT / DATE) followed by a `CONTENT:` section.
 
 ```ts
-function toLLMContext(
-  parsed: ParsedEmail,
-  options?: LLMContextOptions
+function toLlmContext(email: ProcessedEmail): string
+function toLlmContextWithOptions(
+  email: ProcessedEmail,
+  options: LlmContextOptions
 ): string
 ```
 
-### LLMContextOptions
+Use `toLlmContextWithOptions` when you need to control rendering — for example, to include quoted reply history.
+
+### LlmContextOptions
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| format | "markdown" \| "plain" | "markdown" | Output format |
-| includeHeaders | boolean | true | Prepend From / Subject / Date header block |
-| includeCTAs | boolean | true | Append extracted CTAs at the end |
+| renderMode | "LatestOnly" \| "ThreadHistory" | "LatestOnly" | `LatestOnly` strips quoted content; `ThreadHistory` appends quoted replies as a chronological transcript below the main content |
 
 !!! warning
     Quoted reply detection is heuristic-based. Accuracy varies across non-standard email clients. If precision matters for your use case, review the output before passing to production models.
