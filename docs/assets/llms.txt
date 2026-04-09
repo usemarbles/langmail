@@ -1,0 +1,17 @@
+# langmail
+
+> Email preprocessing for LLM consumption. Parse, clean, and structure raw RFC 5322 emails into Markdown optimized for language models. Written in Rust, available for Node.js, Python, and Rust.
+
+langmail converts raw emails into clean, structured formats for LLM pipelines. It handles HTML-to-Markdown conversion, reply chain detection, signature stripping, and CTA extraction. Two main functions: `preprocess()` for parsing and `toLLMContext()` for LLM-ready output.
+
+## Docs
+
+- [Introduction](https://langmail.dev/introduction): What langmail does, why Markdown, and what it is not
+- [Installation](https://langmail.dev/installation): Install via npm, pip, or cargo
+- [Quick Start](https://langmail.dev/quickstart): Parse your first email in under two minutes
+- [Core Concepts](https://langmail.dev/core-concepts): API reference for preprocess() and toLLMContext()
+
+## Optional
+
+- [GitHub Repository](https://github.com/usemarbles/langmail): Source code and issues
+- [Changelog](https://langmail.dev/changelog): Release history
