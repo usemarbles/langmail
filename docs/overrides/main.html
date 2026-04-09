@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{# Match the original Astro/Starlight title format:
+   - Home: "langmail — Email preprocessing for LLM consumption"
+   - Sub:  "<Page Title> | langmail"
+
+   Zensical doesn't expose `page.is_homepage`, so we detect the home page
+   via `page.url == ""`.
+#}
+{% block htmltitle %}
+  {% if page.url == "" %}
+    <title>langmail — Email preprocessing for LLM consumption</title>
+  {% elif page.meta and page.meta.title %}
+    <title>{{ page.meta.title }} | {{ config.site_name }}</title>
+  {% elif page.title %}
+    <title>{{ page.title | striptags }} | {{ config.site_name }}</title>
+  {% else %}
+    <title>{{ config.site_name }}</title>
+  {% endif %}
+{% endblock %}

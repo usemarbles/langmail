@@ -33,6 +33,7 @@ nav = [
 ]
 
 [project.theme]
+custom_dir = "docs/overrides"
 favicon = "assets/favicon.svg"
 logo = "assets/favicon.svg"
 features = [

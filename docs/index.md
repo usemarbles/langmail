@@ -24,13 +24,20 @@ models. Written in Rust. Available for Node.js and Python.
 
 ## Quick install
 
-```sh
-# Node.js
-npm install langmail
+=== "Node.js"
 
-# Python
-pip install langmail
+    ```sh
+    npm install langmail
+    ```
 
-# Rust
-cargo add langmail
-```
+=== "Python"
+
+    ```sh
+    pip install langmail
+    ```
+
+=== "Rust"
+
+    ```sh
+    cargo add langmail
+    ```
