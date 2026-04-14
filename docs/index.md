@@ -10,7 +10,7 @@ models. Written in Rust. Available for Node.js and Python.
 
 [Get Started](introduction.md){ .md-button .md-button--primary }
 [View on GitHub](https://github.com/usemarbles/langmail){ .md-button }
-[llms.txt](llms.txt){ .md-button }
+[llms.txt](llms.txt){ .md-button title="Site summary for LLM clients" }
 
 ## What it does
 

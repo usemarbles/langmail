@@ -16,7 +16,7 @@ extra_css = [
 repo_url = "https://github.com/usemarbles/langmail"
 edit_uri = "edit/main/docs"
 
-copyright = "<a href=\"https://usemarbles.com/\">Marbles</a> · <a href=\"/llms.txt\">llms.txt</a>"
+copyright = "<a href=\"https://usemarbles.com/\">Marbles</a> · <a href=\"https://langmail.dev/llms.txt\">llms.txt</a>"
 
 nav = [
     {"Home" = "index.md"},
