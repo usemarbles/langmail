@@ -80,6 +80,27 @@ console.log(toLlmContext(email));
 // Hi Alice! Great to hear from you.
 ```
 
+#### Gmail API
+
+Already using the Gmail API with `format: "full"`? Skip the round-trip to raw MIME — feed the parsed response straight into langmail with `preprocessGmail`:
+
+```typescript
+import { preprocessGmail, toLlmContext } from "langmail";
+import { google } from "googleapis";
+
+const gmail = google.gmail({ version: "v1", auth });
+const { data: msg } = await gmail.users.messages.get({
+  userId: "me",
+  id: messageId,
+  format: "full",
+});
+
+const email = preprocessGmail(msg);
+console.log(toLlmContext(email));
+```
+
+No need to switch to `format: "raw"`, double the payload size, or re-parse MIME — `preprocessGmail` walks `payload.parts`, base64url-decodes the HTML/text body, and runs the same cleaning pipeline as `preprocess`.
+
 ### Rust
 
 ```rust

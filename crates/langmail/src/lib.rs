@@ -67,11 +67,92 @@ pub fn preprocess_with_options(
     } else {
         None
     };
-    let primary_cta = raw_html.as_deref().and_then(cta::extract_cta);
 
     // Extract body: prefer HTML (richer content), fall back to plain text
     let raw_body = extract_body(&message);
     let raw_body = clean_invisible_characters(&raw_body);
+
+    Ok(process_post_parse(
+        raw_html,
+        raw_body,
+        subject,
+        from,
+        to,
+        cc,
+        date,
+        rfc_message_id,
+        in_reply_to,
+        references,
+        options,
+    ))
+}
+
+/// Preprocess an already-parsed email, bypassing the MIME parser.
+///
+/// Accepts decoded HTML/text and pre-parsed headers (as returned by provider
+/// APIs like Gmail, Microsoft Graph, Postmark, …) and runs them through the
+/// same cleaning pipeline as [`preprocess`].  When `html` is provided it is
+/// preferred over `text`; the HTML is converted to Markdown before
+/// quote/signature stripping.
+pub fn preprocess_parsed(
+    input: ParsedInput,
+    options: &PreprocessOptions,
+) -> Result<ProcessedEmail, LangmailError> {
+    // Strip invisible characters from the raw HTML once, up front — the
+    // cleaned copy is used for both CTA/thread extraction and markdown
+    // conversion, matching the behavior of `preprocess_with_options`.
+    let raw_html: Option<String> = input.html.as_deref().map(clean_invisible_characters);
+
+    // Body source: prefer HTML→Markdown, then plain text, then empty.
+    let raw_body = if let Some(html) = raw_html.as_deref() {
+        html::html_to_markdown(html)
+    } else if let Some(text) = input.text.as_deref() {
+        text.to_string()
+    } else {
+        String::new()
+    };
+    let raw_body = clean_invisible_characters(&raw_body);
+
+    Ok(process_post_parse(
+        raw_html,
+        raw_body,
+        input.subject,
+        input.from,
+        input.to,
+        input.cc,
+        input.date,
+        input.rfc_message_id,
+        input.in_reply_to,
+        input.references,
+        options,
+    ))
+}
+
+/// Shared post-parse cleaning pipeline.
+///
+/// Both [`preprocess_with_options`] (MIME path) and [`preprocess_parsed`]
+/// (adapter path) converge here once they have extracted the body and
+/// headers.  Keeping this logic in one place guarantees identical output
+/// regardless of input shape.
+///
+/// `raw_html` — already invisible-char-cleaned HTML, or `None` if the source
+/// had no HTML part.  Used for CTA detection and thread extraction.
+/// `raw_body` — already invisible-char-cleaned body (HTML→Markdown or text).
+#[allow(clippy::too_many_arguments)]
+fn process_post_parse(
+    raw_html: Option<String>,
+    raw_body: String,
+    subject: Option<String>,
+    from: Option<Address>,
+    to: Vec<Address>,
+    cc: Vec<Address>,
+    date: Option<String>,
+    rfc_message_id: Option<String>,
+    in_reply_to: Option<Vec<String>>,
+    references: Option<Vec<String>>,
+    options: &PreprocessOptions,
+) -> ProcessedEmail {
+    let primary_cta = raw_html.as_deref().and_then(cta::extract_cta);
 
     // Conditionally strip quoted replies
     let body = if options.strip_quotes {
@@ -108,7 +189,7 @@ pub fn preprocess_with_options(
         .map(thread::extract_thread_messages)
         .unwrap_or_default();
 
-    Ok(ProcessedEmail {
+    ProcessedEmail {
         clean_body_length: body.len(),
         body,
         subject,
@@ -123,7 +204,7 @@ pub fn preprocess_with_options(
         raw_body_length: raw_body.len(),
         primary_cta,
         thread_messages,
-    })
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -502,5 +583,142 @@ mod tests {
         assert_eq!(a.signature, b.signature);
         assert_eq!(a.clean_body_length, b.clean_body_length);
         assert_eq!(a.raw_body_length, b.raw_body_length);
+    }
+
+    // --- Tests for preprocess_parsed ---
+
+    #[test]
+    fn test_preprocess_parsed_text_only() {
+        let input = ParsedInput {
+            text: Some("Hey Bob,\n\nJust wanted to say hi!\n\nBest,\nAlice".to_string()),
+            subject: Some("Hello Bob".to_string()),
+            from: Some(Address {
+                name: Some("Alice".to_string()),
+                email: "alice@example.com".to_string(),
+            }),
+            to: vec![Address {
+                name: Some("Bob".to_string()),
+                email: "bob@example.com".to_string(),
+            }],
+            ..Default::default()
+        };
+        let out = preprocess_parsed(input, &PreprocessOptions::default()).unwrap();
+        assert_eq!(out.subject.as_deref(), Some("Hello Bob"));
+        assert_eq!(out.from.as_ref().unwrap().email, "alice@example.com");
+        assert!(out.body.contains("Just wanted to say hi!"));
+        assert!(out.thread_messages.is_empty());
+    }
+
+    #[test]
+    fn test_preprocess_parsed_html_only() {
+        let input = ParsedInput {
+            html: Some("<p>Hello <strong>world</strong>!</p>".to_string()),
+            subject: Some("Test".to_string()),
+            ..Default::default()
+        };
+        let out = preprocess_parsed(input, &PreprocessOptions::default()).unwrap();
+        assert!(out.body.contains("Hello"));
+        assert!(out.body.contains("world"));
+        // HTML tags should not appear in the body after markdown conversion
+        assert!(!out.body.contains("<p>"));
+        assert!(!out.body.contains("<strong>"));
+    }
+
+    #[test]
+    fn test_preprocess_parsed_prefers_html_over_text() {
+        let input = ParsedInput {
+            html: Some("<p>From HTML</p>".to_string()),
+            text: Some("From text".to_string()),
+            ..Default::default()
+        };
+        let out = preprocess_parsed(input, &PreprocessOptions::default()).unwrap();
+        assert!(out.body.contains("From HTML"));
+        assert!(!out.body.contains("From text"));
+    }
+
+    #[test]
+    fn test_preprocess_parsed_empty_bodies() {
+        let input = ParsedInput {
+            subject: Some("Empty".to_string()),
+            ..Default::default()
+        };
+        let out = preprocess_parsed(input, &PreprocessOptions::default()).unwrap();
+        assert_eq!(out.body, "");
+        assert_eq!(out.subject.as_deref(), Some("Empty"));
+    }
+
+    #[test]
+    fn test_preprocess_parsed_strips_quotes() {
+        let input = ParsedInput {
+            text: Some(
+                concat!(
+                    "Hi Alice!\n\n",
+                    "Great to hear from you.\n\n",
+                    "On Thu, 05 Feb 2026 at 10:00, Alice <alice@example.com> wrote:\n",
+                    "> Hey Bob,\n",
+                    "> Just wanted to say hi!\n",
+                )
+                .to_string(),
+            ),
+            ..Default::default()
+        };
+        let out = preprocess_parsed(input, &PreprocessOptions::default()).unwrap();
+        assert!(out.body.contains("Great to hear from you."));
+        assert!(!out.body.contains("Just wanted to say hi!"));
+    }
+
+    #[test]
+    fn test_preprocess_parsed_respects_strip_quotes_option() {
+        let input = ParsedInput {
+            text: Some(
+                concat!(
+                    "Hi Alice!\n\n",
+                    "Great to hear from you.\n\n",
+                    "On Thu, 05 Feb 2026 at 10:00, Alice <alice@example.com> wrote:\n",
+                    "> Hey Bob,\n",
+                    "> Just wanted to say hi!\n",
+                )
+                .to_string(),
+            ),
+            ..Default::default()
+        };
+        let options = PreprocessOptions {
+            strip_quotes: false,
+            ..Default::default()
+        };
+        let out = preprocess_parsed(input, &options).unwrap();
+        assert!(out.body.contains("Great to hear from you."));
+        assert!(out.body.contains("Just wanted to say hi!"));
+    }
+
+    #[test]
+    fn test_preprocess_parsed_passes_through_threading_headers() {
+        let input = ParsedInput {
+            text: Some("Hi".to_string()),
+            rfc_message_id: Some("msg-42@example.com".to_string()),
+            in_reply_to: Some(vec!["parent-1@example.com".to_string()]),
+            references: Some(vec![
+                "root@example.com".to_string(),
+                "parent-1@example.com".to_string(),
+            ]),
+            ..Default::default()
+        };
+        let out = preprocess_parsed(input, &PreprocessOptions::default()).unwrap();
+        assert_eq!(out.rfc_message_id.as_deref(), Some("msg-42@example.com"));
+        assert_eq!(out.in_reply_to.as_ref().unwrap(), &["parent-1@example.com"]);
+        assert_eq!(
+            out.references.as_ref().unwrap(),
+            &["root@example.com", "parent-1@example.com"]
+        );
+    }
+
+    #[test]
+    fn test_preprocess_parsed_cleans_invisible_chars() {
+        let input = ParsedInput {
+            text: Some("Hello\u{200B} world\u{FEFF}!".to_string()),
+            ..Default::default()
+        };
+        let out = preprocess_parsed(input, &PreprocessOptions::default()).unwrap();
+        assert_eq!(out.body, "Hello world!");
     }
 }

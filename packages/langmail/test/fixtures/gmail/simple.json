@@ -1,0 +1,23 @@
+{
+  "id": "fixture-simple-0001",
+  "threadId": "fixture-thread-0001",
+  "labelIds": ["INBOX"],
+  "snippet": "Hey Bob, just wanted to say hi!",
+  "payload": {
+    "mimeType": "text/plain",
+    "headers": [
+      { "name": "From", "value": "Alice <alice@example.com>" },
+      { "name": "To", "value": "Bob <bob@example.com>" },
+      { "name": "Subject", "value": "Hello Bob" },
+      { "name": "Date", "value": "Thu, 05 Feb 2026 10:00:00 +0000" },
+      { "name": "Message-ID", "value": "<abc123@example.com>" },
+      { "name": "Content-Type", "value": "text/plain; charset=\"UTF-8\"" }
+    ],
+    "body": {
+      "size": 45,
+      "data": "SGV5IEJvYiwKCkp1c3Qgd2FudGVkIHRvIHNheSBoaSEKCkJlc3QsCkFsaWNl"
+    }
+  },
+  "sizeEstimate": 512,
+  "historyId": "1"
+}

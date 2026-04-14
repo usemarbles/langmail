@@ -1,0 +1,44 @@
+{
+  "id": "fixture-reply-0003",
+  "threadId": "fixture-thread-0001",
+  "labelIds": ["INBOX", "SENT"],
+  "snippet": "Thanks for the update, Alice!",
+  "payload": {
+    "mimeType": "multipart/alternative",
+    "headers": [
+      { "name": "From", "value": "\"Lastname, Firstname\" <firstname@example.com>" },
+      { "name": "To", "value": "Alice <alice@example.com>" },
+      { "name": "Subject", "value": "Re: PR review" },
+      { "name": "Date", "value": "Thu, 05 Feb 2026 12:30:00 +0000" },
+      { "name": "Message-ID", "value": "<reply-789@example.com>" },
+      { "name": "In-Reply-To", "value": "<abc123@example.com>" },
+      { "name": "References", "value": "<root-000@example.com> <abc123@example.com>" },
+      { "name": "Content-Type", "value": "multipart/alternative; boundary=\"BOUNDARY\"" }
+    ],
+    "body": { "size": 0 },
+    "parts": [
+      {
+        "mimeType": "text/plain",
+        "headers": [
+          { "name": "Content-Type", "value": "text/plain; charset=\"UTF-8\"" }
+        ],
+        "body": {
+          "size": 140,
+          "data": "VGhhbmtzIGZvciB0aGUgdXBkYXRlLCBBbGljZSEKCk9uIFRodSwgMDUgRmViIDIwMjYgYXQgMTA6MDAsIEFsaWNlIDxhbGljZUBleGFtcGxlLmNvbT4gd3JvdGU6Cj4gSGV5IEJvYiwgY2FuIHlvdSB0YWtlIGEgbG9vayBhdCB0aGUgUFI_"
+        }
+      },
+      {
+        "mimeType": "text/html",
+        "headers": [
+          { "name": "Content-Type", "value": "text/html; charset=\"UTF-8\"" }
+        ],
+        "body": {
+          "size": 420,
+          "data": "PGh0bWw-PGJvZHk-PGRpdj5UaGFua3MgZm9yIHRoZSB1cGRhdGUsIEFsaWNlITwvZGl2Pjxicj48ZGl2IGNsYXNzPSJnbWFpbF9xdW90ZSBnbWFpbF9xdW90ZV9jb250YWluZXIiPjxkaXYgZGlyPSJsdHIiIGNsYXNzPSJnbWFpbF9hdHRyIj5PbiBUaHUsIDA1IEZlYiAyMDI2IGF0IDEwOjAwLCBBbGljZSAmbHQ7YWxpY2VAZXhhbXBsZS5jb20mZ3Q7IHdyb3RlOjxicj48L2Rpdj48YmxvY2txdW90ZSBjbGFzcz0iZ21haWxfcXVvdGUiIHN0eWxlPSJtYXJnaW46MCAwIDAgMC44ZXg7Ym9yZGVyLWxlZnQ6MXB4IHNvbGlkICNjY2M7cGFkZGluZy1sZWZ0OjFleCI-PGRpdj5IZXkgQm9iLCBjYW4geW91IHRha2UgYSBsb29rIGF0IHRoZSBQUj88L2Rpdj48L2Jsb2NrcXVvdGU-PC9kaXY-PC9ib2R5PjwvaHRtbD4"
+        }
+      }
+    ]
+  },
+  "sizeEstimate": 2048,
+  "historyId": "3"
+}

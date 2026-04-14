@@ -108,6 +108,35 @@ pub struct PreprocessOptions {
     pub max_body_length: Option<u32>,
 }
 
+/// Pre-parsed email input — lets callers feed already-decoded content into
+/// langmail's cleaning pipeline without going through MIME parsing.
+///
+/// Provider adapters (Gmail, Graph, Postmark, …) normalize their native
+/// payload into this shape, then call `preprocessParsed`.
+#[napi(object)]
+pub struct NapiParsedInput {
+    /// HTML body, already decoded (UTF-8). Preferred over `text` when both are set.
+    pub html: Option<String>,
+    /// Plain-text body, already decoded (UTF-8). Used when `html` is absent.
+    pub text: Option<String>,
+    /// Email subject line.
+    pub subject: Option<String>,
+    /// Sender address.
+    pub from: Option<NapiAddress>,
+    /// Recipient addresses.
+    pub to: Option<Vec<NapiAddress>>,
+    /// CC addresses.
+    pub cc: Option<Vec<NapiAddress>>,
+    /// Date as an ISO 8601 string.
+    pub date: Option<String>,
+    /// RFC 2822 Message-ID header value (without surrounding angle brackets).
+    pub rfc_message_id: Option<String>,
+    /// In-Reply-To header values (for threading).
+    pub in_reply_to: Option<Vec<String>>,
+    /// References header values (for threading).
+    pub references: Option<Vec<String>>,
+}
+
 /// Preprocess a raw email into an LLM-ready structure.
 ///
 /// Accepts raw email bytes (RFC 5322 / EML format) and returns a structured
@@ -151,6 +180,70 @@ pub fn preprocess_with_options(raw: Buffer, options: PreprocessOptions) -> Resul
 #[napi]
 pub fn preprocess_string(raw: String) -> Result<ProcessedEmail> {
     preprocess(Buffer::from(raw.as_bytes().to_vec()))
+}
+
+/// Preprocess an already-parsed email, bypassing the MIME parser.
+///
+/// Accepts decoded HTML/text and pre-parsed headers (as returned by provider
+/// APIs like Gmail, Microsoft Graph, Postmark, …) and runs them through the
+/// same cleaning pipeline as `preprocess`.
+///
+/// This is an internal entry point powering provider-specific adapters such
+/// as `preprocessGmail`; most users should reach for those adapters instead
+/// of calling it directly.
+///
+/// @param input - Pre-parsed email input
+/// @param options - Optional preprocessing options
+/// @returns Preprocessed email output
+#[napi]
+pub fn preprocess_parsed(
+    input: NapiParsedInput,
+    options: Option<PreprocessOptions>,
+) -> Result<ProcessedEmail> {
+    let core_options = options
+        .map(|o| langmail::PreprocessOptions {
+            strip_quotes: o.strip_quotes.unwrap_or(true),
+            strip_signature: o.strip_signature.unwrap_or(true),
+            max_body_length: o.max_body_length.unwrap_or(0) as usize,
+        })
+        .unwrap_or_default();
+
+    let core_input = langmail::ParsedInput {
+        html: input.html,
+        text: input.text,
+        subject: input.subject,
+        from: input.from.map(|a| langmail::Address {
+            name: a.name,
+            email: a.email,
+        }),
+        to: input
+            .to
+            .unwrap_or_default()
+            .into_iter()
+            .map(|a| langmail::Address {
+                name: a.name,
+                email: a.email,
+            })
+            .collect(),
+        cc: input
+            .cc
+            .unwrap_or_default()
+            .into_iter()
+            .map(|a| langmail::Address {
+                name: a.name,
+                email: a.email,
+            })
+            .collect(),
+        date: input.date,
+        rfc_message_id: input.rfc_message_id,
+        in_reply_to: input.in_reply_to,
+        references: input.references,
+    };
+
+    let result = langmail::preprocess_parsed(core_input, &core_options)
+        .map_err(|e| Error::new(Status::GenericFailure, format!("{}", e)))?;
+
+    Ok(to_napi_output(result))
 }
 
 /// Format a preprocessed email as an LLM-ready context string.
