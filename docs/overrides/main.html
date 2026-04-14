@@ -23,6 +23,10 @@
   <link rel="manifest" href="{{ 'assets/site.webmanifest' | url }}">
   <link rel="apple-touch-icon" href="{{ 'assets/apple-touch-icon.png' | url }}">
 
+  {# LLM-friendly site summary, discoverable by crawlers and LLM clients
+     via the standard `llms.txt` convention. #}
+  <link rel="alternate" type="text/plain" title="llms.txt" href="{{ 'llms.txt' | url }}">
+
   {# Fonts: preconnect + stylesheet in head, parallelised by the browser.
      Avoids the render-blocking @import that would otherwise live in
      stylesheets/extra.css. #}
@@ -30,3 +34,4 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Geist:wght@300;400;500&family=Geist+Mono:wght@400;500&display=swap">
 {% endblock %}
+
