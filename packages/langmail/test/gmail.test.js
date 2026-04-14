@@ -253,10 +253,16 @@ describe("preprocessGmail", () => {
         "toLlmContext",
         "toLlmContextWithOptions",
         "NapiRenderMode",
+        "RenderMode",
         "preprocessGmail",
       ].sort();
       const actual = Object.keys(pkg).sort();
       assert.deepEqual(actual, expected);
+    });
+
+    it("RenderMode is an alias of NapiRenderMode (same enum object)", () => {
+      const pkg = require("../index.js");
+      assert.strictEqual(pkg.RenderMode, pkg.NapiRenderMode);
     });
   });
 });

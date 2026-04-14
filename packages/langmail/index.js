@@ -11,6 +11,13 @@
 //
 // The list below is an allow-list (rather than a spread) so new internal
 // bindings cannot accidentally leak through the public API.
+//
+// `RenderMode` is a runtime alias of `NapiRenderMode` — the unprefixed
+// name is canonical; the prefixed name stays for backward compat. The
+// other NAPI-generated names (`NapiAddress`, `NapiCallToAction`,
+// `NapiLlmContextOptions`, `NapiThreadMessage`) are TS-only interfaces
+// so they don't need a runtime re-export here; their clean aliases are
+// declared in `index.d.ts`.
 
 const native = require('./native.js')
 const { preprocessGmail } = require('./src/adapters/gmail.js')
@@ -25,5 +32,6 @@ module.exports = {
   toLlmContext: native.toLlmContext,
   toLlmContextWithOptions: native.toLlmContextWithOptions,
   NapiRenderMode: native.NapiRenderMode,
+  RenderMode: native.NapiRenderMode,
   preprocessGmail,
 }

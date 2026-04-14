@@ -6,6 +6,11 @@
 // `NapiParsedInput` input type are omitted on purpose — they are
 // internal implementation details of the provider adapters.
 //
+// The `Napi`-prefixed names come from the NAPI-RS generator; we re-export
+// them under clean, unprefixed aliases (`Address`, `CallToAction`, `LlmContextOptions`,
+// `RenderMode`, `ThreadMessage`) which are the canonical public names. The
+// prefixed names remain exported for backward compatibility.
+//
 // Value re-exports (functions, const enums) and type re-exports
 // (interfaces) are kept on separate `export` / `export type` lines so
 // downstream packages with `verbatimModuleSyntax` / `--isolatedModules`
@@ -18,13 +23,18 @@ export {
   toLlmContext,
   toLlmContextWithOptions,
   NapiRenderMode,
+  NapiRenderMode as RenderMode,
 } from './native'
 
 export type {
   NapiAddress,
+  NapiAddress as Address,
   NapiCallToAction,
+  NapiCallToAction as CallToAction,
   NapiLlmContextOptions,
+  NapiLlmContextOptions as LlmContextOptions,
   NapiThreadMessage,
+  NapiThreadMessage as ThreadMessage,
   PreprocessOptions,
   ProcessedEmail,
 } from './native'
