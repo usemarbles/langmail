@@ -11,8 +11,6 @@
 
 Emails are messy — nested MIME parts, quoted reply chains, HTML cruft, signatures, forwarded headers. LLMs don't need any of that. langmail strips it all away and gives you clean, structured **Markdown** optimized for language model consumption.
 
-> **Full documentation:** [langmail.dev](https://langmail.dev)
-
 ## Features
 
 - **MIME parsing** — handles nested multipart messages, attachments, and encoded headers
@@ -67,7 +65,7 @@ const email = preprocess(raw);
 const fromString = preprocessString(rawEmailString);
 
 console.log(email.body);
-// → "Hi Alice! Great to hear from you."
+// → Hi Alice! Great to hear from you.
 
 console.log(email.from);
 // → { name: "Bob", email: "bob@example.com" }
