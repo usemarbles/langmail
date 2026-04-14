@@ -7,6 +7,9 @@
 
 ## Documentation
 - Always make sure that the `/docs` and examples in `README.md` are in sync with the code.
+- Lives in `/docs`, built with [Zensical](https://zensical.org) (config at `zensical.toml`).
+- Build: `make docs` (output → `site/`). Serve locally: `make serve-docs`.
+- Deployed to `langmail.dev` via `.github/workflows/docs.yml` on push to `main`.
 
 ## Implementation
 - After code changes always
@@ -17,8 +20,3 @@
   5. If fixes were made in step 4, repeat steps 1–2 once to verify — do not repeat the review.
   6. Once all tests pass, commit the changes to git using conventional commits. Do not commit prompt changes automatically.
   7. Then push and create a PR if none exists yet.
-
-## Documentation
-- Lives in `/docs`, built with [Zensical](https://zensical.org) (config at `zensical.toml`).
-- Build: `make docs` (output → `site/`). Serve locally: `make serve-docs`.
-- Deployed to `langmail.dev` via `.github/workflows/docs.yml` on push to `main`.
