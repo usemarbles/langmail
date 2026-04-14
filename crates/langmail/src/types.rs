@@ -173,6 +173,51 @@ impl ProcessedEmail {
     }
 }
 
+/// Pre-parsed email input — bypasses the MIME parser.
+///
+/// Used by provider-specific adapters (Gmail, Microsoft Graph, Postmark, …)
+/// that already hold decoded body content and normalized headers, so they can
+/// feed langmail's cleaning pipeline without re-parsing MIME.
+///
+/// `html` and `text` are the raw, already-decoded bodies; langmail will still
+/// strip invisible characters, convert HTML→Markdown, and run the usual
+/// quote/signature/thread extraction on top.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParsedInput {
+    /// HTML body, already decoded (UTF-8). When present, preferred over `text`.
+    pub html: Option<String>,
+
+    /// Plain-text body, already decoded (UTF-8). Used when `html` is `None`.
+    pub text: Option<String>,
+
+    /// Email subject line.
+    pub subject: Option<String>,
+
+    /// Sender address.
+    pub from: Option<Address>,
+
+    /// Recipient addresses.
+    #[serde(default)]
+    pub to: Vec<Address>,
+
+    /// CC addresses.
+    #[serde(default)]
+    pub cc: Vec<Address>,
+
+    /// Date as an ISO 8601 string (caller is responsible for parsing/formatting).
+    pub date: Option<String>,
+
+    /// RFC 2822 Message-ID header value (without surrounding angle brackets).
+    pub rfc_message_id: Option<String>,
+
+    /// In-Reply-To header values (for threading).
+    pub in_reply_to: Option<Vec<String>>,
+
+    /// References header values (for threading).
+    pub references: Option<Vec<String>>,
+}
+
 /// Options for customizing preprocessing behavior.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

@@ -39,6 +39,27 @@ Following up on the Q4 numbers. Can you send
 the updated forecast by Friday?
 ```
 
+### Gmail API
+
+If your Node app is already calling `gmail.users.messages.get({ format: "full" })` through `googleapis`, feed the parsed response directly to `preprocessGmail` instead of switching to `format: "raw"`:
+
+```ts
+import { preprocessGmail, toLlmContext } from "langmail"
+import { google } from "googleapis"
+
+const gmail = google.gmail({ version: "v1", auth })
+const { data: msg } = await gmail.users.messages.get({
+  userId: "me",
+  id: messageId,
+  format: "full",
+})
+
+const parsed  = preprocessGmail(msg)
+const context = toLlmContext(parsed)
+```
+
+`preprocessGmail` walks `payload.parts`, base64url-decodes the HTML/text body, normalizes headers, and runs the same cleaning pipeline as `preprocess` — no MIME re-parsing, no extra fetch.
+
 ## Python
 
 `preprocess()` takes raw bytes, so open the file in binary mode (`"rb"`).

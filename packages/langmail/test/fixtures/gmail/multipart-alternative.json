@@ -1,0 +1,43 @@
+{
+  "id": "fixture-alt-0002",
+  "threadId": "fixture-thread-0002",
+  "labelIds": ["INBOX", "CATEGORY_PERSONAL"],
+  "snippet": "Hi Alice! Great to hear from you.",
+  "payload": {
+    "mimeType": "multipart/alternative",
+    "headers": [
+      { "name": "From", "value": "Bob <bob@example.com>" },
+      { "name": "To", "value": "Alice <alice@example.com>" },
+      { "name": "Cc", "value": "\"Carol, Support\" <carol@example.com>, dev@example.com" },
+      { "name": "Subject", "value": "Re: Hello Bob" },
+      { "name": "Date", "value": "Thu, 05 Feb 2026 11:00:00 +0000" },
+      { "name": "Message-ID", "value": "<def456@example.com>" },
+      { "name": "Content-Type", "value": "multipart/alternative; boundary=\"BOUNDARY\"" }
+    ],
+    "body": { "size": 0 },
+    "parts": [
+      {
+        "mimeType": "text/plain",
+        "headers": [
+          { "name": "Content-Type", "value": "text/plain; charset=\"UTF-8\"" }
+        ],
+        "body": {
+          "size": 40,
+          "data": "SGkgQWxpY2UhCgpHcmVhdCB0byBoZWFyIGZyb20geW91LgoKQmVzdCwKQm9i"
+        }
+      },
+      {
+        "mimeType": "text/html",
+        "headers": [
+          { "name": "Content-Type", "value": "text/html; charset=\"UTF-8\"" }
+        ],
+        "body": {
+          "size": 200,
+          "data": "PGh0bWw-PGJvZHk-PHA-SGkgQWxpY2UhPC9wPjxwPjxhIGhyZWY9Imh0dHBzOi8vZXhhbXBsZS5jb20vdmlldyIgY2xhc3M9ImJ0biIgc3R5bGU9InBhZGRpbmc6MTJweCAyNHB4O2JhY2tncm91bmQ6IzAwN2JmZiI-VmlldyB0aGUgdXBkYXRlIG5vdzwvYT48L3A-PHA-R3JlYXQgdG8gaGVhciBmcm9tIHlvdS48L3A-PC9ib2R5PjwvaHRtbD4"
+        }
+      }
+    ]
+  },
+  "sizeEstimate": 1024,
+  "historyId": "2"
+}
