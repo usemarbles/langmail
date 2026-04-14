@@ -3,8 +3,6 @@ title: TypeScript / Node.js API
 description: Full API surface for the Node.js langmail package.
 ---
 
-**Language:** TypeScript · [Python](python.md) · [Rust](rust.md) — see also [Concepts](../concepts.md)
-
 ```ts
 import {
   preprocess,

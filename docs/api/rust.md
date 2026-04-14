@@ -3,8 +3,6 @@ title: Rust API
 description: The Rust crate's public surface, with pointers to rustdoc on docs.rs.
 ---
 
-**Language:** [TypeScript](typescript.md) · [Python](python.md) · Rust — see also [Concepts](../concepts.md)
-
 The Rust API is documented inline via rustdoc. See [**docs.rs/langmail**](https://docs.rs/langmail) for the authoritative, versioned reference — including error variants, method receivers, and `serde` derivations.
 
 ## Surface at a glance
