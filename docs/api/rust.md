@@ -9,6 +9,10 @@ The Rust API is documented inline via rustdoc. See [**docs.rs/langmail**](https:
 
 ## Surface at a glance
 
+Entry points and options. Payload structs (`Address`, `CallToAction`,
+`ThreadMessage`) and the provider-adapter entry point (`preprocess_parsed` /
+`ParsedInput`) are documented on [docs.rs/langmail](https://docs.rs/langmail).
+
 | Item | Description |
 | --- | --- |
 | [`preprocess`](https://docs.rs/langmail/latest/langmail/fn.preprocess.html) | `fn preprocess(raw: &[u8]) -> Result<ProcessedEmail, LangmailError>` |
@@ -25,5 +29,5 @@ The Rust API is documented inline via rustdoc. See [**docs.rs/langmail**](https:
 
 - `preprocess` returns a `Result`; unlike the Node and Python bindings, there is no exception channel.
 - `to_llm_context` is a method on `ProcessedEmail`, not a free function.
-- All types derive `serde::Serialize` / `Deserialize` for JSON round-tripping.
+- All data types (`ProcessedEmail`, `Address`, `CallToAction`, `ThreadMessage`, `PreprocessOptions`, `LlmContextOptions`, `RenderMode`) derive `serde::Serialize` / `Deserialize` for JSON round-tripping. `LangmailError` does not.
 - There is no Rust equivalent of `preprocessGmail`. Provider adapters are intentionally confined to the Node binding layer — the Rust crate stays provider-agnostic so upstream MIME or JSON sources can be used directly.

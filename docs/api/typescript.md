@@ -13,8 +13,23 @@ import {
   preprocessGmail,
   toLlmContext,
   toLlmContextWithOptions,
+  RenderMode,
+} from "langmail"
+import type {
+  ProcessedEmail,
+  PreprocessOptions,
+  LlmContextOptions,
+  Address,
+  CallToAction,
+  ThreadMessage,
 } from "langmail"
 ```
+
+!!! note
+    The public TypeScript surface also re-exports the underlying NAPI-RS
+    generated names (`NapiAddress`, `NapiCallToAction`, `NapiLlmContextOptions`,
+    `NapiRenderMode`, `NapiThreadMessage`) as backward-compatible aliases.
+    Prefer the unprefixed names — they are the canonical public API.
 
 ## preprocess()
 
@@ -33,21 +48,24 @@ function preprocessWithOptions(
 
 ### ProcessedEmail
 
+Optional fields are declared with `?:` in the generated `.d.ts` — their type
+is `T | undefined`, not `T | null`.
+
 | Field | Type | Description |
 | --- | --- | --- |
 | body | string | Cleaned body text, with quotes and signature removed |
-| subject | string \| null | Subject line |
-| from | Address \| null | Sender |
+| subject | string \| undefined | Subject line |
+| from | Address \| undefined | Sender |
 | to | Address[] | To recipients |
 | cc | Address[] | Cc recipients |
-| date | string \| null | ISO 8601 date string |
-| rfcMessageId | string \| null | RFC 2822 Message-ID header value |
-| inReplyTo | string[] \| null | In-Reply-To header values (for threading) |
-| references | string[] \| null | References header values (for threading) |
-| signature | string \| null | Extracted signature, if found |
+| date | string \| undefined | ISO 8601 date string |
+| rfcMessageId | string \| undefined | RFC 2822 Message-ID header value |
+| inReplyTo | string[] \| undefined | In-Reply-To header values (for threading) |
+| references | string[] \| undefined | References header values (for threading) |
+| signature | string \| undefined | Extracted signature, if found |
 | rawBodyLength | number | Length of the original body before cleaning |
 | cleanBodyLength | number | Length of the cleaned body |
-| primaryCta | CallToAction \| null | Primary call-to-action link extracted from the HTML body |
+| primaryCta | CallToAction \| undefined | Primary call-to-action link extracted from the HTML body |
 | threadMessages | ThreadMessage[] | Quoted reply messages, oldest first |
 
 `Address` is `{ name?: string, email: string }`. `CallToAction` is `{ url: string, text: string, confidence: number }`. `ThreadMessage` is `{ sender: string, timestamp?: string, body: string }`.
@@ -101,7 +119,7 @@ Use `toLlmContextWithOptions` when you need to control rendering — for example
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| renderMode | `NapiRenderMode.LatestOnly` \| `NapiRenderMode.ThreadHistory` | `LatestOnly` | `LatestOnly` strips quoted content; `ThreadHistory` appends quoted replies as a chronological transcript below the main content |
+| renderMode | `RenderMode.LatestOnly` \| `RenderMode.ThreadHistory` | `LatestOnly` | `LatestOnly` strips quoted content; `ThreadHistory` appends quoted replies as a chronological transcript below the main content |
 
 !!! warning
     Quote detection is heuristic. See [Concepts → Caveats](../concepts.md#caveats) for where accuracy degrades.
