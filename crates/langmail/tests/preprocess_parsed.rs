@@ -24,7 +24,7 @@ fn parsed_html_extracts_primary_cta() {
         subject: Some("Re: PR review".to_string()),
         ..Default::default()
     };
-    let out = preprocess_parsed(input, &PreprocessOptions::default()).unwrap();
+    let out = preprocess_parsed(input, &PreprocessOptions::default());
     let cta = out
         .primary_cta
         .expect("expected primary_cta to be detected on styled button link");
@@ -38,7 +38,7 @@ fn parsed_html_extracts_thread_messages() {
         html: Some(THREADED_HTML.to_string()),
         ..Default::default()
     };
-    let out = preprocess_parsed(input, &PreprocessOptions::default()).unwrap();
+    let out = preprocess_parsed(input, &PreprocessOptions::default());
     assert!(
         !out.thread_messages.is_empty(),
         "expected thread_messages to be populated from blockquote; got {:?}",
@@ -56,7 +56,7 @@ fn parsed_text_strips_signature() {
         text: Some("Hello there.\n\n-- \nAlice\nCEO, Acme Corp".to_string()),
         ..Default::default()
     };
-    let out = preprocess_parsed(input, &PreprocessOptions::default()).unwrap();
+    let out = preprocess_parsed(input, &PreprocessOptions::default());
     assert!(out.body.contains("Hello there."));
     assert!(
         !out.body.contains("CEO, Acme Corp"),
@@ -99,7 +99,7 @@ fn parsed_text_parity_with_preprocess() {
         rfc_message_id: Some("abc123@example.com".to_string()),
         ..Default::default()
     };
-    let parsed_out = preprocess_parsed(parsed, &PreprocessOptions::default()).unwrap();
+    let parsed_out = preprocess_parsed(parsed, &PreprocessOptions::default());
 
     assert_eq!(parsed_out.body, eml_out.body);
     assert_eq!(parsed_out.subject, eml_out.subject);
@@ -120,7 +120,7 @@ fn parsed_respects_strip_signature_false() {
         strip_signature: false,
         ..PreprocessOptions::default()
     };
-    let out = preprocess_parsed(input, &opts).unwrap();
+    let out = preprocess_parsed(input, &opts);
     // With signature stripping disabled the sig stays in the body and
     // the dedicated `signature` field is not populated.
     assert!(out.body.contains("CEO, Acme Corp"));
@@ -139,7 +139,7 @@ fn parsed_respects_max_body_length() {
         max_body_length: 5,
         ..PreprocessOptions::default()
     };
-    let out = preprocess_parsed(input, &opts).unwrap();
+    let out = preprocess_parsed(input, &opts);
     assert_eq!(out.body, "Hello");
     // raw_body_length tracks the pre-truncation length so callers can
     // detect that truncation happened.
@@ -164,7 +164,7 @@ fn parsed_llm_context_renders() {
         date: Some("2026-02-05T10:00:00Z".to_string()),
         ..Default::default()
     };
-    let out = preprocess_parsed(input, &PreprocessOptions::default()).unwrap();
+    let out = preprocess_parsed(input, &PreprocessOptions::default());
     let ctx = out.to_llm_context();
     assert!(ctx.contains("FROM: Alice <alice@example.com>"));
     assert!(ctx.contains("TO: bob@example.com"));

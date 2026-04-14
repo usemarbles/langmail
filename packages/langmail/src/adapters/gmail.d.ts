@@ -40,6 +40,14 @@ export type GmailInput = GmailMessage | { data: GmailMessage }
  * response. Skips MIME parsing entirely and feeds the already-decoded
  * bodies into langmail's HTML→Markdown, quote-stripping, signature-stripping
  * pipeline.
+ *
+ * Known limitations:
+ * - Bodies are decoded as UTF-8; per-part `charset` parameters are not
+ *   consulted, so legacy 8-bit encodings produce mojibake.
+ * - Attachments are skipped (parts with `filename` or
+ *   `Content-Disposition: attachment`). The first non-attachment
+ *   text/html leaf — or, failing that, text/plain — wins.
+ * - Quoted-pair escapes inside display names are not fully parsed.
  */
 export declare function preprocessGmail(
   msg: GmailInput,

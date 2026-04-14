@@ -5,6 +5,11 @@
 // the ones re-exported from `index.js`. `preprocessParsed` and its
 // `NapiParsedInput` input type are omitted on purpose — they are
 // internal implementation details of the provider adapters.
+//
+// Value re-exports (functions, const enums) and type re-exports
+// (interfaces) are kept on separate `export` / `export type` lines so
+// downstream packages with `verbatimModuleSyntax` / `--isolatedModules`
+// compile cleanly against them.
 
 export {
   preprocess,
@@ -13,6 +18,9 @@ export {
   toLlmContext,
   toLlmContextWithOptions,
   NapiRenderMode,
+} from './native'
+
+export type {
   NapiAddress,
   NapiCallToAction,
   NapiLlmContextOptions,
@@ -22,4 +30,8 @@ export {
 } from './native'
 
 export { preprocessGmail } from './src/adapters/gmail'
-export type { GmailMessage, GmailMessagePart } from './src/adapters/gmail'
+export type {
+  GmailMessage,
+  GmailMessagePart,
+  GmailInput,
+} from './src/adapters/gmail'

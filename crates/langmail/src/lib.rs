@@ -94,10 +94,10 @@ pub fn preprocess_with_options(
 /// same cleaning pipeline as [`preprocess`].  When `html` is provided it is
 /// preferred over `text`; the HTML is converted to Markdown before
 /// quote/signature stripping.
-pub fn preprocess_parsed(
-    input: ParsedInput,
-    options: &PreprocessOptions,
-) -> Result<ProcessedEmail, LangmailError> {
+///
+/// Infallible — the MIME parse step is already done by the caller, and the
+/// downstream cleaning steps cannot fail.
+pub fn preprocess_parsed(input: ParsedInput, options: &PreprocessOptions) -> ProcessedEmail {
     // Strip invisible characters from the raw HTML once, up front — the
     // cleaned copy is used for both CTA/thread extraction and markdown
     // conversion, matching the behavior of `preprocess_with_options`.
@@ -113,7 +113,7 @@ pub fn preprocess_parsed(
     };
     let raw_body = clean_invisible_characters(&raw_body);
 
-    Ok(process_post_parse(
+    process_post_parse(
         raw_html,
         raw_body,
         input.subject,
@@ -125,7 +125,7 @@ pub fn preprocess_parsed(
         input.in_reply_to,
         input.references,
         options,
-    ))
+    )
 }
 
 /// Shared post-parse cleaning pipeline.
@@ -602,7 +602,7 @@ mod tests {
             }],
             ..Default::default()
         };
-        let out = preprocess_parsed(input, &PreprocessOptions::default()).unwrap();
+        let out = preprocess_parsed(input, &PreprocessOptions::default());
         assert_eq!(out.subject.as_deref(), Some("Hello Bob"));
         assert_eq!(out.from.as_ref().unwrap().email, "alice@example.com");
         assert!(out.body.contains("Just wanted to say hi!"));
@@ -616,7 +616,7 @@ mod tests {
             subject: Some("Test".to_string()),
             ..Default::default()
         };
-        let out = preprocess_parsed(input, &PreprocessOptions::default()).unwrap();
+        let out = preprocess_parsed(input, &PreprocessOptions::default());
         assert!(out.body.contains("Hello"));
         assert!(out.body.contains("world"));
         // HTML tags should not appear in the body after markdown conversion
@@ -631,7 +631,7 @@ mod tests {
             text: Some("From text".to_string()),
             ..Default::default()
         };
-        let out = preprocess_parsed(input, &PreprocessOptions::default()).unwrap();
+        let out = preprocess_parsed(input, &PreprocessOptions::default());
         assert!(out.body.contains("From HTML"));
         assert!(!out.body.contains("From text"));
     }
@@ -642,7 +642,7 @@ mod tests {
             subject: Some("Empty".to_string()),
             ..Default::default()
         };
-        let out = preprocess_parsed(input, &PreprocessOptions::default()).unwrap();
+        let out = preprocess_parsed(input, &PreprocessOptions::default());
         assert_eq!(out.body, "");
         assert_eq!(out.subject.as_deref(), Some("Empty"));
     }
@@ -662,7 +662,7 @@ mod tests {
             ),
             ..Default::default()
         };
-        let out = preprocess_parsed(input, &PreprocessOptions::default()).unwrap();
+        let out = preprocess_parsed(input, &PreprocessOptions::default());
         assert!(out.body.contains("Great to hear from you."));
         assert!(!out.body.contains("Just wanted to say hi!"));
     }
@@ -686,7 +686,7 @@ mod tests {
             strip_quotes: false,
             ..Default::default()
         };
-        let out = preprocess_parsed(input, &options).unwrap();
+        let out = preprocess_parsed(input, &options);
         assert!(out.body.contains("Great to hear from you."));
         assert!(out.body.contains("Just wanted to say hi!"));
     }
@@ -703,7 +703,7 @@ mod tests {
             ]),
             ..Default::default()
         };
-        let out = preprocess_parsed(input, &PreprocessOptions::default()).unwrap();
+        let out = preprocess_parsed(input, &PreprocessOptions::default());
         assert_eq!(out.rfc_message_id.as_deref(), Some("msg-42@example.com"));
         assert_eq!(out.in_reply_to.as_ref().unwrap(), &["parent-1@example.com"]);
         assert_eq!(
@@ -718,7 +718,7 @@ mod tests {
             text: Some("Hello\u{200B} world\u{FEFF}!".to_string()),
             ..Default::default()
         };
-        let out = preprocess_parsed(input, &PreprocessOptions::default()).unwrap();
+        let out = preprocess_parsed(input, &PreprocessOptions::default());
         assert_eq!(out.body, "Hello world!");
     }
 }

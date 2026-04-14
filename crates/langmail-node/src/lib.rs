@@ -199,7 +199,7 @@ pub fn preprocess_string(raw: String) -> Result<ProcessedEmail> {
 pub fn preprocess_parsed(
     input: NapiParsedInput,
     options: Option<PreprocessOptions>,
-) -> Result<ProcessedEmail> {
+) -> ProcessedEmail {
     let core_options = options
         .map(|o| langmail::PreprocessOptions {
             strip_quotes: o.strip_quotes.unwrap_or(true),
@@ -240,10 +240,7 @@ pub fn preprocess_parsed(
         references: input.references,
     };
 
-    let result = langmail::preprocess_parsed(core_input, &core_options)
-        .map_err(|e| Error::new(Status::GenericFailure, format!("{}", e)))?;
-
-    Ok(to_napi_output(result))
+    to_napi_output(langmail::preprocess_parsed(core_input, &core_options))
 }
 
 /// Format a preprocessed email as an LLM-ready context string.

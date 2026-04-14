@@ -60,6 +60,9 @@ const context = toLlmContext(parsed)
 
 `preprocessGmail` walks `payload.parts`, base64url-decodes the HTML/text body, normalizes headers, and runs the same cleaning pipeline as `preprocess` — no MIME re-parsing, no extra fetch.
 
+!!! note
+    langmail does not bundle or depend on `googleapis` — only the shape of the response is consumed. Install `googleapis` (or any client that returns the same `Schema$Message`) separately.
+
 ## Python
 
 `preprocess()` takes raw bytes, so open the file in binary mode (`"rb"`).
