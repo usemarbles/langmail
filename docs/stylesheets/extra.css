@@ -37,6 +37,19 @@
   color-scheme: dark;
 }
 
+/* ─────────── Footer ─────────── */
+/* Lay out the "Marbles · llms.txt" highlight and the "Made with Zensical"
+   trailing text on a single row, with the Zensical credit pushed to the
+   right edge. Zensical/Material emits both as siblings inside a single
+   `.md-copyright` block, so flex on the parent is enough. */
+.md-footer-meta .md-copyright {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
 /* ─────────── Light scheme ─────────── */
 [data-md-color-scheme="default"] {
   /* Brand tokens (light) — warm cream + dark warm text, same amber accent */
