@@ -20,16 +20,28 @@ const { preprocessParsed } = require('../../native.js')
  * message to have been fetched with `format: 'full'` so `payload` is
  * present with headers and (base64url-encoded) body parts.
  *
+ * Body selection: walks `payload.parts` depth-first and picks the first
+ * non-attachment leaf of each type. When both `text/html` and `text/plain`
+ * are present, HTML wins — it's converted to Markdown before quote and
+ * signature stripping. Parts with `Content-Disposition: attachment` or a
+ * `filename` are skipped.
+ *
  * Known limitations:
  * - Bodies are decoded as UTF-8; the per-part `Content-Type: charset=…`
  *   parameter is not consulted. Gmail normalizes most modern mail to
  *   UTF-8, but legacy encodings (ISO-8859-1, windows-1252, GB2312, …)
  *   will produce mojibake.
- * - Attachments are skipped. The first text/html or text/plain leaf
- *   whose `Content-Disposition` is not `attachment` wins.
  * - Quoted-pair escapes inside address display names (`"foo\"bar"
  *   <x@y>`) are not fully handled; in practice Gmail emits simple,
  *   well-formed address headers.
+ *
+ * Throws:
+ * - `TypeError` if the input is not an object or has no `payload` (i.e.
+ *   the message wasn't fetched with `format: 'full'`).
+ * - `Error` if the chosen body part is attachment-backed (Gmail returned
+ *   `body.attachmentId` instead of `body.data` because the body exceeded
+ *   the inline size threshold — fetch with
+ *   `users.messages.attachments.get` and inline the decoded content).
  *
  * @param {object} msg - Gmail message (or full googleapis response)
  * @param {object} [options] - PreprocessOptions
@@ -57,9 +69,6 @@ function preprocessGmail(msg, options) {
   const { html, text } = extractBodies(payload)
   const headers = normalizeHeaders(payload.headers)
 
-  const inReplyToHeader = headers.get('in-reply-to')
-  const referencesHeader = headers.get('references')
-
   const input = {
     html,
     text,
@@ -69,15 +78,28 @@ function preprocessGmail(msg, options) {
     cc: parseAddressList(headers.get('cc')),
     date: parseDate(headers.get('date')),
     rfcMessageId: stripAngleBrackets(headers.get('message-id')),
-    inReplyTo: inReplyToHeader
-      ? splitIdList(inReplyToHeader).map(stripAngleBrackets)
-      : undefined,
-    references: referencesHeader
-      ? splitIdList(referencesHeader).map(stripAngleBrackets)
-      : undefined,
+    inReplyTo: parseIdListHeader(headers.get('in-reply-to')),
+    references: parseIdListHeader(headers.get('references')),
   }
 
   return preprocessParsed(input, options)
+}
+
+/**
+ * Normalize an `In-Reply-To` / `References` header into an array of bare
+ * Message-IDs. Returns `undefined` when the header is missing, whitespace-
+ * only, or contains no `@`-bearing tokens after parsing — empty-but-present
+ * is semantically different from absent, and downstream LLM context
+ * rendering relies on the distinction.
+ */
+function parseIdListHeader(raw) {
+  if (typeof raw !== 'string') return undefined
+  const ids = splitIdList(raw)
+    .map(stripAngleBrackets)
+    // Drop trailing `(comment)` fragments and other non-ID tokens — a bare
+    // Message-ID always contains an `@`.
+    .filter((s) => s.includes('@'))
+  return ids.length > 0 ? ids : undefined
 }
 
 // ---------------------------------------------------------------------------
@@ -105,15 +127,34 @@ function extractBodies(payload) {
       ? part.mimeType.toLowerCase()
       : ''
 
-    const data = part.body && typeof part.body.data === 'string'
-      ? part.body.data
-      : undefined
+    const body = part.body && typeof part.body === 'object' ? part.body : undefined
+    const data = body && typeof body.data === 'string' ? body.data : undefined
 
-    if (data && !isAttachmentPart(part)) {
-      if (mime === 'text/html' && html === undefined) {
-        html = decodeBase64Url(data)
-      } else if (mime === 'text/plain' && text === undefined) {
-        text = decodeBase64Url(data)
+    if (!isAttachmentPart(part)) {
+      const isHtmlCandidate = mime === 'text/html' && html === undefined
+      const isTextCandidate = mime === 'text/plain' && text === undefined
+
+      if (data) {
+        if (isHtmlCandidate) {
+          html = decodeBase64Url(data)
+        } else if (isTextCandidate) {
+          text = decodeBase64Url(data)
+        }
+      } else if (
+        (isHtmlCandidate || isTextCandidate) &&
+        body &&
+        typeof body.attachmentId === 'string' &&
+        body.attachmentId !== ''
+      ) {
+        // Gmail returns `body.attachmentId` (instead of inline `data`) when
+        // a body part exceeds the `get` response's size threshold. Silent
+        // fallthrough would leave the email body empty; surface it so the
+        // caller can fetch with `users.messages.attachments.get` and inline
+        // the decoded content into the part before retrying.
+        throw new Error(
+          `preprocessGmail: ${mime} body part has no inline data (body.attachmentId=${JSON.stringify(body.attachmentId)}). ` +
+            'Fetch the part via gmail.users.messages.attachments.get and set body.data before calling preprocessGmail.',
+        )
       }
     }
 
@@ -128,8 +169,8 @@ function extractBodies(payload) {
 
 function decodeBase64Url(data) {
   // Gmail returns standard base64url (RFC 4648 §5). Node's Buffer has
-  // native base64url support from Node 16+, which matches the package's
-  // minimum engine.
+  // native base64url support since Node 16 — comfortably covered by
+  // this package's `engines.node: ">= 18"`.
   return Buffer.from(data, 'base64url').toString('utf8')
 }
 
@@ -177,7 +218,7 @@ function normalizeHeaders(headers) {
 // Address parsing
 // ---------------------------------------------------------------------------
 
-/** Parse a single "Name <email>" or bare "email" into { name?, email }. */
+/** Parse a single "Name <email>", legacy "email (Name)", or bare "email" into { name?, email }. */
 function parseAddress(raw) {
   if (typeof raw !== 'string') return undefined
   const trimmed = raw.trim()
@@ -188,6 +229,16 @@ function parseAddress(raw) {
   if (angleMatch) {
     const name = (angleMatch[1] ?? angleMatch[2] ?? '').trim()
     const email = angleMatch[3].trim()
+    return name === '' ? { email } : { name, email }
+  }
+
+  // Legacy RFC 5322 comment form: `user@example.com (Display Name)`.
+  // Matched *before* the bare-email fallback so the `(Name)` suffix does
+  // not leak into the email field.
+  const commentMatch = trimmed.match(/^(\S+@\S+?)\s*\(([^)]*)\)\s*$/)
+  if (commentMatch) {
+    const email = commentMatch[1].trim()
+    const name = commentMatch[2].trim()
     return name === '' ? { email } : { name, email }
   }
 
@@ -246,7 +297,10 @@ function splitAddressList(raw) {
 function parseDate(raw) {
   if (typeof raw !== 'string' || raw.trim() === '') return undefined
   const t = Date.parse(raw)
-  return Number.isNaN(t) ? undefined : new Date(t).toISOString()
+  if (Number.isNaN(t)) return undefined
+  // Match the Rust path's ISO-8601 format (no fractional seconds) so the
+  // `date` field is byte-identical across `preprocess` and `preprocessGmail`.
+  return new Date(t).toISOString().replace(/\.000Z$/, 'Z')
 }
 
 function stripAngleBrackets(s) {
