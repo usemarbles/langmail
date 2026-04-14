@@ -7,6 +7,7 @@
 
 ## Documentation
 - Always make sure that the `/docs` and examples in `README.md` are in sync with the code.
+- Make sure that the API is documented properly in all three supported languages: `TypeScript`, `Python`, and `Rust`.
 - Lives in `/docs`, built with [Zensical](https://zensical.org) (config at `zensical.toml`).
 - Build: `make docs` (output → `site/`). Serve locally: `make serve-docs`.
 - Deployed to `langmail.dev` via `.github/workflows/docs.yml` on push to `main`.
