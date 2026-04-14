@@ -1,6 +1,19 @@
 # Changelog
 
 All notable changes to this project will be automatically documented in this file.
+## [0.8.0] - 2026-04-14
+
+### Bug Fixes
+
+- **gmail**: Round 2 of review feedback on preprocessGmail adapter([b48e742](https://github.com/usemarbles/langmail/commit/b48e7422c3746345bb77c790e29e1a563f6f32d2))
+
+### Features
+
+- Add preprocessGmail adapter for Gmail API responses([017a612](https://github.com/usemarbles/langmail/commit/017a612a623e776d6bdd81906c14e8ac466dd21a))
+
+### Refactor
+
+- **gmail**: Address code review feedback on preprocessGmail adapter([500a24c](https://github.com/usemarbles/langmail/commit/500a24c55bac1cc6625d68be13d20bb18095aa61))
 ## [0.7.0] - 2026-03-12
 
 ### Bug Fixes
