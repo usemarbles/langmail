@@ -32,9 +32,19 @@ describe("preprocessGmail", () => {
       assert.equal(result.rfcMessageId, "abc123@example.com");
     });
 
-    it("converts the Date header to an ISO 8601 string", () => {
+    it("converts the Date header to an ISO 8601 string matching the EML path", () => {
       const result = preprocessGmail(SIMPLE);
-      assert.equal(result.date, "2026-02-05T10:00:00.000Z");
+      // No fractional seconds — matches the Rust `preprocess` formatter so
+      // the `date` field is byte-identical across entry points.
+      assert.equal(result.date, "2026-02-05T10:00:00Z");
+    });
+
+    it("returns undefined for a malformed Date header", () => {
+      const msg = JSON.parse(JSON.stringify(SIMPLE));
+      const dateHeader = msg.payload.headers.find((h) => h.name === "Date");
+      dateHeader.value = "not a real date";
+      const result = preprocessGmail(msg);
+      assert.equal(result.date, undefined);
     });
 
     it("strips the signature by default", () => {
@@ -136,6 +146,94 @@ describe("preprocessGmail", () => {
     });
   });
 
+  describe("body edge cases", () => {
+    it("returns an empty body when the payload has no data or parts", () => {
+      const msg = {
+        id: "empty",
+        payload: {
+          mimeType: "text/plain",
+          headers: [{ name: "Subject", value: "Empty" }],
+          body: { size: 0 },
+        },
+      };
+      const result = preprocessGmail(msg);
+      assert.equal(result.body, "");
+      assert.equal(result.subject, "Empty");
+    });
+
+    it("throws a clear error when the main body is attachmentId-only", () => {
+      const msg = {
+        id: "big",
+        payload: {
+          mimeType: "text/plain",
+          headers: [{ name: "Subject", value: "Large body" }],
+          body: { size: 9999999, attachmentId: "ATT_abc123" },
+        },
+      };
+      assert.throws(
+        () => preprocessGmail(msg),
+        /attachmentId.*attachments\.get/s,
+      );
+    });
+
+    it("degrades gracefully when optional headers are absent", () => {
+      const msg = {
+        id: "sparse",
+        payload: {
+          mimeType: "text/plain",
+          // No From, no Date, no Message-ID, no To.
+          headers: [{ name: "Subject", value: "Minimal" }],
+          body: {
+            size: 11,
+            data: Buffer.from("Hello world", "utf8").toString("base64url"),
+          },
+        },
+      };
+      const result = preprocessGmail(msg);
+      assert.equal(result.subject, "Minimal");
+      assert.equal(result.from, undefined);
+      // `to`/`cc` are always arrays on `ProcessedEmail` — empty when absent.
+      assert.deepEqual(result.to, []);
+      assert.deepEqual(result.cc, []);
+      assert.equal(result.date, undefined);
+      assert.equal(result.rfcMessageId, undefined);
+      assert.equal(result.inReplyTo, undefined);
+      assert.equal(result.references, undefined);
+      assert.ok(result.body.includes("Hello world"));
+    });
+  });
+
+  describe("header parsing edge cases", () => {
+    it("parses legacy comment-form addresses `email (Name)`", () => {
+      const msg = JSON.parse(JSON.stringify(SIMPLE));
+      const from = msg.payload.headers.find((h) => h.name === "From");
+      from.value = "alice@example.com (Alice Example)";
+      const result = preprocessGmail(msg);
+      assert.equal(result.from?.email, "alice@example.com");
+      assert.equal(result.from?.name, "Alice Example");
+    });
+
+    it("treats a whitespace-only In-Reply-To header as absent", () => {
+      const msg = JSON.parse(JSON.stringify(SIMPLE));
+      msg.payload.headers.push({ name: "In-Reply-To", value: "   " });
+      const result = preprocessGmail(msg);
+      assert.equal(result.inReplyTo, undefined);
+    });
+
+    it("filters out non-email tokens (e.g. `(comment)` suffixes) in References", () => {
+      const msg = JSON.parse(JSON.stringify(SIMPLE));
+      msg.payload.headers.push({
+        name: "References",
+        value: "<root@example.com> (imported from archive) <abc@example.com>",
+      });
+      const result = preprocessGmail(msg);
+      assert.deepEqual(result.references, [
+        "root@example.com",
+        "abc@example.com",
+      ]);
+    });
+  });
+
   describe("public surface", () => {
     it("does not re-export preprocessParsed from the package entry", () => {
       const pkg = require("../index.js");
@@ -144,6 +242,21 @@ describe("preprocessGmail", () => {
         undefined,
         "preprocessParsed is an internal hook and must not be on the public API",
       );
+    });
+
+    it("exports exactly the documented public API — no accidental additions or removals", () => {
+      const pkg = require("../index.js");
+      const expected = [
+        "preprocess",
+        "preprocessWithOptions",
+        "preprocessString",
+        "toLlmContext",
+        "toLlmContextWithOptions",
+        "NapiRenderMode",
+        "preprocessGmail",
+      ].sort();
+      const actual = Object.keys(pkg).sort();
+      assert.deepEqual(actual, expected);
     });
   });
 });

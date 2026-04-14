@@ -15,6 +15,9 @@
 const native = require('./native.js')
 const { preprocessGmail } = require('./src/adapters/gmail.js')
 
+// TODO(spec-01): once Microsoft Graph, Postmark, and SendGrid adapters
+// land and the input shape stabilizes, expose `preprocessParsed` here as
+// `preprocessFromParsed` (and mirror the re-export in `index.d.ts`).
 module.exports = {
   preprocess: native.preprocess,
   preprocessWithOptions: native.preprocessWithOptions,

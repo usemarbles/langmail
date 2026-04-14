@@ -108,6 +108,12 @@ fn parsed_text_parity_with_preprocess() {
         eml_out.from.as_ref().map(|a| &a.email),
     );
     assert_eq!(parsed_out.rfc_message_id, eml_out.rfc_message_id);
+    // Date format must match byte-for-byte so downstream consumers can
+    // compare/sort/dedupe across entry points (EML path vs. adapter path).
+    // The adapters are responsible for normalizing to the shared format —
+    // `YYYY-MM-DDTHH:MM:SSZ`, no fractional seconds.
+    assert_eq!(parsed_out.date, eml_out.date);
+    assert_eq!(parsed_out.date.as_deref(), Some("2026-02-05T10:00:00Z"));
 }
 
 #[test]
