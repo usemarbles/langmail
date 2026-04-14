@@ -16,9 +16,9 @@ Emails are messy — nested MIME parts, quoted reply chains, HTML cruft, signatu
 - **MIME parsing** — handles nested multipart messages, attachments, and encoded headers
 - **HTML to Markdown** — converts HTML email bodies to clean Markdown, preserving links, headings, and structure
 - **Quote stripping** — detects and removes quoted replies from Gmail, Outlook, Apple Mail, forwarded messages, and `>` prefixed lines; supports English, German, French, and Spanish
-- **Signature removal** — strips signatures (preserved in the `signature` field); detected via `-- ` delimiter and heuristics
-- **CTA extraction** — extracts the primary call-to-action from HTML emails via JSON-LD (`potentialAction`) or heuristic link scoring; filters out unsubscribe/privacy/logo links
-- **Thread history** — extracts quoted reply blocks into structured `ThreadMessage[]` (oldest first); render with `toLlmContextWithOptions({ renderMode: "ThreadHistory" })`
+- **Signature removal** — strips signatures (preserved separately in the output); detected via `-- ` delimiter and heuristics
+- **CTA extraction** — extracts the primary call-to-action from HTML emails via JSON-LD or heuristic link scoring; filters out unsubscribe/privacy/logo links
+- **Thread history** — extracts quoted reply blocks into a structured list (oldest first); available via the thread-history render mode
 - **Whitespace cleanup** — normalizes excessive blank lines and trailing spaces
 
 ## Install
