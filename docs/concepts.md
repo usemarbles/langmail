@@ -11,15 +11,16 @@ Raw email bytes in, a structured `ProcessedEmail` out. The pipeline runs these s
 
 1. **MIME parse** — RFC 5322 structure and headers are extracted. Malformed bodies are recoverable; a completely unparseable input returns an error.
 2. **Body selection** — if the message has both `text/html` and `text/plain` parts, HTML wins. Attachments are skipped.
-3. **HTML → Markdown** — HTML is converted to Markdown via `htmd`, preserving structure (headings, lists, links with anchor text) while dropping presentational noise.
-4. **Invisible-character normalisation** — zero-width joiners, BOMs, and soft hyphens are stripped.
-5. **Quote stripping** — reply chains from Gmail, Outlook, Apple Mail, and common ad-hoc markers (`On <date>, <sender> wrote:` etc.) are removed from the active body and surfaced separately as `thread_messages`.
-6. **Signature stripping** — trailing signatures (detected heuristically) are removed and surfaced as a separate `signature` field.
-7. **CTA extraction** — the primary call-to-action link is extracted from the HTML, via JSON-LD fast path when present, falling back to heuristic scoring otherwise.
+3. **Invisible-character normalisation** — zero-width joiners, BOMs, and soft hyphens are stripped from the raw HTML before it is converted.
+4. **HTML → Markdown** — HTML is converted to Markdown, preserving structure (headings, lists, links with anchor text) while dropping presentational noise.
+5. **CTA extraction** — the primary call-to-action link is extracted from the raw HTML, via JSON-LD fast path when present, falling back to heuristic scoring otherwise. Runs against the pre-stripping HTML so the result is independent of quote/signature boundaries.
+6. **Quote stripping** — reply chains from Gmail, Outlook, Apple Mail, and common ad-hoc markers (`On <date>, <sender> wrote:` etc.) are removed from the active body.
+7. **Signature stripping** — trailing signatures (detected heuristically) are removed and surfaced as a separate `signature` field.
+8. **Thread extraction** — quoted replies are extracted from HTML `<blockquote>` blocks into `threadMessages`, ordered oldest-first.
 
 ## ProcessedEmail
 
-The structured output. Field names follow each language's conventions — `from` in TypeScript and Rust, `from_address` in Python (where `from` is a reserved keyword) — but the meaning is identical everywhere.
+The structured output. Field names follow each language's conventions — `from` in TypeScript and Rust, `from_address` in Python (where `from` is a reserved keyword) — but the meaning is identical everywhere. Field names below use TypeScript/Rust camelCase; Python readers should mentally translate to snake_case (`rfcMessageId` → `rfc_message_id`, `primaryCta` → `primary_cta`, `threadMessages` → `thread_messages`).
 
 | Field | Meaning | Empty when |
 | --- | --- | --- |
@@ -42,7 +43,7 @@ An `Address` carries an optional display name and an email. A `CallToAction` has
 
 ## Rendering modes
 
-`toLlmContext` takes a `ProcessedEmail` and produces a deterministic plain-text prompt. Its rendering mode controls what happens to quoted reply history:
+`toLlmContext` (camelCase here; `to_llm_context` in Python and Rust) takes a `ProcessedEmail` and produces a deterministic plain-text prompt. Its rendering mode controls what happens to quoted reply history:
 
 | Mode | Behaviour |
 | --- | --- |

@@ -35,6 +35,9 @@ def preprocess_with_options(
 
 Open `.eml` files in binary mode (`"rb"`) so you get `bytes`. Use `preprocess_string` if you already have a `str`. Use `preprocess_with_options` to override defaults — see [`PreprocessOptions`](#preprocessoptions).
 
+!!! note
+    Prefer `preprocess(bytes)` for legacy non-UTF-8 sources. `preprocess_string` accepts a `str`, so the caller has already made a decoding decision — any encoding loss happens before langmail sees the input.
+
 Raises `langmail.ParseError` if the input can't be parsed as an email.
 
 ### ProcessedEmail
