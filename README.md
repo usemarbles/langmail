@@ -49,6 +49,22 @@ Requires **Python 3.9+**.
 
 Prebuilt native binaries ship with the Node.js and Python packages — no Rust toolchain needed at install time.
 
+### AI coding agents
+
+Drop this prompt into Claude Code, Cursor, or any other coding agent to have it integrate langmail into your project:
+
+```text
+Integrate the langmail library into this project. langmail is an
+email preprocessing library that prepares raw email content for LLM
+consumption — parsing, cleaning, and rendering it into context strings.
+
+Before writing any code, fetch the current API reference at:
+https://langmail.dev/llms.txt
+
+Use it to determine the correct package name, install method, and API
+for this project's language and runtime, then implement accordingly.
+```
+
 ## Quick Start
 
 ### TypeScript / Node.js
