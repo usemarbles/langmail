@@ -26,13 +26,12 @@ npm install
 npm run build:debug
 ```
 
-To work on the **Python bindings**, also:
+To work on the **Python bindings**, also (mirrors what CI does — venv at the repo root):
 
 ```bash
-cd crates/langmail-python
 python -m venv .venv && source .venv/bin/activate
 pip install maturin pytest
-maturin develop
+cd crates/langmail-python && maturin develop
 ```
 
 ## Before committing
@@ -70,6 +69,8 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) — the changel
 - `chore:` — tooling, release, dependencies
 
 ## Documentation
+
+Requires [`uv`](https://docs.astral.sh/uv/) — the `make` targets invoke `uvx` to run [Zensical](https://zensical.org/) without a manual install.
 
 ```bash
 make docs        # Build the site into ./site/
