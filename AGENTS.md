@@ -2,6 +2,9 @@
 
 **langmail** is a Rust library with Node.js and Python bindings for preprocessing email content for LLM consumption. It strips HTML noise, quoted replies, signatures, and excessive whitespace while preserving structured metadata (headers, threading info, etc.).
 
+## Architecture
+- As much as possible all business logic should be implemented in Rust. Node and Python are only thin adapter layers.
+
 ## Implementation
 - After code changes always
   1. Run the `test`, `format` and `clippy` scripts.
