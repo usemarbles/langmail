@@ -1,6 +1,11 @@
 # Changelog
 
 All notable changes to this project will be automatically documented in this file.
+## [0.10.0] - 2026-04-14
+
+### Features
+
+- **node**: Export unprefixed aliases for Napi-prefixed types([927853f](https://github.com/usemarbles/langmail/commit/927853ff3cde154f13a3ff09a68ce060d16f9cfc))
 ## [0.9.0] - 2026-04-14
 
 ### Features
