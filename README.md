@@ -115,7 +115,7 @@ const email = preprocessGmail(msg);
 console.log(toLlmContext(email));
 ```
 
-No need to switch to `format: "raw"`, double the payload size, or re-parse MIME — `preprocessGmail` walks `payload.parts`, base64url-decodes the HTML/text body, and runs the same cleaning pipeline as `preprocess`.
+No need to switch to `format: "raw"`, double the payload size, or re-parse MIME — `preprocessGmail` walks `payload.parts`, base64url-decodes the HTML/text body, and runs the same cleaning pipeline as `preprocess`. `googleapis` is a separate install; langmail only consumes the response shape.
 
 ### Rust
 

@@ -20,6 +20,17 @@ const { preprocessParsed } = require('../../native.js')
  * message to have been fetched with `format: 'full'` so `payload` is
  * present with headers and (base64url-encoded) body parts.
  *
+ * Known limitations:
+ * - Bodies are decoded as UTF-8; the per-part `Content-Type: charset=…`
+ *   parameter is not consulted. Gmail normalizes most modern mail to
+ *   UTF-8, but legacy encodings (ISO-8859-1, windows-1252, GB2312, …)
+ *   will produce mojibake.
+ * - Attachments are skipped. The first text/html or text/plain leaf
+ *   whose `Content-Disposition` is not `attachment` wins.
+ * - Quoted-pair escapes inside address display names (`"foo\"bar"
+ *   <x@y>`) are not fully handled; in practice Gmail emits simple,
+ *   well-formed address headers.
+ *
  * @param {object} msg - Gmail message (or full googleapis response)
  * @param {object} [options] - PreprocessOptions
  * @returns {object} ProcessedEmail
@@ -98,7 +109,7 @@ function extractBodies(payload) {
       ? part.body.data
       : undefined
 
-    if (data) {
+    if (data && !isAttachmentPart(part)) {
       if (mime === 'text/html' && html === undefined) {
         html = decodeBase64Url(data)
       } else if (mime === 'text/plain' && text === undefined) {
@@ -120,6 +131,26 @@ function decodeBase64Url(data) {
   // native base64url support from Node 16+, which matches the package's
   // minimum engine.
   return Buffer.from(data, 'base64url').toString('utf8')
+}
+
+function isAttachmentPart(part) {
+  // Skip parts explicitly marked as attachments. `filename` on the part
+  // itself is a strong signal (Gmail sets it for attached files) and
+  // the `Content-Disposition: attachment` header is authoritative.
+  if (typeof part.filename === 'string' && part.filename !== '') return true
+  if (!Array.isArray(part.headers)) return false
+  for (const h of part.headers) {
+    if (
+      h &&
+      typeof h.name === 'string' &&
+      typeof h.value === 'string' &&
+      h.name.toLowerCase() === 'content-disposition' &&
+      h.value.trim().toLowerCase().startsWith('attachment')
+    ) {
+      return true
+    }
+  }
+  return false
 }
 
 // ---------------------------------------------------------------------------
@@ -221,7 +252,9 @@ function parseDate(raw) {
 function stripAngleBrackets(s) {
   if (typeof s !== 'string') return s
   const trimmed = s.trim()
-  const m = trimmed.match(/^<(.+)>$/)
+  // Match a single `<...>` with no embedded `>` — safe even when a caller
+  // hands us a string containing multiple angle-bracketed tokens.
+  const m = trimmed.match(/^<([^>]+)>$/)
   return m ? m[1] : trimmed
 }
 
