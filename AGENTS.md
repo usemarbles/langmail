@@ -5,6 +5,7 @@
 ## Implementation
 - After code changes always run the `test`, `format` and `clippy` scripts. Fix any issues that arise.
 - Use conventional commits (`feat:`, `fix:`, `refactor:`, etc.) so the changelog groups entries automatically.
+- Always make sure that the `/docs` and examples in `README.md` are in sync with the code.
 
 ## Documentation
 - Lives in `/docs`, built with [Zensical](https://zensical.org) (config at `zensical.toml`).
