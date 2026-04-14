@@ -3,8 +3,6 @@ title: Python API
 description: Full API surface for the langmail Python package.
 ---
 
-**Language:** [TypeScript](typescript.md) · Python · [Rust](rust.md) — see also [Concepts](../concepts.md)
-
 ```python
 from langmail import (
     preprocess,
