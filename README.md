@@ -2,11 +2,16 @@
 
 **Email preprocessing for LLMs.** Fast, typed, Rust-powered.
 
-[![npm](https://img.shields.io/npm/v/langmail)](https://www.npmjs.com/package/langmail)
+[![crates.io](https://img.shields.io/crates/v/langmail?label=crates.io)](https://crates.io/crates/langmail)
+[![npm](https://img.shields.io/npm/v/langmail?label=npm)](https://www.npmjs.com/package/langmail)
+[![PyPI](https://img.shields.io/pypi/v/langmail?label=PyPI)](https://pypi.org/project/langmail/)
+[![docs](https://img.shields.io/badge/docs-langmail.dev-4c1)](https://langmail.dev)
 [![CI](https://github.com/usemarbles/langmail/actions/workflows/ci.yml/badge.svg)](https://github.com/usemarbles/langmail/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](#license)
 
 Emails are messy — nested MIME parts, quoted reply chains, HTML cruft, signatures, forwarded headers. LLMs don't need any of that. langmail strips it all away and gives you clean, structured **Markdown** optimized for language model consumption.
+
+> **Full documentation:** [langmail.dev](https://langmail.dev)
 
 ## Table of Contents
 
@@ -27,17 +32,40 @@ Emails are messy — nested MIME parts, quoted reply chains, HTML cruft, signatu
   - [LlmContextOptions / RenderMode](#llmcontextoptions--rendermode)
 - [Features](#features)
 - [Performance](#performance)
+- [Contributing](#contributing)
 - [License](#license)
 
 ## Install
+
+### Node.js
 
 ```bash
 npm install langmail
 ```
 
-Requires **Node.js 18 or later**. Prebuilt native binaries are included — no Rust toolchain needed.
+Requires **Node.js 18+**.
+
+### Rust
+
+```bash
+cargo add langmail
+```
+
+Requires **stable Rust**.
+
+### Python
+
+```bash
+pip install langmail
+```
+
+Requires **Python 3.9+**.
+
+Prebuilt native binaries ship with the Node.js and Python packages — no Rust toolchain needed at install time.
 
 ## Quick Start
+
+### TypeScript / Node.js
 
 ```typescript
 import { preprocess, preprocessString, toLlmContext } from "langmail";
@@ -65,6 +93,44 @@ console.log(toLlmContext(email));
 // CONTENT:
 // Hi Alice! Great to hear from you.
 ```
+
+### Rust
+
+```rust
+use std::fs;
+
+let raw = fs::read("message.eml")?;
+let email = langmail::preprocess(&raw)?;
+
+println!("{}", email.body);
+// → "Hi Alice! Great to hear from you."
+
+println!("{:?}", email.from);
+// → Some(Address { name: Some("Bob"), email: "bob@example.com" })
+
+// Format for an LLM prompt
+println!("{}", email.to_llm_context());
+```
+
+### Python
+
+```python
+import langmail
+
+with open("message.eml", "rb") as f:
+    email = langmail.preprocess(f.read())
+
+print(email.body)
+# → "Hi Alice! Great to hear from you."
+
+print(email.from_address)
+# → Address(name='Bob', email='bob@example.com')
+
+# Format for an LLM prompt
+print(langmail.to_llm_context(email))
+```
+
+> **Note:** the API Reference below uses TypeScript signatures. Rust and Python expose the same functions in their native conventions (`snake_case` methods, `from_address` instead of `from` in Python). See [langmail.dev](https://langmail.dev) for the full per-language reference.
 
 ## API Reference
 
@@ -301,6 +367,10 @@ const enum RenderMode {
 langmail uses [mail-parser](https://github.com/stalwartlabs/mail-parser) under the hood — a zero-copy Rust MIME parser. The preprocessing pipeline adds minimal overhead on top of the parse step.
 
 Typical throughput on a modern machine: **10,000+ emails/second** for plain text messages.
+
+## Contributing
+
+Contributions welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md) for the development setup, test/format/clippy workflow, and commit-message conventions.
 
 ## License
 
