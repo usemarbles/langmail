@@ -209,6 +209,38 @@ fn preprocess_with_options(raw: &[u8], options: &PreprocessOptions) -> PyResult<
     Ok(to_py_output(result))
 }
 
+/// Preprocess a Gmail API message through langmail's cleaning pipeline.
+///
+/// Accepts a JSON-serialized Gmail `users.messages.get` response (either the
+/// bare message object or the full wrapper `{"data": {...}}`). Callers should
+/// pass `json.dumps(msg)` — the heavy lifting (body tree walk, base64url
+/// decoding, header parsing) lives in the Rust core and is shared with the
+/// Node binding.
+///
+/// Raises `ParseError` if the JSON is invalid, the message has no `payload`
+/// (fetch with `format='full'`), or the chosen body part is stored as an
+/// attachment (Gmail returned `body.attachmentId`) — in that case, fetch the
+/// body with `users.messages.attachments.get` and inline the decoded content.
+#[pyfunction]
+#[pyo3(signature = (msg_json, options=None))]
+fn preprocess_gmail(
+    msg_json: &str,
+    options: Option<&PreprocessOptions>,
+) -> PyResult<ProcessedEmail> {
+    let core_options = options
+        .map(|o| ::langmail::PreprocessOptions {
+            strip_quotes: o.strip_quotes,
+            strip_signature: o.strip_signature,
+            max_body_length: o.max_body_length,
+        })
+        .unwrap_or_default();
+
+    let result = ::langmail::adapters::preprocess_gmail_with_options(msg_json, &core_options)
+        .map_err(|e| ParseError::new_err(e.to_string()))?;
+
+    Ok(to_py_output(result))
+}
+
 /// Format a preprocessed email as an LLM-ready context string.
 ///
 /// Takes a `ProcessedEmail` and returns a deterministic plain-text
@@ -335,6 +367,7 @@ fn langmail(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(preprocess, m)?)?;
     m.add_function(wrap_pyfunction!(preprocess_string, m)?)?;
     m.add_function(wrap_pyfunction!(preprocess_with_options, m)?)?;
+    m.add_function(wrap_pyfunction!(preprocess_gmail, m)?)?;
     m.add_function(wrap_pyfunction!(to_llm_context, m)?)?;
     m.add_function(wrap_pyfunction!(to_llm_context_with_options, m)?)?;
     Ok(())

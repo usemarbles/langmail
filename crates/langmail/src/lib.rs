@@ -1,3 +1,4 @@
+pub mod adapters;
 mod cta;
 mod html;
 mod quotes;
@@ -293,9 +294,13 @@ pub(crate) fn collapse_empty_lines(s: &str) -> String {
     result
 }
 
-/// Converts a mail-parser `DateTime` to a UTC ISO 8601 string using its Unix timestamp.
-fn datetime_to_utc_iso8601(d: &mail_parser::DateTime) -> String {
-    let ts = d.to_timestamp();
+/// Converts a Unix timestamp (seconds since 1970-01-01 UTC) to an ISO 8601
+/// UTC string with no fractional seconds (e.g. `2026-02-05T10:00:00Z`).
+///
+/// Shared between the MIME path (via `datetime_to_utc_iso8601`) and the
+/// Gmail adapter's RFC 2822 date parser so both entry points emit a
+/// byte-identical `date` field.
+pub(crate) fn timestamp_to_iso8601_utc(ts: i64) -> String {
     // Decompose Unix timestamp into calendar fields (no external crate needed)
     let secs_per_day = 86400i64;
     let mut days = ts / secs_per_day;
@@ -321,6 +326,11 @@ fn datetime_to_utc_iso8601(d: &mail_parser::DateTime) -> String {
     let year = if month <= 2 { y + 1 } else { y };
 
     format!("{year:04}-{month:02}-{day:02}T{hour:02}:{minute:02}:{second:02}Z")
+}
+
+/// Converts a mail-parser `DateTime` to a UTC ISO 8601 string using its Unix timestamp.
+fn datetime_to_utc_iso8601(d: &mail_parser::DateTime) -> String {
+    timestamp_to_iso8601_utc(d.to_timestamp())
 }
 
 fn extract_addresses(address_opt: Option<&mail_parser::Address>) -> Vec<Address> {

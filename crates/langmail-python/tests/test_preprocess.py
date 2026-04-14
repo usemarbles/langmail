@@ -1,3 +1,6 @@
+import base64
+import json
+
 import langmail
 import pytest
 
@@ -141,3 +144,69 @@ class TestPreprocessOptions:
         opts = langmail.PreprocessOptions()
         opts.strip_quotes = False
         assert opts.strip_quotes is False
+
+
+# Detailed behavioral coverage for `preprocess_gmail` lives alongside the
+# adapter in `crates/langmail/tests/gmail_adapter.rs`. These tests only
+# verify that the Python binding is wired up: a well-formed Gmail message
+# round-trips through the pipeline, options propagate, and errors surface
+# as `ParseError`.
+
+
+def _gmail_message() -> dict:
+    """A minimal Gmail `users.messages.get` response (format='full')."""
+    body_b64 = base64.urlsafe_b64encode(b"Hello world").decode("ascii").rstrip("=")
+    return {
+        "id": "smoke",
+        "payload": {
+            "mimeType": "text/plain",
+            "headers": [
+                {"name": "Subject", "value": "Smoke test"},
+                {"name": "From", "value": "Alice <alice@example.com>"},
+                {"name": "To", "value": "bob@example.com"},
+                {"name": "Message-ID", "value": "<smoke-001@example.com>"},
+            ],
+            "body": {"size": 11, "data": body_b64},
+        },
+    }
+
+
+class TestPreprocessGmail:
+    def test_round_trips_well_formed_message(self):
+        result = langmail.preprocess_gmail(json.dumps(_gmail_message()))
+        assert result.subject == "Smoke test"
+        assert result.from_address.email == "alice@example.com"
+        assert result.from_address.name == "Alice"
+        assert [a.email for a in result.to] == ["bob@example.com"]
+        assert result.rfc_message_id == "smoke-001@example.com"
+        assert "Hello world" in result.body
+
+    def test_forwards_options(self):
+        opts = langmail.PreprocessOptions(max_body_length=5)
+        result = langmail.preprocess_gmail(json.dumps(_gmail_message()), opts)
+        assert len(result.body) <= 5
+
+    def test_accepts_googleapis_wrapper(self):
+        wrapped = {"data": _gmail_message(), "status": 200}
+        result = langmail.preprocess_gmail(json.dumps(wrapped))
+        assert result.subject == "Smoke test"
+
+    def test_missing_payload_raises_parse_error(self):
+        with pytest.raises(langmail.ParseError, match="payload is missing"):
+            langmail.preprocess_gmail(json.dumps({"id": "x"}))
+
+    def test_invalid_json_raises_parse_error(self):
+        with pytest.raises(langmail.ParseError):
+            langmail.preprocess_gmail("not-json")
+
+    def test_attachment_body_raises_with_actionable_message(self):
+        msg = {
+            "id": "big",
+            "payload": {
+                "mimeType": "text/plain",
+                "headers": [{"name": "Subject", "value": "Large body"}],
+                "body": {"size": 9999999, "attachmentId": "ATT_abc123"},
+            },
+        }
+        with pytest.raises(langmail.ParseError, match="attachments.get"):
+            langmail.preprocess_gmail(json.dumps(msg))

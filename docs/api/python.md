@@ -8,6 +8,7 @@ from langmail import (
     preprocess,
     preprocess_string,
     preprocess_with_options,
+    preprocess_gmail,
     to_llm_context,
     to_llm_context_with_options,
     ProcessedEmail,
@@ -75,6 +76,61 @@ PreprocessOptions(
 | strip_signature | `True` | Remove trailing signature block |
 | max_body_length | `0` | Truncate body after N characters. `0` = no limit |
 
+## preprocess_gmail()
+
+Provider adapter for the Gmail API. Accepts a JSON-serialized Gmail
+`users.messages.get` response (`format='full'`) and returns the same
+`ProcessedEmail` shape as `preprocess()`. The body tree walk, base64url
+decoding, and header parsing all happen in Rust — shared with the Node
+binding.
+
+```python
+def preprocess_gmail(
+    msg_json: str,
+    options: PreprocessOptions | None = None,
+) -> ProcessedEmail
+```
+
+Pass the message as a JSON string (typically via `json.dumps(msg)`). Accepts
+either the bare `Schema$Message` or the full googleapis-style wrapper
+(`{"data": ..., "status": 200}`). The message must have been fetched with
+`format='full'` so `payload` is present with headers and base64url-encoded
+body parts.
+
+```python
+import json
+from googleapiclient.discovery import build
+from langmail import preprocess_gmail, to_llm_context
+
+gmail = build("gmail", "v1", credentials=creds)
+msg = gmail.users().messages().get(
+    userId="me", id=message_id, format="full"
+).execute()
+
+email   = preprocess_gmail(json.dumps(msg))
+context = to_llm_context(email)
+```
+
+**Body selection:** walks `payload.parts` depth-first and picks the first
+non-attachment leaf of each type. When both `text/html` and `text/plain`
+are present, HTML wins. Parts with `Content-Disposition: attachment` or a
+`filename` are skipped.
+
+**Raises `ParseError`** if:
+
+- the input is not valid JSON,
+- the input is not a JSON object (e.g. `json.dumps(42)`, `json.dumps(None)`),
+- `payload` is missing (fetch with `format='full'`), or
+- the chosen body part is attachment-backed (Gmail returned
+  `body.attachmentId` because the body exceeded the inline size
+  threshold — fetch it with `users.messages.attachments.get` and inline
+  the decoded content).
+
+!!! note
+    langmail does not bundle a Gmail client — only the shape of the
+    response is consumed. Install `google-api-python-client` (or any
+    client that returns the same `Schema$Message`) separately.
+
 ## to_llm_context()
 
 ```python
@@ -95,7 +151,4 @@ LlmContextOptions(render_mode: RenderMode = RenderMode.LatestOnly)
 
 ## Errors
 
-`langmail.ParseError` (subclass of `ValueError`) is raised when the input can't be parsed as an RFC 5322 message.
-
-!!! note
-    There is no Python equivalent of `preprocessGmail`. Provider adapters currently live only in the Node.js package — open an issue if you need one for Python.
+`langmail.ParseError` (subclass of `ValueError`) is raised when the input can't be parsed as an RFC 5322 message, or when `preprocess_gmail` is given a malformed Gmail message (invalid JSON, missing `payload`, or an attachment-backed body that needs a separate fetch).

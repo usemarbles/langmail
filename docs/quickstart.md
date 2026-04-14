@@ -79,6 +79,30 @@ context = to_llm_context(parsed)
 print(context)
 ```
 
+### Gmail API
+
+Calling the Gmail API with `format='full'`? Serialize the response with
+`json.dumps` and feed it straight into `preprocess_gmail` — no need to
+re-fetch the raw MIME:
+
+```python
+import json
+from googleapiclient.discovery import build
+from langmail import preprocess_gmail, to_llm_context
+
+gmail = build("gmail", "v1", credentials=creds)
+msg = gmail.users().messages().get(
+    userId="me", id=message_id, format="full"
+).execute()
+
+parsed  = preprocess_gmail(json.dumps(msg))
+context = to_llm_context(parsed)
+```
+
+`preprocess_gmail` walks `payload.parts`, base64url-decodes the HTML/text
+body, and runs the same cleaning pipeline as `preprocess` — shared Rust
+core, byte-identical output.
+
 ## Rust
 
 `preprocess` returns a `Result<ProcessedEmail, _>`, and `to_llm_context` is a method on `ProcessedEmail`.
@@ -92,6 +116,27 @@ let context = parsed.to_llm_context();
 
 println!("{}", context);
 ```
+
+### Gmail API
+
+Pulling a message from the Gmail API? Serialize the response body with
+`serde_json` and feed it to `langmail::adapters::preprocess_gmail` — no MIME
+re-fetch needed:
+
+```rust
+use langmail::adapters::preprocess_gmail;
+
+// `gmail_response` is anything that serializes to the Gmail
+// `users.messages.get` JSON shape (format=full).
+let msg_json = serde_json::to_string(&gmail_response)?;
+
+let parsed  = preprocess_gmail(&msg_json)?;
+let context = parsed.to_llm_context();
+```
+
+Accepts either the bare `Schema$Message` or a `{"data": ...}` googleapis-style
+wrapper. Body tree walk, base64url decoding, and header parsing are shared
+with the Node and Python bindings.
 
 !!! tip
     Don't have a `.eml` file handy? Any raw RFC 5322 message works — including bytes fetched from IMAP, the Gmail API, or any other email source.

@@ -83,6 +83,27 @@ export interface NapiThreadMessage {
  */
 export declare function preprocess(raw: Buffer): ProcessedEmail
 
+/**
+ * Preprocess a Gmail API message through langmail's cleaning pipeline.
+ *
+ * Accepts the JSON-serialized Gmail `users.messages.get` response —
+ * either the bare `Schema$Message` or the full googleapis wrapper
+ * (`{ data: Schema$Message, status: 200, ... }`). The `preprocessGmail`
+ * wrapper in `packages/langmail/src/adapters/gmail.js` is responsible
+ * for `JSON.stringify`-ing the caller's object before invoking this
+ * binding — all adapter logic lives in Rust.
+ *
+ * @param msgJson - JSON-serialized Gmail message (bare or googleapis-wrapped)
+ * @param options - Optional preprocessing options
+ * @returns Preprocessed email output
+ * @throws Error if the input is not valid JSON, is not an object, has no
+ *   `payload` (fetch with `format: 'full'`), or if the chosen body part
+ *   is attachment-backed (Gmail returned `body.attachmentId` — fetch
+ *   with `users.messages.attachments.get` and inline the decoded
+ *   content).
+ */
+export declare function preprocessGmail(msgJson: string, options?: PreprocessOptions | undefined | null): ProcessedEmail
+
 /** Options for customizing preprocessing behavior. */
 export interface PreprocessOptions {
   /** Whether to strip quoted reply content. Default: true. */
