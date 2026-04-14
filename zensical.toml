@@ -27,8 +27,12 @@ nav = [
         {"Quick Start" = "quickstart.md"},
     ]},
 
-    {"API" = [
-        {"Core Concepts" = "core-concepts.md"},
+    {"Concepts" = "concepts.md"},
+
+    {"API Reference" = [
+        {"TypeScript / Node.js" = "api/typescript.md"},
+        {"Python" = "api/python.md"},
+        {"Rust" = "api/rust.md"},
     ]},
 ]
 

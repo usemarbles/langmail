@@ -9,7 +9,10 @@ langmail converts raw emails into clean, structured formats for LLM pipelines. I
 - [Introduction](https://langmail.dev/introduction): What langmail does, why Markdown, and what it is not
 - [Installation](https://langmail.dev/installation): Install via npm, pip, or cargo
 - [Quick Start](https://langmail.dev/quickstart): Parse your first email in under two minutes
-- [Core Concepts](https://langmail.dev/core-concepts): API reference for preprocess() and toLlmContext()
+- [Concepts](https://langmail.dev/concepts): How langmail transforms raw email — pipeline, output shape, and caveats
+- [API Reference — TypeScript / Node.js](https://langmail.dev/api/typescript): Full Node.js API surface including preprocessGmail
+- [API Reference — Python](https://langmail.dev/api/python): Full Python API surface
+- [API Reference — Rust](https://langmail.dev/api/rust): Pointer to docs.rs rustdoc
 
 ## Optional
 
