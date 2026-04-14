@@ -85,17 +85,20 @@ console.log(toLlmContext(email));
 ```rust
 use std::fs;
 
-let raw = fs::read("message.eml")?;
-let email = langmail::preprocess(&raw)?;
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let raw = fs::read("message.eml")?;
+    let email = langmail::preprocess(&raw)?;
 
-println!("{}", email.body);
-// → "Hi Alice! Great to hear from you."
+    println!("{}", email.body);
+    // → Hi Alice! Great to hear from you.
 
-println!("{:?}", email.from);
-// → Some(Address { name: Some("Bob"), email: "bob@example.com" })
+    println!("{:?}", email.from);
+    // → Some(Address { name: Some("Bob"), email: "bob@example.com" })
 
-// Format for an LLM prompt
-println!("{}", email.to_llm_context());
+    // Format for an LLM prompt
+    println!("{}", email.to_llm_context());
+    Ok(())
+}
 ```
 
 ### Python
@@ -107,7 +110,7 @@ with open("message.eml", "rb") as f:
     email = langmail.preprocess(f.read())
 
 print(email.body)
-# → "Hi Alice! Great to hear from you."
+# → Hi Alice! Great to hear from you.
 
 print(email.from_address)
 # → Address(name='Bob', email='bob@example.com')
