@@ -78,7 +78,7 @@ is `T | undefined`, not `T | null`.
 
 ## preprocessGmail()
 
-Provider adapter for the Gmail API. Accepts the response of `gmail.users.messages.get({ id, format: "full" })` from `googleapis` and returns the same `ProcessedEmail` shape as `preprocess()`. Skips MIME re-parsing — the Gmail API has already decomposed the message into typed parts, so the adapter walks `payload.parts`, base64url-decodes the bodies, and feeds them into the shared cleaning pipeline.
+Provider adapter for the Gmail API. Accepts the response of `gmail.users.messages.get({ id, format: "full" })` from `googleapis` and returns the same `ProcessedEmail` shape as `preprocess()`. Skips MIME re-parsing — the Gmail API has already decomposed the message into typed parts, so the adapter walks `payload.parts`, base64url-decodes the bodies, and feeds them into the shared cleaning pipeline. The body tree walk, header parsing, and base64url decoding all happen in Rust — this wrapper only serializes the caller's object to JSON and delegates to the native binding, so the output is byte-identical to the Python and Rust entry points.
 
 ```ts
 function preprocessGmail(

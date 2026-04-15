@@ -254,12 +254,39 @@ fn default_true() -> bool {
 pub enum LangmailError {
     /// The raw input could not be parsed as a valid email message.
     ParseFailed,
+    /// A provider adapter (e.g. Gmail) could not interpret the supplied
+    /// message: invalid JSON, missing `payload`, non-object input, or
+    /// unexpected shape.
+    InvalidGmailMessage(String),
+    /// Gmail returned `body.attachmentId` instead of inline `body.data`.
+    /// The caller must fetch the part via
+    /// `gmail.users.messages.attachments.get` and inline the decoded
+    /// content before retrying.
+    BodyRequiresAttachmentFetch {
+        /// MIME type of the body part that needs to be fetched.
+        mime_type: String,
+        /// The `attachmentId` Gmail returned in place of inline data.
+        attachment_id: String,
+    },
 }
 
 impl fmt::Display for LangmailError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             LangmailError::ParseFailed => write!(f, "Failed to parse email message"),
+            LangmailError::InvalidGmailMessage(msg) => {
+                write!(f, "preprocessGmail: {}", msg)
+            }
+            LangmailError::BodyRequiresAttachmentFetch {
+                mime_type,
+                attachment_id,
+            } => write!(
+                f,
+                "preprocessGmail: {} body part has no inline data (body.attachmentId={:?}). \
+                 Fetch the part via gmail.users.messages.attachments.get and set body.data \
+                 before calling preprocessGmail.",
+                mime_type, attachment_id
+            ),
         }
     }
 }

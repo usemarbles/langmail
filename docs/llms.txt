@@ -11,8 +11,8 @@ langmail converts raw emails into clean, structured formats for LLM pipelines. I
 - [Quick Start](https://langmail.dev/quickstart): Parse your first email in under two minutes
 - [Concepts](https://langmail.dev/concepts): How langmail transforms raw email — pipeline, output shape, and caveats
 - [API Reference — TypeScript / Node.js](https://langmail.dev/api/typescript): Full Node.js API surface including preprocessGmail
-- [API Reference — Python](https://langmail.dev/api/python): Full Python API surface
-- [API Reference — Rust](https://langmail.dev/api/rust): Pointer to docs.rs rustdoc
+- [API Reference — Python](https://langmail.dev/api/python): Full Python API surface including preprocess_gmail
+- [API Reference — Rust](https://langmail.dev/api/rust): Pointer to docs.rs rustdoc, including the langmail::adapters provider surface
 
 ## Optional
 

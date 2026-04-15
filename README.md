@@ -156,6 +156,24 @@ print(email.from_address)
 print(langmail.to_llm_context(email))
 ```
 
+#### Gmail API
+
+Same story in Python — serialize the Gmail API response with `json.dumps` and call `preprocess_gmail`:
+
+```python
+import json
+import langmail
+from googleapiclient.discovery import build
+
+gmail = build("gmail", "v1", credentials=creds)
+msg = gmail.users().messages().get(
+    userId="me", id=message_id, format="full"
+).execute()
+
+email = langmail.preprocess_gmail(json.dumps(msg))
+print(langmail.to_llm_context(email))
+```
+
 > **Full API reference** (all functions, types, and per-language signatures): **[langmail.dev](https://langmail.dev)**
 
 ## Performance

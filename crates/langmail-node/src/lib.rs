@@ -243,6 +243,42 @@ pub fn preprocess_parsed(
     to_napi_output(langmail::preprocess_parsed(core_input, &core_options))
 }
 
+/// Preprocess a Gmail API message through langmail's cleaning pipeline.
+///
+/// Accepts the JSON-serialized Gmail `users.messages.get` response —
+/// either the bare `Schema$Message` or the full googleapis wrapper
+/// (`{ data: Schema$Message, status: 200, ... }`). The `preprocessGmail`
+/// wrapper in `packages/langmail/src/adapters/gmail.js` is responsible
+/// for `JSON.stringify`-ing the caller's object before invoking this
+/// binding — all adapter logic lives in Rust.
+///
+/// @param msgJson - JSON-serialized Gmail message (bare or googleapis-wrapped)
+/// @param options - Optional preprocessing options
+/// @returns Preprocessed email output
+/// @throws Error if the input is not valid JSON, is not an object, has no
+///   `payload` (fetch with `format: 'full'`), or if the chosen body part
+///   is attachment-backed (Gmail returned `body.attachmentId` — fetch
+///   with `users.messages.attachments.get` and inline the decoded
+///   content).
+#[napi]
+pub fn preprocess_gmail(
+    msg_json: String,
+    options: Option<PreprocessOptions>,
+) -> Result<ProcessedEmail> {
+    let core_options = options
+        .map(|o| langmail::PreprocessOptions {
+            strip_quotes: o.strip_quotes.unwrap_or(true),
+            strip_signature: o.strip_signature.unwrap_or(true),
+            max_body_length: o.max_body_length.unwrap_or(0) as usize,
+        })
+        .unwrap_or_default();
+
+    let result = langmail::adapters::preprocess_gmail_with_options(&msg_json, &core_options)
+        .map_err(|e| Error::new(Status::GenericFailure, format!("{}", e)))?;
+
+    Ok(to_napi_output(result))
+}
+
 /// Format a preprocessed email as an LLM-ready context string.
 ///
 /// Takes a `ProcessedEmail` (as returned by `preprocess`) and returns a
