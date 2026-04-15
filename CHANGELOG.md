@@ -1,6 +1,15 @@
 # Changelog
 
 All notable changes to this project will be automatically documented in this file.
+## [0.10.1] - 2026-04-15
+
+### Bug Fixes
+
+- **gmail**: Address review feedback on Rust Gmail adapter([800d934](https://github.com/usemarbles/langmail/commit/800d9340d4b836f4b81f22d0a9d830d009ba10fa))
+
+### Refactor
+
+- **adapters**: Move Gmail preprocessing into Rust core([87b80f0](https://github.com/usemarbles/langmail/commit/87b80f0734f5ec46eb393b32c4236bacebcc2b98))
 ## [0.10.0] - 2026-04-14
 
 ### Features
