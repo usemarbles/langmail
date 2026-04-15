@@ -225,14 +225,17 @@ fn is_attachment_part(part: &GmailPart) -> bool {
 /// Invalid base64 is coerced to an empty string rather than erroring —
 /// the JS adapter silently produced mojibake on corrupt data, and a
 /// provider returning malformed base64 is not something callers can act
-/// on.
+/// on. Non-UTF-8 byte sequences are handled lossily (U+FFFD
+/// replacement), matching `Buffer.toString("utf8")` in the original JS
+/// adapter and preserving the readable portion of legacy-encoded bodies
+/// instead of dropping the message entirely.
 fn decode_base64url(data: &str) -> String {
     let cleaned: String = data.chars().filter(|c| !c.is_whitespace()).collect();
     let trimmed = cleaned.trim_end_matches('=');
     let bytes = base64::engine::general_purpose::URL_SAFE_NO_PAD
         .decode(trimmed)
         .unwrap_or_default();
-    String::from_utf8(bytes).unwrap_or_default()
+    String::from_utf8_lossy(&bytes).into_owned()
 }
 
 // ---------------------------------------------------------------------------
@@ -308,8 +311,10 @@ fn parse_address(raw: &str) -> Option<Address> {
         });
     }
 
-    // Bare email — no angle brackets, no display name.
-    if trimmed.contains('@') {
+    // Bare email — no angle brackets, no display name. Reject anything
+    // with internal whitespace so a malformed header like
+    // `"hello @ world"` doesn't silently parse as an address.
+    if trimmed.contains('@') && !trimmed.chars().any(char::is_whitespace) {
         return Some(Address {
             name: None,
             email: trimmed.to_string(),
@@ -626,5 +631,56 @@ mod tests {
         // Input uses `-` and `_` — URL-safe alphabet.
         let html = decode_base64url("PGh0bWw-PGJvZHk-PC9ib2R5PjwvaHRtbD4");
         assert_eq!(html, "<html><body></body></html>");
+    }
+
+    #[test]
+    fn decode_base64url_non_utf8_bytes_lossy() {
+        // `0xFF` on its own is invalid UTF-8. The JS adapter produced U+FFFD
+        // replacement characters via Buffer.toString("utf8"); we match that
+        // behavior instead of silently dropping the whole body.
+        // Base64url of `[0xFF]` is `_w` (no padding).
+        let decoded = decode_base64url("_w");
+        assert_eq!(decoded, "\u{FFFD}");
+        assert!(!decoded.is_empty());
+    }
+
+    #[test]
+    fn decode_base64url_mixed_valid_and_invalid_utf8() {
+        // `Hi\xFF` → `SGn_` in base64url. The valid prefix must survive.
+        let decoded = decode_base64url("SGn_");
+        assert!(decoded.starts_with("Hi"), "got: {:?}", decoded);
+        assert!(decoded.contains('\u{FFFD}'), "got: {:?}", decoded);
+    }
+
+    #[test]
+    fn rfc2822_date_empty_string_returns_none() {
+        // Distinct from the "missing header" path — some senders set the
+        // header with an explicitly empty value. Must not parse.
+        assert!(parse_rfc2822_date("").is_none());
+        assert!(parse_rfc2822_date("   ").is_none());
+    }
+
+    #[test]
+    fn is_attachment_part_ignores_empty_filename_string() {
+        // `filename: ""` is the same as "no filename" — MIME parts that
+        // come through Gmail with an empty string filename must not be
+        // mistaken for attachments.
+        let part = GmailPart {
+            mime_type: Some("text/plain".to_string()),
+            filename: Some(String::new()),
+            headers: None,
+            body: None,
+            parts: None,
+        };
+        assert!(!is_attachment_part(&part));
+    }
+
+    #[test]
+    fn parse_address_rejects_bare_token_with_internal_whitespace() {
+        // `"hello @ world"` must not parse as an Address just because it
+        // trims and contains `@`. Protects against malformed headers
+        // leaking into the `email` field.
+        assert!(parse_address("hello @ world").is_none());
+        assert!(parse_address("a@b extra text").is_none());
     }
 }
