@@ -1,9 +1,10 @@
 use langmail::{preprocess, LlmContextOptions, RenderMode};
 
-static EVENTSPACE_EML: &[u8] = include_bytes!("fixtures/eventspace-booking.eml");
-static LATEST_ONLY_SNAPSHOT: &str = include_str!("fixtures/eventspace-booking-latest-only.txt");
+static EVENTSPACE_EML: &[u8] = include_bytes!("../../../fixtures/eventspace-booking.eml");
+static LATEST_ONLY_SNAPSHOT: &str =
+    include_str!("../../../fixtures/eventspace-booking-latest-only.txt");
 static THREAD_HISTORY_SNAPSHOT: &str =
-    include_str!("fixtures/eventspace-booking-thread-history.txt");
+    include_str!("../../../fixtures/eventspace-booking-thread-history.txt");
 
 #[test]
 fn latest_only_matches_default_to_llm_context() {

@@ -1,6 +1,7 @@
 pub mod adapters;
 mod cta;
 mod html;
+mod newsletter;
 mod quotes;
 mod signature;
 mod thread;
@@ -73,6 +74,8 @@ pub fn preprocess_with_options(
     let raw_body = extract_body(&message);
     let raw_body = clean_invisible_characters(&raw_body);
 
+    let is_newsletter = newsletter::is_newsletter(message.headers());
+
     Ok(process_post_parse(
         raw_html,
         raw_body,
@@ -84,6 +87,7 @@ pub fn preprocess_with_options(
         rfc_message_id,
         in_reply_to,
         references,
+        is_newsletter,
         options,
     ))
 }
@@ -98,6 +102,11 @@ pub fn preprocess_with_options(
 ///
 /// Infallible — the MIME parse step is already done by the caller, and the
 /// downstream cleaning steps cannot fail.
+///
+/// **Note on `is_newsletter`**: [`ParsedInput`] does not carry raw email
+/// headers, so newsletter detection cannot run on this path.  The returned
+/// [`ProcessedEmail::is_newsletter`] is always `false`.  Use [`preprocess`]
+/// with raw EML bytes when newsletter detection is required.
 pub fn preprocess_parsed(input: ParsedInput, options: &PreprocessOptions) -> ProcessedEmail {
     // Strip invisible characters from the raw HTML once, up front — the
     // cleaned copy is used for both CTA/thread extraction and markdown
@@ -125,6 +134,7 @@ pub fn preprocess_parsed(input: ParsedInput, options: &PreprocessOptions) -> Pro
         input.rfc_message_id,
         input.in_reply_to,
         input.references,
+        false,
         options,
     )
 }
@@ -151,6 +161,7 @@ fn process_post_parse(
     rfc_message_id: Option<String>,
     in_reply_to: Option<Vec<String>>,
     references: Option<Vec<String>>,
+    is_newsletter: bool,
     options: &PreprocessOptions,
 ) -> ProcessedEmail {
     let primary_cta = raw_html.as_deref().and_then(cta::extract_cta);
@@ -205,6 +216,7 @@ fn process_post_parse(
         raw_body_length: raw_body.len(),
         primary_cta,
         thread_messages,
+        is_newsletter,
     }
 }
 

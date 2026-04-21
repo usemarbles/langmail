@@ -16,7 +16,7 @@ use langmail::{LangmailError, PreprocessOptions};
 
 fn fixture_path(name: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("tests")
+        .join("../..")
         .join("fixtures")
         .join("adapters")
         .join("gmail")

@@ -1,6 +1,6 @@
 use langmail::preprocess;
 
-static DIRECT_EML: &[u8] = include_bytes!("fixtures/direct.eml");
+static DIRECT_EML: &[u8] = include_bytes!("../../../fixtures/direct.eml");
 
 #[test]
 fn test_to_llm_context_contains_headers() {

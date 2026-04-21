@@ -1,6 +1,6 @@
 use langmail::preprocess;
 
-const RAW: &[u8] = include_bytes!("fixtures/linear-login.eml");
+const RAW: &[u8] = include_bytes!("../../../fixtures/linear-login.eml");
 
 /// Characters that clean_invisible_characters strips.
 const INVISIBLE_CHARS: &[char] = &[

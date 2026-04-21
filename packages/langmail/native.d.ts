@@ -180,6 +180,8 @@ export interface ProcessedEmail {
   primaryCta?: NapiCallToAction
   /** Thread messages extracted from quoted reply blocks (oldest first). */
   threadMessages: Array<NapiThreadMessage>
+  /** Whether this email was identified as a newsletter or bulk marketing message. */
+  isNewsletter: boolean
 }
 
 /**

@@ -96,6 +96,14 @@ pub struct ProcessedEmail {
     /// Ordered oldest-first (chronological).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub thread_messages: Vec<ThreadMessage>,
+
+    /// Whether this email was identified as a newsletter or bulk marketing message.
+    /// Detection is based on email headers only (`List-Unsubscribe`, `List-Id`,
+    /// `Precedence`, ESP fingerprints); no body content is inspected.
+    /// Platform notification emails (GitHub, Linear, Jira, etc.) are explicitly
+    /// excluded even when they carry List-Unsubscribe or Precedence: list headers.
+    /// Note: this is NOT a spam signal. Newsletters are legitimate opt-in content.
+    pub is_newsletter: bool,
 }
 
 /// An email address with optional display name.

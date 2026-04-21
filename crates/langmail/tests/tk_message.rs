@@ -1,6 +1,6 @@
 use langmail::preprocess;
 
-static TK_EML: &[u8] = include_bytes!("fixtures/tk-message.eml");
+static TK_EML: &[u8] = include_bytes!("../../../fixtures/tk-message.eml");
 
 #[test]
 fn test_tk_cta_url() {
