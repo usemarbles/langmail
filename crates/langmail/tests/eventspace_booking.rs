@@ -1,6 +1,6 @@
 use langmail::preprocess;
 
-static EVENTSPACE_EML: &[u8] = include_bytes!("fixtures/eventspace-booking.eml");
+static EVENTSPACE_EML: &[u8] = include_bytes!("../../../fixtures/eventspace-booking.eml");
 
 #[test]
 fn metadata_from() {

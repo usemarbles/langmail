@@ -1,6 +1,6 @@
 use langmail::preprocess;
 
-static ZERO_WIDTH_EML: &[u8] = include_bytes!("fixtures/zero-width.eml");
+static ZERO_WIDTH_EML: &[u8] = include_bytes!("../../../fixtures/zero-width.eml");
 
 #[test]
 fn test_no_invisible_characters_in_body() {

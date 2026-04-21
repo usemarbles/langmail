@@ -1,6 +1,6 @@
 use langmail::preprocess;
 
-static LINKEDIN_EML: &[u8] = include_bytes!("fixtures/linkedin.eml");
+static LINKEDIN_EML: &[u8] = include_bytes!("../../../fixtures/linkedin.eml");
 
 #[test]
 fn test_linkedin_from() {
