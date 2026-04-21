@@ -60,7 +60,7 @@ fn is_excluded(headers: &[Header<'_>]) -> bool {
             HeaderName::ListPost => return true,
             HeaderName::ReturnPath => {
                 if let Some(domain) = return_path_domain(&header.value) {
-                    if NOTIFICATION_DOMAINS.binary_search(&domain.as_str()).is_ok() {
+                    if domain_matches(&domain, NOTIFICATION_DOMAINS) {
                         return true;
                     }
                 }
@@ -92,7 +92,7 @@ fn is_included(headers: &[Header<'_>]) -> bool {
             HeaderName::DkimSignature => {
                 if let HeaderValue::Text(val) = &header.value {
                     if let Some(domain) = dkim_domain(val) {
-                        if ESP_DOMAINS.binary_search(&domain.as_str()).is_ok() {
+                        if domain_matches(&domain, ESP_DOMAINS) {
                             return true;
                         }
                     }
@@ -100,7 +100,7 @@ fn is_included(headers: &[Header<'_>]) -> bool {
             }
             HeaderName::ReturnPath => {
                 if let Some(domain) = return_path_domain(&header.value) {
-                    if ESP_DOMAINS.binary_search(&domain.as_str()).is_ok() {
+                    if domain_matches(&domain, ESP_DOMAINS) {
                         return true;
                     }
                 }
@@ -132,6 +132,11 @@ fn is_included(headers: &[Header<'_>]) -> bool {
         }
     }
     false
+}
+
+fn domain_matches(domain: &str, list: &[&str]) -> bool {
+    list.iter()
+        .any(|&d| domain == d || domain.ends_with(&format!(".{d}")))
 }
 
 fn return_path_domain(value: &HeaderValue<'_>) -> Option<String> {

@@ -3,6 +3,7 @@ use langmail::preprocess;
 static GHOST_NEWSLETTER: &[u8] = include_bytes!("../../../fixtures/ghost-newsletter.eml");
 static GITHUB_PR: &[u8] = include_bytes!("../../../fixtures/github-pr-comment.eml");
 static EVENTSPACE: &[u8] = include_bytes!("../../../fixtures/eventspace-booking.eml");
+static NOTION_INVITE: &[u8] = include_bytes!("../../../fixtures/notion-page-invite.eml");
 
 fn make_eml(extra_headers: &[(&str, &str)]) -> Vec<u8> {
     let mut s = "From: sender@example.com\r\nTo: user@example.com\r\nSubject: Test\r\n".to_string();
@@ -153,5 +154,14 @@ fn test_newsletter_xgithub_lowercase_excluded() {
         ("x-github-sender", "octocat"),
     ]);
     let result = preprocess(&raw).unwrap();
+    assert!(!result.is_newsletter);
+}
+
+// 16. Notion page-share sent via Mailgun subdomain (transactional) → false
+// Return-Path is mail.notion.so (subdomain of notion.so), which must still
+// trigger the notification exclusion even though X-Mailgun-* headers are present.
+#[test]
+fn test_newsletter_notion_page_invite_not_newsletter() {
+    let result = preprocess(NOTION_INVITE).unwrap();
     assert!(!result.is_newsletter);
 }
