@@ -1,6 +1,16 @@
 # Changelog
 
 All notable changes to this project will be automatically documented in this file.
+## [0.11.0] - 2026-04-21
+
+### Features
+
+- **preprocess**: Add is_newsletter detection to ProcessedEmail([82945ae](https://github.com/usemarbles/langmail/commit/82945ae4b27effa28a6ebeb88ab3f07294652384))
+- **fixtures**: Add anonymized github-pr-comment and ghost-newsletter fixtures([5d9f8a4](https://github.com/usemarbles/langmail/commit/5d9f8a469558322172e19d196544746ad5927c67))
+
+### Refactor
+
+- **tests**: Move fixtures to top-level /fixtures directory([5bc904e](https://github.com/usemarbles/langmail/commit/5bc904e476fde3cd32486570cfe0d3443378fcc2))
 ## [0.10.1] - 2026-04-15
 
 ### Bug Fixes
