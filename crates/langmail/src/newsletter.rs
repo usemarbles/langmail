@@ -66,15 +66,16 @@ fn is_excluded(headers: &[Header<'_>]) -> bool {
                 }
             }
             HeaderName::Other(name) => {
-                let lower = name.to_ascii_lowercase();
-                if PLATFORM_PREFIXES.iter().any(|p| lower.starts_with(p)) {
-                    return true;
-                }
-                if lower == "auto-submitted" {
+                if name.eq_ignore_ascii_case("auto-submitted") {
                     if let HeaderValue::Text(val) = &header.value {
                         if val.eq_ignore_ascii_case("auto-notified") {
                             return true;
                         }
+                    }
+                } else {
+                    let lower = name.to_ascii_lowercase();
+                    if PLATFORM_PREFIXES.iter().any(|p| lower.starts_with(p)) {
+                        return true;
                     }
                 }
             }
@@ -105,21 +106,25 @@ fn is_included(headers: &[Header<'_>]) -> bool {
                 }
             }
             HeaderName::Other(name) => {
-                let lower = name.to_ascii_lowercase();
-                if lower == "list-unsubscribe-post"
-                    || lower == "x-feedback-id"
-                    || lower.starts_with("x-mailgun-")
-                    || lower.starts_with("x-ses-")
-                    || lower.starts_with("x-campaign-")
-                    || lower.starts_with("x-batch-")
+                if name.eq_ignore_ascii_case("list-unsubscribe-post")
+                    || name.eq_ignore_ascii_case("x-feedback-id")
                 {
                     return true;
                 }
-                if lower == "precedence" {
+                if name.eq_ignore_ascii_case("precedence") {
                     if let HeaderValue::Text(val) = &header.value {
                         if val.eq_ignore_ascii_case("bulk") {
                             return true;
                         }
+                    }
+                } else {
+                    let lower = name.to_ascii_lowercase();
+                    if lower.starts_with("x-mailgun-")
+                        || lower.starts_with("x-ses-")
+                        || lower.starts_with("x-campaign-")
+                        || lower.starts_with("x-batch-")
+                    {
+                        return true;
                     }
                 }
             }

@@ -61,9 +61,9 @@ fn test_newsletter_in_reply_to_overrides_list_unsubscribe() {
     assert!(!result.is_newsletter);
 }
 
-// 6. List-Post overrides Precedence: list → false
+// 6. List-Post excludes a mailing list (Precedence: list is not an inclusion signal either)
 #[test]
-fn test_newsletter_list_post_overrides_precedence() {
+fn test_newsletter_list_post_excludes_mailing_list() {
     let raw = make_eml(&[
         ("Precedence", "list"),
         ("List-Post", "<mailto:list@example.com>"),
@@ -105,4 +105,53 @@ fn test_newsletter_xheader_mailgun() {
     let raw = make_eml(&[("X-Mailgun-Variables", "{}")]);
     let result = preprocess(&raw).unwrap();
     assert!(result.is_newsletter);
+}
+
+// 11. Auto-Submitted: auto-notified → false (notification exclusion)
+#[test]
+fn test_newsletter_auto_submitted_notified_excluded() {
+    let raw = make_eml(&[
+        ("List-Unsubscribe", "<https://example.com/unsub>"),
+        ("Auto-Submitted", "auto-notified"),
+    ]);
+    let result = preprocess(&raw).unwrap();
+    assert!(!result.is_newsletter);
+}
+
+// 12. Return-Path notification domain → false (even with inclusion signals)
+#[test]
+fn test_newsletter_return_path_notification_domain_excluded() {
+    let raw = make_eml(&[
+        ("List-Unsubscribe", "<https://example.com/unsub>"),
+        ("Return-Path", "<noreply@github.com>"),
+    ]);
+    let result = preprocess(&raw).unwrap();
+    assert!(!result.is_newsletter);
+}
+
+// 13. Precedence: list alone → false (not an inclusion signal per spec §4)
+#[test]
+fn test_newsletter_precedence_list_not_included() {
+    let raw = make_eml(&[("Precedence", "list")]);
+    let result = preprocess(&raw).unwrap();
+    assert!(!result.is_newsletter);
+}
+
+// 14. Case-insensitive: PRECEDENCE: BULK → true
+#[test]
+fn test_newsletter_precedence_bulk_case_insensitive() {
+    let raw = make_eml(&[("Precedence", "BULK")]);
+    let result = preprocess(&raw).unwrap();
+    assert!(result.is_newsletter);
+}
+
+// 15. Case-insensitive: x-github-sender (lowercase) → false
+#[test]
+fn test_newsletter_xgithub_lowercase_excluded() {
+    let raw = make_eml(&[
+        ("List-Unsubscribe", "<https://example.com/unsub>"),
+        ("x-github-sender", "octocat"),
+    ]);
+    let result = preprocess(&raw).unwrap();
+    assert!(!result.is_newsletter);
 }
