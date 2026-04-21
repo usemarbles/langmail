@@ -57,6 +57,7 @@ Raises `langmail.ParseError` if the input can't be parsed as an email.
 | clean_body_length | int | Length of the cleaned body |
 | primary_cta | CallToAction \| None | Primary call-to-action link extracted from the HTML body |
 | thread_messages | list[ThreadMessage] | Quoted reply messages, oldest first |
+| is_newsletter | bool | `True` if the email was identified as a newsletter or bulk marketing message (header-based; platform notifications are excluded) |
 
 `Address` has `name: str | None` and `email: str`. `CallToAction` has `url: str`, `text: str`, `confidence: float`. `ThreadMessage` has `sender: str`, `timestamp: str | None`, `body: str`.
 

@@ -38,6 +38,7 @@ The structured output. Field names follow each language's conventions — `from`
 | cleanBodyLength | Length of the cleaned body | always present |
 | primaryCta | Primary call-to-action link from HTML | no CTA scored above the threshold |
 | threadMessages | Quoted reply messages, oldest first | no quotes detected |
+| isNewsletter | `true` if detected as a newsletter or bulk marketing email (header-based; platform notifications are excluded) | always present |
 
 An `Address` carries an optional display name and an email. A `CallToAction` has a URL, anchor text, and a confidence score in `[0.0, 1.0]`. A `ThreadMessage` has a sender attribution, optional ISO 8601 timestamp, and a cleaned body with no nested quotes.
 

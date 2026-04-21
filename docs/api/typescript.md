@@ -65,6 +65,7 @@ is `T | undefined`, not `T | null`.
 | cleanBodyLength | number | Length of the cleaned body |
 | primaryCta | CallToAction \| undefined | Primary call-to-action link extracted from the HTML body |
 | threadMessages | ThreadMessage[] | Quoted reply messages, oldest first |
+| isNewsletter | boolean | `true` if the email was identified as a newsletter or bulk marketing message (header-based; platform notifications are excluded) |
 
 `Address` is `{ name?: string, email: string }`. `CallToAction` is `{ url: string, text: string, confidence: number }`. `ThreadMessage` is `{ sender: string, timestamp?: string, body: string }`.
 
