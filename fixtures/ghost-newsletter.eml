@@ -1,0 +1,2041 @@
+Delivered-To: test@example.com
+Received: by 2002:a05:7301:5784:b0:2be:2a85:dd8c with SMTP id ez4csp706481dyc;
+        Sun, 5 Apr 2026 03:01:43 -0700 (PDT)
+X-Received: by 2002:a05:6102:2927:b0:605:215e:21b5 with SMTP id ada2fe7eead31-605a4dc02f0mr3006125137.12.1775383303252;
+        Sun, 05 Apr 2026 03:01:43 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775383303; cv=none;
+        d=google.com; s=arc-20240605;
+        b=MQOPMRDCb5LXKcGnL1WmbbDLRDX57piDA8/DG+i29b8Cl8USGDGxy060LSU8onH4ED
+         kO4m4GcX40QcsdbfgDmRPbWhCb+5ehoMeac5GVcAGzffkBtNDxMIyEyRlOfnxKnUAi9d
+         xOeuUgxwot6J+E2bvr9HcKioWy4ssN0fB7m00MtLZ/xzJroxyAQKgCcFQyYVZi7Amjz9
+         pNmqzuXhTIX9iJUt58WDanTDb869RyYMVqLl8vFGaouP9vdH/dWBiMlJCdpbgkyN3/8t
+         ATecS8j6+8TxUdBTcqDhGAC7s42SbCcuka4iBZzM7aYuQY9NsTJ6Y2M8CR+Q0KEfLVsN
+         Ohqg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=message-id:list-unsubscribe-post:list-unsubscribe:auto-submitted
+         :sender:to:from:subject:mime-version:date:dkim-signature
+         :dkim-signature;
+        bh=6cfU5AGM858e9H8uIdyeB+zlf1BQ8a/wLkro4E9m3X4=;
+        fh=LFHnJKrod829vB5G975P1grmmjDJi/h9vV8BkgmRJ3M=;
+        b=fLvBbhkvJ0jl3eY5Tr4VrgYZrs/czeYPKscm8JPLlIcgCAqsMzHFXewaN1juq04BLV
+         OZdiXJTBhQrHF6dLsgKEmW61RCQ8rGb5zdlshh29o9Ld+KPVYDQ4GWcDuH0u2s4Fc5g9
+         5w6Ls2Of63ruJabnKr2NWpKb6GL7ER0IsrvAZZ2x6EKabCXdhP+bHrWTXTwOtN09QfLk
+         Cwwa0KEiTI9LLT00ayYwX1050kVEoRJbxetPTFUNPtyAUNyzRSg/RAxssR+e3Tq5p1X0
+         NnJ2S4Ur0Ofg5RYGMNGLLk8VaeQK0XWzinszKrUDrFawTxIf9yTuYy2ZoA6p6KYEfaaj
+         WLfg==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@ghost.ghost.org header.s=k1 header.b=MEMCoaJt;
+       dkim=pass header.i=@mailgun.org header.s=mg header.b=T9sdRRzm;
+       spf=pass (google.com: domain of bounce+603658.5323ba-test=example.com@ghost.ghost.org designates 143.55.227.205 as permitted sender) smtp.mailfrom="bounce+603658.5323ba-test=example.com@ghost.ghost.org";
+       dmarc=pass (p=QUARANTINE sp=QUARANTINE dis=NONE) header.from=ghost.org
+Return-Path: <bounce+603658.5323ba-test=example.com@ghost.ghost.org>
+Received: from relay7.ghost.io (relay7.ghost.io. [143.55.227.205])
+        by mx.google.com with UTF8SMTPS id af79cd13be357-8d4b0d3c33csi739333885a.318.2026.04.05.03.01.42
+        for <test@example.com>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 05 Apr 2026 03:01:43 -0700 (PDT)
+Received-SPF: pass (google.com: domain of bounce+603658.5323ba-test=example.com@ghost.ghost.org designates 143.55.227.205 as permitted sender) client-ip=143.55.227.205;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@ghost.ghost.org header.s=k1 header.b=MEMCoaJt;
+       dkim=pass header.i=@mailgun.org header.s=mg header.b=T9sdRRzm;
+       spf=pass (google.com: domain of bounce+603658.5323ba-test=example.com@ghost.ghost.org designates 143.55.227.205 as permitted sender) smtp.mailfrom="bounce+603658.5323ba-test=example.com@ghost.ghost.org";
+       dmarc=pass (p=QUARANTINE sp=QUARANTINE dis=NONE) header.from=ghost.org
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=ghost.ghost.org; q=dns/txt; s=k1; t=1775383302; x=1775390502;
+ h=Message-Id: List-Unsubscribe-Post: List-Unsubscribe: Sender: Sender: To: To: From: From: Subject: Subject: Content-Type: Mime-Version: Date: X-Feedback-Id;
+ bh=6cfU5AGM858e9H8uIdyeB+zlf1BQ8a/wLkro4E9m3X4=;
+ b=MEMCoaJtTZbWxPNlOWAiRFcp2WJRfhkszFxKj0maZSYV7aQY0kirzNyZLEaYjI3ZQJjKW05Ou9fIn+jyQ1q54J0qhSwJlqIdfjoW4VKjm8Zx6rFAZ2a7sF3z6fFpOGpdRkgTwB8sx10jaauK59k3VWH9euo0p68dFLlxe90hWD0=
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mailgun.org; q=dns/txt; s=mg; t=1775383302; x=1775390502;
+ h=Message-Id: List-Unsubscribe-Post: List-Unsubscribe: Sender: Sender: To: To: From: From: Subject: Subject: Content-Type: Mime-Version: Date: X-Feedback-Id;
+ bh=6cfU5AGM858e9H8uIdyeB+zlf1BQ8a/wLkro4E9m3X4=;
+ b=T9sdRRzm2AzL1lKz95yEUh96WpWHTFRsUCPhyvRulNA/qKfUMYmmBjVL+I80CYeHoes7CFqk5P2fLHepq70olX3NEwtvvc+B0kbCAQoAM6nmak3hPTflJxleB5NkzTOkDM0ZB3FlY2I265a6oaYZNz7y3vdVfXiCRgWHUU6FOqA=
+X-Mailgun-Sid: WyJ0ZXN0IiwidGVzdEBleGFtcGxlLmNvbSIsInRlc3QiXQ==
+X-Feedback-Id: postmaster@ghost.ghost.org:bulk-email-ghost-email-blog-794932:65b7e773d2789ef1ee33f1ae:mailgun
+Received: by 4c540ca7659e2c8c343ef84861ca620e0d72dc1073784f2a39c7a3153326b4f1 with HTTP
+ id 69d232d635e5318eb88f87dc; Sun, 05 Apr 2026 10:00:52 GMT
+X-Mailgun-Sending-Ip-Pool-Name: Bulk - Standard
+X-Mailgun-Sending-Ip-Pool: 6155d7ba935d084321777411
+X-Mailgun-Sending-Ip: 143.55.227.205
+X-Mailgun-Batch-Id: 69d232d4302410faeffdd5fc
+Date: Sun, 05 Apr 2026 10:00:52 +0000
+Mime-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="68622dc32d858f00fe5027f95652eb9265a0cd8d111b4284475a240a5c3b"
+Subject: =?UTF-8?q?=F0=9F=99=8F_Saving_your_subscribers?=
+From: Ghost Resources <hello@ghost.org>
+To: test@example.com
+X-Mailgun-Tag: bulk-email
+X-Mailgun-Tag: ghost-email
+X-Mailgun-Tag: blog-794932
+X-Mailgun-Deliver-By: Sun, 05 Apr 2026 10:01:42 +0000
+X-Mailgun-Track-Opens: true
+Sender: Ghost Resources <hello@ghost.org>
+Auto-Submitted: auto-generated
+X-Auto-Response-Suppress: OOF, AutoReply
+List-Unsubscribe: <https://ghost.org/resources/unsubscribe/?uuid=00000000-0000-0000-0000-000000000000&key=0000000000000000000000000000000000000000000000000000000000000000&newsletter=19355208-014f-410e-ab5c-800289cc1ead>,
+ <mailto:u+mq6tkmzsgnrgcjtfnvqws3bnnfsd2nrzmqzdgmtcme4dkzrvmi3dambqge4dqmrtmeycm2b5mjqtayzshaygeojsgzrgcmbugi4wezjvg5sgizlbgntdmn3bg5qsm2j5giydenrqgqydkmjqgaydkmrogrstcnrvmy3wcnjqmq2tsmzwgistimdhnbxxg5bom5ug643ufzxxezzgoi6wi33nnfxgs2zom5zhk43fnvqw43rfgqygo3lbnfwc4y3pnuthiplcovwgwllfnvqws3bgoq6wo2dpon2c2zlnmfuwyjtuhvrgy33hfu3tsnbzgmzcm5r5gi@ghost.ghost.org>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+X-Mailgun-Variables: {"email-id": "000000000000000000000000"}
+Message-Id: <20260405100052.4e165f7a50d59362@ghost.ghost.org>
+
+--68622dc32d858f00fe5027f95652eb9265a0cd8d111b4284475a240a5c3b
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+
+
+
+
+=E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=
+=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=
+=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=
+=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=
+=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =
+=E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=
+=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=
+=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=
+=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=
+=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =
+=E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=
+=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=
+=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=
+=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=
+=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =
+=E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=
+=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=
+=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=
+=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=
+=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =
+=E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=
+=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=
+=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=
+=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=
+=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =
+=E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=
+=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=
+=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=
+=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=
+=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =
+=E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=
+=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =E2=
+=80=87=CD=8F =E2=80=87=CD=8F =E2=80=87=CD=8F =C2=AD =C2=AD =C2=AD =C2=AD =
+=C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=
+=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =
+=C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=
+=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =
+=C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=
+=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =
+=C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=
+=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =
+=C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=
+=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =
+=C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=
+=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =
+=C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=
+=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =
+=C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=
+=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =
+=C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=
+=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =
+=C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=AD =C2=A0
+
+
+
+
+
+
+
+
+
+=C2=A0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+https://ghost.org/resources/r/a46bf1cc?m=3D7e1d62c4-8b06-4f06-b2ec-c3f5db97=
+f613
+
+
+
+
+
+
+
+
+
+
+
+
+
+=F0=9F=99=8F Saving your subscribers [https://ghost.org/resources/r/d689f3b=
+d?m=3D00000000-0000-0000-0000-000000000000]
+
+
+
+
+
+
+
+
+
+
+
+
+By Team Ghost =E2=80=A2 5 Apr 2026
+
+
+View in browser [https://ghost.org/resources/r/810ecf88?m=3D7e1d62c4-8b06-4=
+f06-b2ec-c3f5db97f613]
+
+
+
+
+View in browser [https://ghost.org/resources/r/fca6ff56?m=3D7e1d62c4-8b06-4=
+f06-b2ec-c3f5db97f613]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=C2=A0
+
+
+
+
+
+
+
+
+
+
+
+=C2=A0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+We all want to keep every single customer we've ever had, but no matter how=
+ perfect your content is, life itself will never be perfect. One day you wi=
+ll lose subscribers, and that's perfectly ok. What's not ok is sitting by a=
+nd watching it happen. Your goal shouldn't be to retain everyone no matter =
+what, it should be to do everything you can to make them feel seen, heard, =
+and cared for. If you're in the dark on how to do this, we're here to shed =
+some light. Let's go!
+
+In this week's issue =F0=9F=93=A8
+
+ * Subscriber retention strategies
+ * Reasons why readers leave
+ * Offering unique incentives
+
+Was this email forwarded to you? Subscribe here [https://ghost.org/resource=
+s/r/fdbcd11c?m=3D00000000-0000-0000-0000-000000000000]!
+
+----------------------------------------
+
+=C2=A0
+
+
+Stick around
+
+You've worked really hard to gain followers, and the last thing you want is=
+ to watch them walk away. But why do they do it? Are they getting bored wit=
+h your content, are they unhappy with a specific interaction, or are they s=
+imply just a different person than they were a year ago? No matter the reas=
+on, your objective should be to find out why, so you can figure out how to =
+hold onto them.
+
+Mozhdeh Rastegar-Panah, Senior Director at Zendesk, provides expertise on h=
+ow to retain your customers [https://ghost.org/resources/r/e2fb12ff?m=3D7e1=
+d62c4-8b06-4f06-b2ec-c3f5db97f613] and keep them coming back.
+
+Create a seamless experience
+
+ * The online experience you give your readers should be just as exquisite =
+as an in-person one, if not better. Ensuring you're giving them easy access=
+ to your content that solves their problems, all while showing them how hum=
+an you are to build better connections, will get them to stick around for t=
+he long haul.
+ * Focusing on your members is extremely important, but don't forget about =
+your team! If you've hired staff to help run your publication, giving them =
+a positive environment will also reduce employee churn. The longer your tea=
+m works for you, the better they'll understand your mission.
+
+Personalize everything
+
+ * When interacting with a reader, take some time to know who they are. Wha=
+t newsletters of yours are they subscribed to? How long have they been a pa=
+ying member? Have you spoken with them before? Learning everything you can =
+about them is huge for personalizing their experience.
+ * When you speak with them, address them by name and thank them for their =
+business. Make your interaction warm, familiar, and professional. The more =
+you customize their experience, the more likely they are to continue invest=
+ing in you. Making things personal makes you feel more like a person.
+
+https://ghost.org/resources/r/7b8a1f38?m=3D7e1d62c4-8b06-4f06-b2ec-c3f5db97=
+f613
+
+Incentivize loyalty
+
+ * If your publication has been generating great content for a while now, y=
+ou may have forgotten how nerve-racking it was to gain your first 100 payin=
+g subscribers. If they're still around, reward them! This gives them anothe=
+r reason to stay subscribed and keep spreading the good word about your wor=
+k.
+ * Consider offering loyal customers discount codes, invites to VIP events,=
+ or exclusive swag. You may also think about starting a referral program [h=
+ttps://ghost.org/resources/r/723ccaeb?m=3D7e1d62c4-8b06-4f06-b2ec-c3f5db97f=
+613] to encourage more word-of-mouth marketing. They're probably already ad=
+vocating for your brand, so you might as well compensate them for it.
+
+Gather feedback
+
+ * Remember, you're not perfect. Not everything will be sunshine and rainbo=
+ws all of the time. Your members will one day have an imperfect experience,=
+ and that's completely fine. As long as you lead with empathy when connecti=
+ng with them, you may not have to do much repair work.
+ * When you give your followers a voice, the hard part of feedback is alrea=
+dy done. Respond to feedback quickly and send out satisfaction surveys [htt=
+ps://ghost.org/resources/r/d4f778cb?m=3D7e1d62c4-8b06-4f06-b2ec-c3f5db97f61=
+3] so they know you care. You can also consider providing a comment section=
+ or forum on your site so your subscribers can build their own community.
+
+----------------------------------------
+
+=C2=A0
+
+
+Interesting stories & ideas =F0=9F=93=9A
+
+ * In defense of thinking [https://ghost.org/resources/r/20deb178?m=3D7e1d6=
+2c4-8b06-4f06-b2ec-c3f5db97f613] =E2=80=93 Cal Newport
+ * Marketing changes [https://ghost.org/resources/r/aa40f2f7?m=3D7e1d62c4-8=
+b06-4f06-b2ec-c3f5db97f613] for 2026 =E2=80=93 Alex Cattoni
+ * The future of media from Minnesota [https://ghost.org/resources/r/4e1230=
+76?m=3D00000000-0000-0000-0000-000000000000] =E2=80=93 The Content Technolo=
+gist
+ * Nothing goes viral [https://ghost.org/resources/r/9ed45aab?m=3D7e1d62c4-=
+8b06-4f06-b2ec-c3f5db97f613] by accident =E2=80=93 Digital Native
+ * Building a business from content [https://ghost.org/resources/r/7762d74d=
+?m=3D00000000-0000-0000-0000-000000000000] =E2=80=93 Creator Diaries
+
+----------------------------------------
+
+=C2=A0
+
+
+Tell me why
+
+Just like any relationship, you could be doing all the right things, but it=
+ may still not work out in the end. You could be creating the best content =
+of all time, and someone will still be unhappy with what you're putting out=
+ there. You can't please them all, but if you notice more and more subscrib=
+ers are unsubscribing, it might be time to reflect on why and what you can =
+do to stop the bleeding.
+
+The team at Customer Thermometer breaks down the most common reasons custom=
+ers move on [https://ghost.org/resources/r/ae6ce394?m=3D7e1d62c4-8b06-4f06-=
+b2ec-c3f5db97f613] and how you can prevent them.
+
+#1 The biggest one? Failing to meet their expectations [https://ghost.org/r=
+esources/r/c17cf3ed?m=3D00000000-0000-0000-0000-000000000000]. This connect=
+s to many other reasons, but the best thing you can do here is set appropri=
+ate expectations from the start. Never make promises you can't keep, and do=
+n't over-embellish.
+
+#2 Buyer's remorse is hard to predict, but it will happen to some of your s=
+ubscribers. To help alleviate this, send a warm and educational welcome ema=
+il [https://ghost.org/resources/r/b6b1924a?m=3D7e1d62c4-8b06-4f06-b2ec-c3f5=
+db97f613] after they sign up so they feel supported and satisfied with thei=
+r decision.
+
+#3 If your followers have a sense of loyalty [https://ghost.org/resources/r=
+/8b9eafd0?m=3D00000000-0000-0000-0000-000000000000] to your brand as a whol=
+e, they're less likely to leave. You can build loyalty from the get-go by c=
+learly communicating who you are and what you're here to do. Connect with t=
+hem on a human level.
+
+#4 Look, you're not going to get along 100% with every single subscriber, b=
+ut you can always treat them with kindness and respect. Customers who have =
+an abrasive experience are more likely to pack up. Keep it professional [ht=
+tps://ghost.org/resources/r/2605ceed?m=3D7e1d62c4-8b06-4f06-b2ec-c3f5db97f6=
+13] at all times.
+
+https://ghost.org/resources/r/0ea33c93?m=3D7e1d62c4-8b06-4f06-b2ec-c3f5db97=
+f613Unsure how to align with an upset subscriber? Start here.
+
+#5 When customers leave, they usually end up with a competitor. You should =
+always be aware of what your peers are doing and what the current trends ar=
+e in your niche, so you can stay the course or switch things up.
+
+#6 If your subscribers aren't seeing the value in what they've purchased, t=
+hey'll stop purchasing. Ensure you're consistently solving their problems, =
+your business is constantly evolving, and your content stays immaculate and=
+ relevant.
+
+#7 Always keep a clear line of communication open with your readers, whethe=
+r it's to give them a way to provide feedback or to help them understand ex=
+actly what you're doing and why. If they don't get it, they'll get up and g=
+o.
+
+#8 Sometimes, things will be a bad fit, and there's nothing you can do abou=
+t it. That's life, ya know? As long as you're confident in what you're crea=
+ting and your other customers are happy, keep doing what you're doing.
+
+----------------------------------------
+
+=C2=A0
+
+https://ghost.org/resources/r/1f2126aa?m=3D7e1d62c4-8b06-4f06-b2ec-c3f5db97=
+f613
+
+----------------------------------------
+
+=C2=A0
+
+
+Feeling free
+
+Do you want to do more for your loyal followers? Yes, your readers are gett=
+ing their just desserts from all of the great content you create for them, =
+but why not give them a little extra "thank you" in the form of incentives =
+and rewards? Not only does this make everyone feel good about sticking arou=
+nd, but it can also keep people from unsubscribing altogether. And who does=
+n't love free stuff?
+
+Brad Davis, content writer for Stamp Me, shares some unique ways to reward =
+your customers [https://ghost.org/resources/r/282ed238?m=3D7e1d62c4-8b06-4f=
+06-b2ec-c3f5db97f613] so they never want to leave.
+
+=E2=80=A3 You can offer discounts to your own content and services, but hav=
+e you thought about partnering with other publications? This is a great way=
+ to network with other brands and collaborate on customer retention strateg=
+ies. Hand out some coupons for other sites, and they can do the same for yo=
+u.
+
+=E2=80=A3 Allowing your paying customers to be the first to experience excl=
+usive content, new premium tiers, or VIP webinars is a great way to show th=
+em how much you appreciate their business. Letting them be first in line al=
+so gives you a chance to gather feedback from those who'll probably tell yo=
+u the truth.
+
+=E2=80=A3 If someone is in the process of canceling their subscription, pre=
+sent them with a tempting retention offer that will stop them in their trac=
+ks. This will help you stop customer churn before it even happens, let you =
+track who took the offer, and ask them for feedback on why they were thinki=
+ng about leaving.
+
+https://ghost.org/resources/r/4f0119d2?m=3D7e1d62c4-8b06-4f06-b2ec-c3f5db97=
+f613Ghost lets you turn on retention offers to catch subscribers who are on=
+ the fence.
+
+=E2=80=A3 Try running a charity event where you donate a percentage of your=
+ revenue to your favorite charitable organization. You can also send out a =
+poll to let your followers vote on which org the money should go to. This l=
+ets you get more personal with your subscribers and do something nice for y=
+our community.
+
+=E2=80=A3 Do you remember your very first paying subscriber? Or do you know=
+ who your most loyal and passionate member is? If you've got a ride-or-die,=
+ why not honor them by naming a product or a paid tier after them? This is =
+a really fun way to get the word out about your publication and gain even m=
+ore advocates.
+
+=E2=80=A3 Take the time to feature your most loyal customers by sharing the=
+ir personal stories, how long they've been a member, and why they love your=
+ content. You can send out a survey [https://ghost.org/resources/r/a2d57e92=
+?m=3D00000000-0000-0000-0000-000000000000] to see who's interested. This ca=
+n create more community around your publication, keeping customers engaged.
+
+----------------------------------------
+
+=C2=A0
+
+
+Curator's pick =E2=9C=8D=EF=B8=8F
+
+
+
+https://ghost.org/resources/r/b06ca1db?m=3D7e1d62c4-8b06-4f06-b2ec-c3f5db97=
+f613
+
+----------------------------------------
+
+=C2=A0
+
+Enjoy this newsletter? Forward to a friend or hit reply to share your thoug=
+hts. We don't bite! =F0=9F=91=BB
+
+Want more how-tos? Search our library of tutorials [https://ghost.org/resou=
+rces/r/ee77caa9?m=3D00000000-0000-0000-0000-000000000000] and subscribe to =
+our monthly "Build with Ghost" newsletter.
+
+Join our Ghost Creator Community! Connect with like-minded people who creat=
+e content professionally =E2=80=94 apply here [https://ghost.org/resources/=
+r/50dea496?m=3D00000000-0000-0000-0000-000000000000].
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+More like this
+
+
+[https://ghost.org/resources/saving-your-subscribers/#/feedback/69cbd796c18=
+26500014e6421/1/?uuid=3D00000000-0000-0000-0000-000000000000&key=3D510d17e3=
+474212256b5f4c3953a6d34f8efb718645697b787d196862a646e2c8]
+
+
+
+
+
+Less like this
+
+
+[https://ghost.org/resources/saving-your-subscribers/#/feedback/69cbd796c18=
+26500014e6421/0/?uuid=3D00000000-0000-0000-0000-000000000000&key=3D510d17e3=
+474212256b5f4c3953a6d34f8efb718645697b787d196862a646e2c8]
+
+
+
+
+
+
+
+
+
+
+
+
+
+Ghost Resources =C2=A9 2026 =E2=80=93 Unsubscribe [https://ghost.org/resour=
+ces/unsubscribe/?uuid=3D00000000-0000-0000-0000-000000000000&key=3D510d17e3=
+474212256b5f4c3953a6d34f8efb718645697b787d196862a646e2c8&newsletter=3D19355=
+208-014f-410e-ab5c-800289cc1ead]
+
+
+
+https://ghost.org/?via=3Dpbg-newsletter&ref=3Dghost.org
+
+
+
+
+
+
+
+
+
+
+=C2=A0
+
+
+
+
+
+--68622dc32d858f00fe5027f95652eb9265a0cd8d111b4284475a240a5c3b
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+<!doctype html>
+<html>
+    <head>
+        <meta name=3D"viewport" content=3D"width=3Ddevice-width">
+        <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3DU=
+TF-8">
+        <!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:=
+PixelsPerInch><o:AllowPNG/></o:OfficeDocumentSettings></xml><![endif]-->
+        <title>&#x1F64F; Saving your subscribers</title>
+        <style>
+@media only screen and (max-width: 620px) {
+  table.body {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  table.body .content {
+    padding: 0 !important;
+  }
+
+  table.body .container {
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  table.body .main {
+    border-spacing: 10px 0 !important;
+    border-left-width: 0 !important;
+    border-radius: 0 !important;
+    border-right-width: 0 !important;
+  }
+
+  table.body .img-responsive {
+    height: auto !important;
+    max-width: 100% !important;
+    width: auto !important;
+  }
+}
+@media all {
+  .ExternalClass {
+    width: 100%;
+  }
+
+  .ExternalClass,
+=2EExternalClass p,
+=2EExternalClass span,
+=2EExternalClass font,
+=2EExternalClass td,
+=2EExternalClass div {
+    line-height: 100%;
+  }
+
+  .apple-link a {
+    color: inherit !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    font-weight: inherit !important;
+    line-height: inherit !important;
+    text-decoration: none !important;
+  }
+
+  #MessageViewBody a {
+    color: inherit;
+    text-decoration: none;
+    font-size: inherit;
+    font-family: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+  }
+}
+@media only screen and (max-width: 620px) {
+  table[class=3Dbody] h1 {
+    font-size: 28px !important;
+    margin-bottom: 10px !important;
+  }
+
+  table[class=3Dbody] p,
+table[class=3Dbody] ul,
+table[class=3Dbody] ol,
+table[class=3Dbody] td,
+table[class=3Dbody] span,
+table[class=3Dbody] a {
+    font-size: 16px !important;
+  }
+
+  table[class=3Dbody] .wrapper,
+table[class=3Dbody] .article {
+    padding: 10px !important;
+  }
+
+  table[class=3Dbody] .content {
+    padding: 0 !important;
+  }
+
+  table[class=3Dbody] .container {
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  table[class=3Dbody] .main {
+    border-left-width: 0 !important;
+    border-radius: 0 !important;
+    border-right-width: 0 !important;
+  }
+
+  table[class=3Dbody] .btn table {
+    width: 100% !important;
+  }
+
+  table[class=3Dbody] .btn a {
+    width: 100% !important;
+  }
+
+  table[class=3Dbody] .img-responsive {
+    height: auto !important;
+    max-width: 100% !important;
+    width: auto !important;
+  }
+
+  table[class=3Dbody] p[class=3Dsmall],
+table[class=3Dbody] a[class=3Dsmall] {
+    font-size: 11px !important;
+  }
+}
+=2Ekg-nft-link {
+  display: block;
+  text-decoration: none !important;
+  color: #15212A !important;
+  font-family: inherit !important;
+  font-size: 14px;
+  line-height: 1.3em;
+  padding-top: 4px;
+  padding-right: 20px;
+  padding-left: 20px;
+  padding-bottom: 4px;
+}
+=2Ekg-twitter-link {
+  display: block;
+  text-decoration: none !important;
+  color: #15212A !important;
+  font-family: inherit !important;
+  font-size: 15px;
+  padding: 8px;
+  line-height: 1.3em;
+}
+=2Ekg-cta-link-accent .kg-cta-sponsor-label a {
+  color: #15171A !important;
+}
+=2Ekg-cta-text a:not(.kg-cta-link-accent .kg-cta-text a) {
+  color: #15212A;
+  text-decoration: underline;
+}
+=2Ekg-cta-link-accent .kg-cta-text a {
+  color: #15171A !important;
+}
+@media only screen and (max-width: 620px) {
+  table.body .kg-bookmark-card {
+    width: 90vw;
+  }
+
+  table.body .kg-bookmark-thumbnail {
+    display: none !important;
+  }
+
+  table.body .kg-bookmark-metadata span {
+    font-size: 13px !important;
+  }
+
+  table.body .kg-embed-card {
+    max-width: 90vw !important;
+  }
+
+  table.body .kg-cta-card {
+    padding: 0 20px;
+  }
+
+  table.body .kg-cta-card.kg-cta-bg-none {
+    padding: 0;
+  }
+
+  table.body .kg-cta-sponsor-label {
+    padding: 10px 0;
+  }
+
+  table.body table.kg-cta-content-wrapper:not(.kg-cta-bg-none.kg-cta-no-div=
+iders table.kg-cta-content-wrapper) {
+    padding: 20px 0;
+  }
+
+  table.body .kg-cta-immersive.kg-cta-has-img:not(.kg-cta-bg-none):not(.kg-=
+cta-no-label) table.kg-cta-content-wrapper {
+    padding-top: 0;
+  }
+
+  table.body .kg-cta-minimal .kg-cta-image-container {
+    padding-right: 20px;
+  }
+
+  table.body .kg-cta-immersive .kg-cta-image-container {
+    padding-bottom: 20px;
+  }
+
+  table.body .kg-cta-immersive.kg-cta-no-text .kg-cta-image-container {
+    padding-bottom: 0;
+  }
+
+  table.body .kg-cta-button-container {
+    padding-top: 16px;
+  }
+
+  table.body .kg-cta-minimal .kg-cta-image-container {
+    display: inline-block !important;
+    width: 100% !important;
+    padding: 0 !important;
+    padding-bottom: 16px !important;
+    padding-right: 0 !important;
+  }
+
+  table.body .kg-cta-minimal .kg-cta-content-inner {
+    display: inline-block !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  table.body .kg-cta-minimal img.kg-cta-image {
+    width: 52px !important;
+    height: 52px !important;
+  }
+}
+@media all {
+  .ExternalClass {
+    width: 100%;
+  }
+
+  .ExternalClass,
+=2EExternalClass p,
+=2EExternalClass span,
+=2EExternalClass font,
+=2EExternalClass td,
+=2EExternalClass div {
+    line-height: 100%;
+  }
+
+  .recipient-link a {
+    color: inherit !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    font-weight: inherit !important;
+    line-height: inherit !important;
+    text-decoration: none !important;
+  }
+
+  #MessageViewBody a {
+    color: inherit;
+    text-decoration: none;
+    font-size: inherit;
+    font-family: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+  }
+}
+=2Epost-title-link {
+  display: block;
+  margin-top: 32px;
+  color: #15212A;
+  text-align: center;
+  line-height: 1.1em;
+}
+=2Epost-title-link-left {
+  text-align: left;
+}
+=2Eview-online-link {
+  word-wrap: none;
+  white-space: nowrap;
+  color: #15212a;
+  color: rgba(0, 0, 0, 0.6);
+  text-decoration: underline !important;
+}
+=2Ekg-audio-link {
+  color: #15212a !important;
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+@media only screen and (max-width: 620px) {
+  .hide-mobile {
+    display: none;
+  }
+
+  .mobile-only {
+    display: initial !important;
+  }
+
+  .hide-desktop {
+    display: initial !important;
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+
+  table.body p,
+table.body ul,
+table.body ol,
+table.body td {
+    font-size: 16px;
+  }
+
+  table.header .post-excerpt {
+    font-size: 16px !important;
+  }
+
+  table.body .kg-callout-card {
+    padding: 16px 24px !important;
+  }
+
+  table.body .kg-callout-text {
+    font-size: 16px !important;
+    line-height: 1.5em !important;
+  }
+
+  table.body pre {
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+  }
+
+  table.body .main,
+table.header .header-main {
+    border-spacing: 10px 0 !important;
+    border-left-width: 0 !important;
+    border-radius: 0 !important;
+    border-right-width: 0 !important;
+  }
+
+  table.header .site-icon {
+    padding-top: 0 !important;
+  }
+
+  table.header .site-info {
+    padding-top: 24px !important;
+  }
+
+  table.header .post-title-link {
+    margin-top: 24px !important;
+  }
+
+  table.header .post-meta-wrapper {
+    padding-bottom: 24px !important;
+  }
+
+  table.header .site-icon img {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  table.header .site-url a {
+    font-size: 13px !important;
+    padding-bottom: 16px !important;
+  }
+
+  table.header .post-meta,
+table.header .post-meta-date {
+    white-space: normal !important;
+    font-size: 13px !important;
+    line-height: 1.2em;
+  }
+
+  table.header .post-meta,
+table.header .view-online {
+    width: 100% !important;
+  }
+
+  table.header .post-meta-left,
+table.header .post-meta-left.view-online {
+    width: 100% !important;
+    text-align: left !important;
+  }
+
+  table.header .post-meta.view-online-mobile {
+    display: table-row !important;
+  }
+
+  table.header .post-meta-left.view-online-mobile,
+table.header .post-meta-left.view-online-mobile .view-online {
+    text-align: left !important;
+  }
+
+  table.header .post-meta.view-online.desktop {
+    display: none !important;
+  }
+
+  table.header .view-online {
+    text-decoration: underline;
+  }
+
+  table.body .footer p,
+table.body .footer p span {
+    font-size: 13px !important;
+  }
+
+  table.header .view-online-link,
+table.body .footer,
+table.body .footer a {
+    font-size: 13px !important;
+  }
+
+  table.header .post-title a {
+    font-size: 26px !important;
+    line-height: 1.1em !important;
+  }
+
+  table.feedback-buttons {
+    display: table !important;
+    width: 100% !important;
+    max-width: 390px;
+  }
+
+  table.feedback-buttons img {
+    display: inherit !important;
+  }
+
+  table.body .feedback-button-text {
+    display: none!important;
+  }
+
+  table.body .latest-posts-header {
+    font-size: 12px !important;
+  }
+
+  table.body .latest-post-title {
+    padding-right: 8px !important;
+  }
+
+  table.body .latest-post h4,
+table.body .latest-post h4 span {
+    padding: 4px 0 6px !important;
+    font-size: 15px !important;
+  }
+
+  table.body .latest-post-excerpt,
+table.body .latest-post-excerpt a,
+table.body .latest-post-excerpt span {
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+  }
+
+  table.body .subscription-box h3 {
+    font-size: 14px !important;
+  }
+
+  table.body .subscription-box p,
+table.body .subscription-box p span {
+    font-size: 13px !important;
+  }
+
+  table.body .subscription-details,
+table.body .manage-subscription {
+    display: inline-block;
+    width: 100%;
+    text-align: left !important;
+    font-size: 13px !important;
+  }
+
+  table.body .subscription-details {
+    padding-bottom: 12px;
+  }
+
+  table.body h1 {
+    font-size: 32px !important;
+    line-height: 1.3em !important;
+  }
+
+  table.body h2,
+table.body h2 span {
+    font-size: 26px !important;
+    line-height: 1.22em !important;
+  }
+
+  table.body h3 {
+    font-size: 21px !important;
+    line-height: 1.25em !important;
+  }
+
+  table.body h4 {
+    font-size: 19px !important;
+    line-height: 1.3em !important;
+  }
+
+  table.body h5 {
+    font-size: 16px !important;
+    line-height: 1.4em !important;
+  }
+
+  table.body h6 {
+    font-size: 16px !important;
+    line-height: 1.4em !important;
+  }
+
+  table.body blockquote {
+    font-size: 16px !important;
+    line-height: 1.6em;
+    margin-bottom: 0;
+  }
+
+  table.body blockquote p {
+    margin-right: 15px !important;
+    margin-left: 15px !important;
+  }
+
+  table.body blockquote.kg-blockquote-alt {
+    border-left: 0 none !important;
+    margin: 0 !important;
+    font-size: 18px !important;
+    line-height: 1.4em !important;
+  }
+
+  table.body blockquote.kg-blockquote-alt p {
+    margin-right: 20px !important;
+    margin-left: 20px !important;
+  }
+
+  table.body hr {
+    margin: 2em 0 !important;
+  }
+
+  .feature-image-caption {
+    font-size: 13px!important;
+  }
+
+  .kg-card-figcaption {
+    font-size: 13px!important;
+  }
+
+  .kg-card-figcaption p,
+=2Ekg-card-figcaption p span {
+    font-size: 13px!important;
+  }
+}
+@media all {
+  .subscription-details p.hidden {
+    display: none !important;
+  }
+}
+</style>
+        <!--[if mso]>
+        <style type=3D"text/css">
+            ul, ol { margin-left: 1.5em !important; }=20
+        </style>
+        <![endif]-->
+    </head>
+    <body data-testid=3D"email-preview-body" style=3D"background-color: #ff=
+f; font-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial=
+, sans-serif; -webkit-font-smoothing: antialiased; font-size: 18px; line-he=
+ight: 0; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-si=
+ze-adjust: 100%; color: #15212A;"><img width=3D"1" height=3D"1" alt=3D"" sr=
+c=3D"https://email.ghost.ghost.org/o/eJw8zl2KxCAQBODTrG8J_WMbfejDtKtmZJIImc=
+yef5ks7EtBQRV8RYWJs7mquCzCkRnI1d36NvWiIRViyhalSQ4AgDESG7iHtmCpVZSMvjVrYgiNL=
+CYsaMIlu64EFMCDIAAIzb5ikLaYQJHEgb48rI_xuua_HOfqTi1j70d_zuv5ftXdjuOz-nDm77G7=
+S_N7e063z116H_9b3sY6LcknJvej9BsAAP__d49Baw">
+        <span class=3D"preheader" style=3D"color: transparent; display: non=
+e; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; ms=
+o-hide: all; visibility: hidden; width: 0;">We all want to keep every singl=
+e customer we&#39;ve ever had, but no matter how perfect your content is, l=
+ife itself will never be perfect. One day you will lose subscribers, and th=
+at&#39;s perfectly ok. What&#39;s not ok is sitting by and watching it happ=
+en. Your goal shouldn&#39;t be to retain everyone no matter what, it should=
+ be to do everything you can to make them feel seen, heard, and cared for. =
+If you&#39;re in the dark on how to do this, we&#39;re here to shed some li=
+ght. Let&#39;s go!
+
+In this week&#39;s issue &#x1F4E8;
+
+ *</span>
+        <!-- SPACING TO AVOID BODY TEXT BEING DUPLICATED IN PREVIEW TEXT --=
+>
+        <div style=3D"display:none; max-height:0; overflow:hidden; mso-hide=
+: all;" aria-hidden=3D"true" role=3D"presentation">
+            &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F;=
+ &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#=
+x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x20=
+07;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; =
+&#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x=
+34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x200=
+7;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &=
+#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x3=
+4F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007=
+;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#=
+x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34=
+F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;=
+&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x=
+2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F=
+; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&=
+#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2=
+007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F;=
+ &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#=
+x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x20=
+07;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; =
+&#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x=
+34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x200=
+7;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &=
+#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x3=
+4F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007=
+;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#=
+x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34=
+F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;=
+&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x=
+2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F=
+; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&=
+#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2007;&#x34F; &#x2=
+007;&#x34F; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; =
+&#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD=
+; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#x=
+AD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &=
+#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD;=
+ &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xA=
+D; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#=
+xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; =
+&#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD=
+; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#x=
+AD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &=
+#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD;=
+ &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xA=
+D; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#=
+xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; =
+&#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD=
+; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#x=
+AD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &=
+#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD; &#xAD;  &#xA0;
+        </div>
+
+        <!-- HEADER WITH FULL-WIDTH BACKGROUND -->
+            <table role=3D"presentation" border=3D"0" cellpadding=3D"0" cel=
+lspacing=3D"0" class=3D"header" width=3D"100%" style=3D"mso-table-lspace: 0=
+pt; mso-table-rspace: 0pt; line-height: 1.4; background-color: #ffffff; wid=
+th: 100%; border-spacing: 0; border-collapse: collapse;" bgcolor=3D"#ffffff=
+">
+                <!-- Outlook doesn't respect max-width so we need an extra =
+centered table -->
+                <!--[if mso]>
+                <tr>
+                    <td>
+                        <center>
+                            <table border=3D"0" cellpadding=3D"0" cellspaci=
+ng=3D"0" width=3D"600">
+                <![endif]-->
+                <tr>
+                    <td style=3D"font-family: -apple-system, BlinkMacSystem=
+Font, Roboto, Helvetica, Arial, sans-serif; font-size: 18px; vertical-align=
+: top; color: #15212A;" valign=3D"top">&#xA0;</td>
+                    <td class=3D"container" align=3D"center" style=3D"font-=
+family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-s=
+erif; font-size: 18px; vertical-align: top; color: #15212A;" valign=3D"top"=
+>
+                        <div class=3D"content" style=3D"box-sizing: border-=
+box; display: block; margin: 0 auto; max-width: 600px;">
+                        <!-- Header content constrained to 600px -->
+                        <table role=3D"presentation" border=3D"0" cellpaddi=
+ng=3D"0" cellspacing=3D"0" class=3D"header-main" style=3D"border-collapse: =
+separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-spacing: 20p=
+x 0; width: 100%; max-width: 600px; background: #ffffff; background-color: =
+transparent;" width=3D"100%" bgcolor=3D"transparent">
+                            <tr>
+                                <td class=3D"header-content" style=3D"font-=
+family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-s=
+erif; font-size: 18px; vertical-align: top; color: #15212A; padding: 0; mar=
+gin: 0 auto;" valign=3D"top">
+                                    <table role=3D"presentation" border=3D"=
+0" cellpadding=3D"0" cellspacing=3D"0" width=3D"100%" style=3D"border-colla=
+pse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
+
+                                            <tr class=3D"site-info-row">
+                                                <td class=3D"site-info" wid=
+th=3D"100%" align=3D"center" style=3D"font-family: -apple-system, BlinkMacS=
+ystemFont, Roboto, Helvetica, Arial, sans-serif; font-size: 18px; vertical-=
+align: top; color: #15212A; padding-top: 32px;" valign=3D"top">
+                                                    <table role=3D"presenta=
+tion" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"border-coll=
+apse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;"=
+ width=3D"100%">
+                                                            <tr>
+                                                                <td class=
+=3D"site-icon" style=3D"font-family: -apple-system, BlinkMacSystemFont, Rob=
+oto, Helvetica, Arial, sans-serif; font-size: 18px; vertical-align: top; co=
+lor: #15212A; padding-bottom: 8px; padding-top: 8px; text-align: center; bo=
+rder-radius: 3px;" valign=3D"top" align=3D"center"><a href=3D"https://ghost=
+=2Eorg/resources/r/a46bf1cc?m=3D7e1d62c=
+4-8b06-4f06-b2ec-c3f5db97f613" style=
+=3D"color: #15171A; text-decoration: none; overflow-wrap: anywhere;" target=
+=3D"_blank"><img src=3D"https://storage.ghost.io/c/2d/17/2d1720de-b48e-4729=
+-8941-6f1d1300a8cc/content/images/2021/10/ghost-orb-pink-transparent-01-1.p=
+ng" alt=3D"Ghost Resources" border=3D"0" width=3D"44" height=3D"44" style=
+=3D"border: none; -ms-interpolation-mode: bicubic; max-width: 100%; width: =
+44px; height: 44px; border-radius: 3px;"></a></td>
+                                                            </tr>
+
+                                                    </table>
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td class=3D"post-title pos=
+t-title-no-excerpt" style=3D"font-family: -apple-system, BlinkMacSystemFont=
+, Roboto, Helvetica, Arial, sans-serif; font-size: 18px; vertical-align: to=
+p; text-align: center; color: #000000; padding-bottom: 16px;" valign=3D"top=
+" align=3D"center">
+                                                    <table role=3D"presenta=
+tion" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"border-coll=
+apse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;"=
+ width=3D"100%">
+                                                        <tr>
+                                                            <td style=3D"fo=
+nt-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, san=
+s-serif; vertical-align: top; font-size: 36px; line-height: 1.1; font-weigh=
+t: 700; text-align: center; color: #000000;" valign=3D"top" align=3D"center=
+">
+                                                                <a href=3D"=
+https://ghost.org/resources/r/d689f3bd?m=3D7e1d62c4-8b06-4f06-b2ec-c3f5db97=
+f613" class=3D"post-title-link" style=3D"text-decoration: none; display: bl=
+ock; margin-top: 32px; text-align: center; line-height: 1.1em; overflow-wra=
+p: anywhere; color: #000000;" target=3D"_blank">&#x1F64F; Saving your subsc=
+ribers</a>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width=3D"100%" style=3D=
+"font-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, =
+sans-serif; font-size: 18px; vertical-align: top; color: #15212A; width: 10=
+0%;" align=3D"center" valign=3D"top">
+                                                    <table class=3D"post-me=
+ta-wrapper" role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacin=
+g=3D"0" width=3D"100%" style=3D"border-collapse: separate; mso-table-lspace=
+: 0pt; mso-table-rspace: 0pt; width: 100%; padding-bottom: 32px;">
+                                                        <tr>
+                                                            <td height=3D"2=
+0" class=3D"post-meta post-meta-center" style=3D"font-family: -apple-system=
+, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif; vertical-align:=
+ top; color: #15212a; color: rgba(0, 0, 0, 0.6); font-size: 13px; font-weig=
+ht: 400; text-align: center; padding: 0;" valign=3D"top" align=3D"center">
+                                                                By Team Gho=
+st &#x2022; <span class=3D"post-meta-date" style=3D"white-space: nowrap;">5=
+ Apr 2026 </span>
+                                                            </td>
+                                                            <td class=3D"po=
+st-meta post-meta-center view-online desktop" style=3D"font-family: -apple-=
+system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif; vertical-=
+align: top; color: rgba(0, 0, 0, 0.6); font-size: 13px; font-weight: 400; t=
+ext-align: center; display: none;" valign=3D"top" align=3D"center">
+                                                                <a href=3D"=
+https://ghost.org/resources/r/810ecf88?m=3D7e1d62c4-8b06-4f06-b2ec-c3f5db97=
+f613" class=3D"view-online-link" style=3D"word-wrap: none; white-space: now=
+rap; color: #15212a; color: rgba(0, 0, 0, 0.6); overflow-wrap: anywhere; te=
+xt-decoration: underline;" target=3D"_blank">View in browser</a>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class=3D"post-m=
+eta post-meta-center view-online-mobile" style=3D"color: #15212a; color: rg=
+ba(0, 0, 0, 0.6); font-size: 13px; font-weight: 400; text-align: center;" a=
+lign=3D"center">
+                                                            <td height=3D"2=
+0" class=3D"view-online" style=3D"font-family: -apple-system, BlinkMacSyste=
+mFont, Roboto, Helvetica, Arial, sans-serif; vertical-align: top; color: #1=
+5212a; color: rgba(0, 0, 0, 0.6); font-size: 13px; font-weight: 400; text-a=
+lign: center; text-decoration: underline;" valign=3D"top" align=3D"center">
+                                                                <a href=3D"=
+https://ghost.org/resources/r/fca6ff56?m=3D7e1d62c4-8b06-4f06-b2ec-c3f5db97=
+f613" class=3D"view-online-link" style=3D"word-wrap: none; white-space: now=
+rap; color: #15212a; color: rgba(0, 0, 0, 0.6); overflow-wrap: anywhere; te=
+xt-decoration: underline;" target=3D"_blank">View in browser</a>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        </div>
+                    </td>
+                    <td style=3D"font-family: -apple-system, BlinkMacSystem=
+Font, Roboto, Helvetica, Arial, sans-serif; font-size: 18px; vertical-align=
+: top; color: #15212A;" valign=3D"top">&#xA0;</td>
+                </tr>
+                <!--[if mso]>
+                            </table>
+                        </center>
+                    </td>
+                </tr>
+                <![endif]-->
+            </table>
+
+        <!-- MAIN CONTENT AREA -->
+        <table role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspa=
+cing=3D"0" class=3D"body" width=3D"100%" style=3D"border-collapse: separate=
+; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; line-height: 1=
+=2E4; background-color: #ffffff;" bgcolor=3D"#ffffff">
+            <!-- Outlook doesn't respect max-width so we need an extra cent=
+ered table -->
+            <!--[if mso]>
+            <tr>
+                <td>
+                    <center>
+                        <table border=3D"0" cellpadding=3D"0" cellspacing=
+=3D"0" width=3D"600">
+            <![endif]-->
+            <tr>
+                <td style=3D"font-family: -apple-system, BlinkMacSystemFont=
+, Roboto, Helvetica, Arial, sans-serif; font-size: 18px; vertical-align: to=
+p; color: #15212A;" valign=3D"top">&#xA0;</td>
+                <td class=3D"container" style=3D"font-family: -apple-system=
+, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif; font-size: 18px=
+; vertical-align: top; color: #15212A; display: block; max-width: 600px; ma=
+rgin: 0 auto;" valign=3D"top">
+                    <div class=3D"content" style=3D"box-sizing: border-box;=
+ display: block; margin: 0 auto; max-width: 600px;">
+                        <table role=3D"presentation" border=3D"0" cellpaddi=
+ng=3D"0" cellspacing=3D"0" class=3D"main" width=3D"100%" style=3D"border-co=
+llapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-spac=
+ing: 20px 0; width: 100%; max-width: 600px; background: #ffffff; background=
+-color: #ffffff;" bgcolor=3D"#ffffff">
+                                                        <tr>
+                                                            <td class=3D"wr=
+apper" style=3D"font-family: -apple-system, BlinkMacSystemFont, Roboto, Hel=
+vetica, Arial, sans-serif; font-size: 18px; vertical-align: top; color: #15=
+212A; box-sizing: border-box;" valign=3D"top">
+                                                                <table role=
+=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D=
+"100%" data-testid=3D"email-preview-content" style=3D"border-collapse: sepa=
+rate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;">
+                                                                    <tr cla=
+ss=3D"post-content-row">
+                                                                        <td=
+ class=3D"post-content-sans-serif" style=3D"font-family: -apple-system, Bli=
+nkMacSystemFont, Roboto, Helvetica, Arial, sans-serif; vertical-align: top;=
+ font-size: 17px; line-height: 1.5em; color: #15212A; padding-bottom: 20px;=
+ border-bottom: 1px solid #e0e7eb; max-width: 600px;" valign=3D"top">
+                                                                           =
+ <!-- POST CONTENT START -->
+                                                                           =
+ <p style=3D"margin: 0 0 1.5em 0; line-height: 1.6em; color: #15212A;">We a=
+ll want to keep every single customer we&#39;ve ever had, but no matter how=
+ perfect your content is, life itself will never be perfect. One day you wi=
+ll lose subscribers, and that&#39;s perfectly ok. What&#39;s not ok is sitt=
+ing by and watching it happen. Your goal shouldn&#39;t be to retain everyon=
+e no matter what, it should be to do everything you can to make them feel s=
+een, heard, and cared for. If you&#39;re in the dark on how to do this, we&=
+#39;re here to shed some light. <em>Let&#39;s go!</em></p><p style=3D"margi=
+n: 0 0 1.5em 0; line-height: 1.6em; color: #15212A;"><strong style=3D"font-=
+weight: 700;">In this week&#39;s issue &#x1F4E8;</strong></p><ul style=3D"m=
+argin: 0 0 1.5em 0; line-height: 1.6em; padding-left: 1.3em; padding-right:=
+ 1.5em; list-style: disc; max-width: 100%;"><li style=3D"margin: 0.5em 0; p=
+adding-left: 0.3em; line-height: 1.6em; color: #15212A;">Subscriber retenti=
+on strategies</li><li style=3D"margin: 0.5em 0; padding-left: 0.3em; line-h=
+eight: 1.6em; color: #15212A;">Reasons why readers leave</li><li style=3D"m=
+argin: 0.5em 0; padding-left: 0.3em; line-height: 1.6em; color: #15212A;">O=
+ffering unique incentives</li></ul><p style=3D"margin: 0 0 1.5em 0; line-he=
+ight: 1.6em; color: #15212A;"><em>Was this email forwarded to you? </em><a =
+href=3D"https://ghost.org/resources/r/fdbcd11c?m=3D7e1d62c4-8b06-4f06-b2ec-=
+c3f5db97f613" style=3D"overflow-wrap: anywhere; color: #15171A; text-decora=
+tion: underline;" target=3D"_blank"><em>Subscribe here</em></a><em>!</em></=
+p><table class=3D"kg-card kg-hr-card" role=3D"presentation" width=3D"100%" =
+border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"border-collapse: =
+separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;"><tbod=
+y><tr><td style=3D"font-family: -apple-system, BlinkMacSystemFont, Roboto, =
+Helvetica, Arial, sans-serif; vertical-align: top; color: #15212A; margin: =
+0; padding-top: 1.5em; padding-bottom: 3em; font-size: 17px;" valign=3D"top=
+"><!--[if !mso]><!-- --><hr style=3D"position: relative; width: 100%; margi=
+n: 3em 0; padding: 0; height: 1px; background-color: transparent; border: 0=
+; border-top: 1px solid #e0e7eb; display: none;"><!--<![endif]--><table cla=
+ss=3D"kg-hr" role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspaci=
+ng=3D"0" style=3D"border-collapse: separate; mso-table-lspace: 0pt; mso-tab=
+le-rspace: 0pt; width: 100%;" width=3D"100%"><tbody><tr><td style=3D"font-f=
+amily: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-se=
+rif; vertical-align: top; color: #15212A; padding-top: 1.5em; padding-botto=
+m: 3em; margin: 0; padding: 0; border-top: 1px solid #e0e7eb; font-size: 0;=
+ line-height: 0;" valign=3D"top">&#xA0;</td></tr></tbody></table></td></tr>=
+</tbody></table><h2 id=3D"stick-around" style=3D"font-family: -apple-system=
+, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif; line-height: 1.=
+11em; font-weight: 700; text-rendering: optimizeLegibility; margin: 1.5em 0=
+ 0.5em 0; font-size: 32px; margin-top: 0; color: #15212A;">Stick around</h2=
+><div class=3D"kg-card kg-image-card" style=3D"margin: 0 0 1.5em; padding: =
+0;"><img src=3D"https://storage.ghost.io/c/2d/17/2d1720de-b48e-4729-8941-6f=
+1d1300a8cc/content/images/size/w1600/2026/04/tsd-studio-Eh6WwSVhG8Y-unsplas=
+h.jpg" class=3D"kg-image" alt loading=3D"lazy" width=3D"600" height=3D"338"=
+ style=3D"border: none; -ms-interpolation-mode: bicubic; display: block; ma=
+rgin: 0 auto; height: auto; width: auto; max-width: 100%;"></div><p style=
+=3D"margin: 0 0 1.5em 0; line-height: 1.6em; color: #15212A;">You&#39;ve wo=
+rked really hard to gain followers, and the last thing you want is to watch=
+ them walk away. But why do they do it? Are they getting bored with your co=
+ntent, are they unhappy with a specific interaction, or are they simply jus=
+t a different person than they were a year ago? No matter the reason, your =
+objective should be to find out why, so you can figure out how to hold onto=
+ them. </p><p style=3D"margin: 0 0 1.5em 0; line-height: 1.6em; color: #152=
+12A;">Mozhdeh Rastegar-Panah, Senior Director at <strong style=3D"font-weig=
+ht: 700;">Zendesk</strong>, provides expertise on <a href=3D"https://ghost.=
+org/resources/r/e2fb12ff?m=3D00000000-0000-0000-0000-000000000000" style=3D=
+"overflow-wrap: anywhere; color: #15171A; text-decoration: underline;" targ=
+et=3D"_blank">how to retain your customers</a> and keep them coming back. <=
+/p><p style=3D"margin: 0 0 1.5em 0; line-height: 1.6em; color: #15212A;"><s=
+trong style=3D"font-weight: 700;">Create a seamless experience</strong></p>=
+<ul style=3D"margin: 0 0 1.5em 0; line-height: 1.6em; padding-left: 1.3em; =
+padding-right: 1.5em; list-style: disc; max-width: 100%;"><li style=3D"marg=
+in: 0.5em 0; padding-left: 0.3em; line-height: 1.6em; color: #15212A;">The =
+online experience you give your readers should be just as exquisite as an i=
+n-person one, if not better. Ensuring you&#39;re giving them easy access to=
+ your content that <strong style=3D"font-weight: 700;">solves their problem=
+s</strong>, all while showing them how human you are to build better connec=
+tions, will get them to stick around for the long haul.</li><li style=3D"ma=
+rgin: 0.5em 0; padding-left: 0.3em; line-height: 1.6em; color: #15212A;">Fo=
+cusing on your members is extremely important, but <strong style=3D"font-we=
+ight: 700;">don&#39;t forget about your team</strong>! If you&#39;ve hired =
+staff to help run your publication, giving them a positive environment will=
+ also reduce employee churn. The longer your team works for you, the better=
+ they&#39;ll understand your mission.</li></ul><p style=3D"margin: 0 0 1.5e=
+m 0; line-height: 1.6em; color: #15212A;"><strong style=3D"font-weight: 700=
+;">Personalize everything</strong></p><ul style=3D"margin: 0 0 1.5em 0; lin=
+e-height: 1.6em; padding-left: 1.3em; padding-right: 1.5em; list-style: dis=
+c; max-width: 100%;"><li style=3D"margin: 0.5em 0; padding-left: 0.3em; lin=
+e-height: 1.6em; color: #15212A;">When interacting with a reader, take some=
+ time to <strong style=3D"font-weight: 700;">know who they are</strong>. Wh=
+at newsletters of yours are they subscribed to? How long have they been a p=
+aying member? Have you spoken with them before? Learning everything you can=
+ about them is huge for personalizing their experience.</li><li style=3D"ma=
+rgin: 0.5em 0; padding-left: 0.3em; line-height: 1.6em; color: #15212A;">Wh=
+en you speak with them, address them by name and thank them for their busin=
+ess. Make your interaction warm, familiar, and professional. The more you <=
+strong style=3D"font-weight: 700;">customize their experience</strong>, the=
+ more likely they are to continue investing in you. Making things personal =
+makes you feel more like a person.</li></ul><div class=3D"kg-card kg-image-=
+card" style=3D"margin: 0 0 1.5em; padding: 0;"><a href=3D"https://ghost.org=
+/resources/r/7b8a1f38?m=3D00000000-0000-0000-0000-000000000000" style=3D"ov=
+erflow-wrap: anywhere; color: #15171A; text-decoration: underline;" target=
+=3D"_blank"><img src=3D"https://storage.ghost.io/c/2d/17/2d1720de-b48e-4729=
+-8941-6f1d1300a8cc/content/images/2026/03/customer-experience-statistics-op=
+timized.png" class=3D"kg-image" alt loading=3D"lazy" width=3D"600" height=
+=3D"214" style=3D"border: none; -ms-interpolation-mode: bicubic; display: b=
+lock; margin: 0 auto; height: auto; width: auto; max-width: 100%;"></a></di=
+v><p style=3D"margin: 0 0 1.5em 0; line-height: 1.6em; color: #15212A;"><st=
+rong style=3D"font-weight: 700;">Incentivize loyalty</strong></p><ul style=
+=3D"margin: 0 0 1.5em 0; line-height: 1.6em; padding-left: 1.3em; padding-r=
+ight: 1.5em; list-style: disc; max-width: 100%;"><li style=3D"margin: 0.5em=
+ 0; padding-left: 0.3em; line-height: 1.6em; color: #15212A;">If your publi=
+cation has been generating great content for a while now, you may have forg=
+otten how nerve-racking it was to gain your first 100 paying subscribers. I=
+f they&#39;re still around, <strong style=3D"font-weight: 700;">reward them=
+</strong>! This gives them another reason to stay subscribed and keep sprea=
+ding the good word about your work.</li><li style=3D"margin: 0.5em 0; paddi=
+ng-left: 0.3em; line-height: 1.6em; color: #15212A;">Consider offering loya=
+l customers discount codes, invites to VIP events, or exclusive swag. You m=
+ay also think about <strong style=3D"font-weight: 700;">starting </strong><=
+a href=3D"https://ghost.org/resources/r/723ccaeb?m=3D7e1d62c4-8b06-4f06-b2e=
+c-c3f5db97f613" style=3D"overflow-wrap: anywhere; color: #15171A; text-deco=
+ration: underline;" target=3D"_blank"><strong style=3D"font-weight: 700;">a=
+ referral program</strong></a> to encourage more word-of-mouth marketing. T=
+hey&#39;re probably already advocating for your brand, so you might as well=
+ compensate them for it.</li></ul><p style=3D"margin: 0 0 1.5em 0; line-hei=
+ght: 1.6em; color: #15212A;"><strong style=3D"font-weight: 700;">Gather fee=
+dback</strong></p><ul style=3D"margin: 0 0 1.5em 0; line-height: 1.6em; pad=
+ding-left: 1.3em; padding-right: 1.5em; list-style: disc; max-width: 100%;"=
+><li style=3D"margin: 0.5em 0; padding-left: 0.3em; line-height: 1.6em; col=
+or: #15212A;">Remember, you&#39;re not perfect. Not everything will be suns=
+hine and rainbows all of the time. Your members will one day have an imperf=
+ect experience, and that&#39;s completely fine. As long as you <strong styl=
+e=3D"font-weight: 700;">lead with empathy</strong> when connecting with the=
+m, you may not have to do much repair work. </li><li style=3D"margin: 0.5em=
+ 0; padding-left: 0.3em; line-height: 1.6em; color: #15212A;">When you give=
+ your followers a voice, the hard part of feedback is already done. <strong=
+ style=3D"font-weight: 700;">Respond to feedback quickly</strong> and send =
+out <a href=3D"https://ghost.org/resources/r/d4f778cb?m=3D7e1d62c4-8b06-4f0=
+6-b2ec-c3f5db97f613" style=3D"overflow-wrap: anywhere; color: #15171A; text=
+-decoration: underline;" target=3D"_blank">satisfaction surveys</a> so they=
+ know you care. You can also consider providing a comment section or forum =
+on your site so your subscribers can build their own community.</li></ul><t=
+able class=3D"kg-card kg-hr-card" role=3D"presentation" width=3D"100%" bord=
+er=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"border-collapse: sepa=
+rate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;"><tbody><t=
+r><td style=3D"font-family: -apple-system, BlinkMacSystemFont, Roboto, Helv=
+etica, Arial, sans-serif; vertical-align: top; color: #15212A; margin: 0; p=
+adding-top: 1.5em; padding-bottom: 3em; font-size: 17px;" valign=3D"top"><!=
+--[if !mso]><!-- --><hr style=3D"position: relative; width: 100%; margin: 3=
+em 0; padding: 0; height: 1px; background-color: transparent; border: 0; bo=
+rder-top: 1px solid #e0e7eb; display: none;"><!--<![endif]--><table class=
+=3D"kg-hr" role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacing=
+=3D"0" style=3D"border-collapse: separate; mso-table-lspace: 0pt; mso-table=
+-rspace: 0pt; width: 100%;" width=3D"100%"><tbody><tr><td style=3D"font-fam=
+ily: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-seri=
+f; vertical-align: top; color: #15212A; padding-top: 1.5em; padding-bottom:=
+ 3em; margin: 0; padding: 0; border-top: 1px solid #e0e7eb; font-size: 0; l=
+ine-height: 0;" valign=3D"top">&#xA0;</td></tr></tbody></table></td></tr></=
+tbody></table><h2 id=3D"interesting-stories-ideas-%F0%9F%93%9A" style=3D"fo=
+nt-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, san=
+s-serif; line-height: 1.11em; font-weight: 700; text-rendering: optimizeLeg=
+ibility; margin: 1.5em 0 0.5em 0; font-size: 32px; margin-top: 0; color: #1=
+5212A;">Interesting stories &amp; ideas &#x1F4DA;</h2><ul style=3D"margin: =
+0 0 1.5em 0; line-height: 1.6em; padding-left: 1.3em; padding-right: 1.5em;=
+ list-style: disc; max-width: 100%;"><li style=3D"margin: 0.5em 0; padding-=
+left: 0.3em; line-height: 1.6em; color: #15212A;">In defense <a href=3D"htt=
+ps://ghost.org/resources/r/20deb178?m=3D7e1d62c4-8b06-4f06-b2ec-c3f5db97f61=
+3" style=3D"overflow-wrap: anywhere; color: #15171A; text-decoration: under=
+line;" target=3D"_blank">of thinking</a> &#x2013; Cal Newport</li><li style=
+=3D"margin: 0.5em 0; padding-left: 0.3em; line-height: 1.6em; color: #15212=
+A;"><a href=3D"https://ghost.org/resources/r/aa40f2f7?m=3D7e1d62c4-8b06-4f0=
+6-b2ec-c3f5db97f613" style=3D"overflow-wrap: anywhere; color: #15171A; text=
+-decoration: underline;" target=3D"_blank">Marketing changes</a> for 2026 &=
+#x2013; Alex Cattoni</li><li style=3D"margin: 0.5em 0; padding-left: 0.3em;=
+ line-height: 1.6em; color: #15212A;">The future of media <a href=3D"https:=
+//ghost.org/resources/r/4e123076?m=3D00000000-0000-0000-0000-000000000000" =
+style=3D"overflow-wrap: anywhere; color: #15171A; text-decoration: underlin=
+e;" target=3D"_blank">from Minnesota</a> &#x2013; The Content Technologist<=
+/li><li style=3D"margin: 0.5em 0; padding-left: 0.3em; line-height: 1.6em; =
+color: #15212A;"><a href=3D"https://ghost.org/resources/r/9ed45aab?m=3D7e1d=
+62c4-8b06-4f06-b2ec-c3f5db97f613" style=3D"overflow-wrap: anywhere; color: =
+#15171A; text-decoration: underline;" target=3D"_blank">Nothing goes viral<=
+/a> by accident &#x2013; Digital Native </li><li style=3D"margin: 0.5em 0; =
+padding-left: 0.3em; line-height: 1.6em; color: #15212A;">Building a busine=
+ss <a href=3D"https://ghost.org/resources/r/7762d74d?m=3D7e1d62c4-8b06-4f06=
+-b2ec-c3f5db97f613" style=3D"overflow-wrap: anywhere; color: #15171A; text-=
+decoration: underline;" target=3D"_blank">from content</a> &#x2013; Creator=
+ Diaries</li></ul><table class=3D"kg-card kg-hr-card" role=3D"presentation"=
+ width=3D"100%" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"b=
+order-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; wid=
+th: 100%;"><tbody><tr><td style=3D"font-family: -apple-system, BlinkMacSyst=
+emFont, Roboto, Helvetica, Arial, sans-serif; vertical-align: top; color: #=
+15212A; margin: 0; padding-top: 1.5em; padding-bottom: 3em; font-size: 17px=
+;" valign=3D"top"><!--[if !mso]><!-- --><hr style=3D"position: relative; wi=
+dth: 100%; margin: 3em 0; padding: 0; height: 1px; background-color: transp=
+arent; border: 0; border-top: 1px solid #e0e7eb; display: none;"><!--<![end=
+if]--><table class=3D"kg-hr" role=3D"presentation" border=3D"0" cellpadding=
+=3D"0" cellspacing=3D"0" style=3D"border-collapse: separate; mso-table-lspa=
+ce: 0pt; mso-table-rspace: 0pt; width: 100%;" width=3D"100%"><tbody><tr><td=
+ style=3D"font-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica=
+, Arial, sans-serif; vertical-align: top; color: #15212A; padding-top: 1.5e=
+m; padding-bottom: 3em; margin: 0; padding: 0; border-top: 1px solid #e0e7e=
+b; font-size: 0; line-height: 0;" valign=3D"top">&#xA0;</td></tr></tbody></=
+table></td></tr></tbody></table><h2 id=3D"tell-me-why" style=3D"font-family=
+: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif; =
+line-height: 1.11em; font-weight: 700; text-rendering: optimizeLegibility; =
+margin: 1.5em 0 0.5em 0; font-size: 32px; margin-top: 0; color: #15212A;">T=
+ell me why</h2><div class=3D"kg-card kg-image-card" style=3D"margin: 0 0 1.=
+5em; padding: 0;"><img src=3D"https://storage.ghost.io/c/2d/17/2d1720de-b48=
+e-4729-8941-6f1d1300a8cc/content/images/size/w1600/2026/04/tsd-studio-5dgjO=
+wGMsiA-unsplash.jpg" class=3D"kg-image" alt loading=3D"lazy" width=3D"600" =
+height=3D"338" style=3D"border: none; -ms-interpolation-mode: bicubic; disp=
+lay: block; margin: 0 auto; height: auto; width: auto; max-width: 100%;"></=
+div><p style=3D"margin: 0 0 1.5em 0; line-height: 1.6em; color: #15212A;">J=
+ust like any relationship, you could be doing all the right things, but it =
+may still not work out in the end. You could be creating the best content o=
+f all time, and someone will still be unhappy with what you&#39;re putting =
+out there. You can&#39;t please them all, but if you notice more and more s=
+ubscribers are unsubscribing, it might be time to reflect on why and what y=
+ou can do to stop the bleeding. </p><p style=3D"margin: 0 0 1.5em 0; line-h=
+eight: 1.6em; color: #15212A;">The team at <strong style=3D"font-weight: 70=
+0;">Customer Thermometer</strong> breaks down <a href=3D"https://ghost.org/=
+resources/r/ae6ce394?m=3D00000000-0000-0000-0000-000000000000" style=3D"ove=
+rflow-wrap: anywhere; color: #15171A; text-decoration: underline;" target=
+=3D"_blank">the most common reasons customers move on</a> and how you can p=
+revent them.</p><p style=3D"margin: 0 0 1.5em 0; line-height: 1.6em; color:=
+ #15212A;"><strong style=3D"font-weight: 700;">#1</strong> The biggest one?=
+ Failing to meet <a href=3D"https://ghost.org/resources/r/c17cf3ed?m=3D7e1d=
+62c4-8b06-4f06-b2ec-c3f5db97f613" style=3D"overflow-wrap: anywhere; color: =
+#15171A; text-decoration: underline;" target=3D"_blank">their expectations<=
+/a>. This connects to many other reasons, but the best thing you can do her=
+e is <strong style=3D"font-weight: 700;">set appropriate expectations</stro=
+ng> from the start. Never make promises you can&#39;t keep, and don&#39;t o=
+ver-embellish.</p><p style=3D"margin: 0 0 1.5em 0; line-height: 1.6em; colo=
+r: #15212A;"><strong style=3D"font-weight: 700;">#2 </strong>Buyer&#39;s re=
+morse is hard to predict, but it will happen to some of your subscribers. T=
+o help alleviate this, send a warm and educational <a href=3D"https://ghost=
+=2Eorg/resources/r/b6b1924a?m=3D7e1d62c=
+4-8b06-4f06-b2ec-c3f5db97f613" style=
+=3D"overflow-wrap: anywhere; color: #15171A; text-decoration: underline;" t=
+arget=3D"_blank">welcome email</a> after they sign up so <strong style=3D"f=
+ont-weight: 700;">they feel supported and satisfied</strong> with their dec=
+ision.</p><p style=3D"margin: 0 0 1.5em 0; line-height: 1.6em; color: #1521=
+2A;"><strong style=3D"font-weight: 700;">#3</strong> If your followers have=
+ <a href=3D"https://ghost.org/resources/r/8b9eafd0?m=3D7e1d62c4-8b06-4f06-b=
+2ec-c3f5db97f613" style=3D"overflow-wrap: anywhere; color: #15171A; text-de=
+coration: underline;" target=3D"_blank">a sense of loyalty</a> to your bran=
+d as a whole, they&#39;re less likely to leave. You can build loyalty from =
+the get-go by clearly <strong style=3D"font-weight: 700;">communicating who=
+ you are</strong> and what you&#39;re here to do. Connect with them on a hu=
+man level.</p><p style=3D"margin: 0 0 1.5em 0; line-height: 1.6em; color: #=
+15212A;"><strong style=3D"font-weight: 700;">#4</strong> Look, you&#39;re n=
+ot going to get along 100% with every single subscriber, but you can<strong=
+ style=3D"font-weight: 700;"> </strong>always <strong style=3D"font-weight:=
+ 700;">treat them with kindness and respect</strong>. Customers who have an=
+ abrasive experience are more likely to pack up. <a href=3D"https://ghost.o=
+rg/resources/r/2605ceed?m=3D00000000-0000-0000-0000-000000000000" style=3D"=
+overflow-wrap: anywhere; color: #15171A; text-decoration: underline;" targe=
+t=3D"_blank">Keep it professional</a> at all times.</p><div class=3D"kg-car=
+d kg-image-card kg-card-hascaption" style=3D"margin: 0 0 1.5em; padding: 0;=
+"><a href=3D"https://ghost.org/resources/r/0ea33c93?m=3D7e1d62c4-8b06-4f06-=
+b2ec-c3f5db97f613" style=3D"overflow-wrap: anywhere; color: #15171A; text-d=
+ecoration: underline;" target=3D"_blank"><img src=3D"https://storage.ghost.=
+io/c/2d/17/2d1720de-b48e-4729-8941-6f1d1300a8cc/content/images/2026/04/9-3-=
+step-approach-CSAT.jpg" class=3D"kg-image" alt loading=3D"lazy" width=3D"60=
+0" height=3D"211" style=3D"border: none; -ms-interpolation-mode: bicubic; d=
+isplay: block; margin: 0 auto; height: auto; width: auto; max-width: 100%;"=
+></a><div class=3D"kg-card-figcaption" style=3D"text-align: center; font-fa=
+mily: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-ser=
+if; padding-top: 10px; padding-bottom: 10px; line-height: 1.5em; color: #15=
+212a; color: rgba(0, 0, 0, 0.6); font-size: 13px;"><span style=3D"text-alig=
+n: center; white-space: pre-wrap;">Unsure how to align with </span><b><stro=
+ng style=3D"font-weight: 700; white-space: pre-wrap;">an upset subscriber</=
+strong></b><span style=3D"text-align: center; white-space: pre-wrap;">? Sta=
+rt here.</span></div></div><p style=3D"margin: 0 0 1.5em 0; line-height: 1.=
+6em; color: #15212A;"><strong style=3D"font-weight: 700;">#5</strong> When =
+customers leave, they usually end up with a competitor. You should always <=
+strong style=3D"font-weight: 700;">be aware of what your peers are doing</s=
+trong> and what the current trends are in your niche, so you can stay the c=
+ourse or switch things up. </p><p style=3D"margin: 0 0 1.5em 0; line-height=
+: 1.6em; color: #15212A;"><strong style=3D"font-weight: 700;">#6</strong> I=
+f your subscribers aren&#39;t seeing the value in what they&#39;ve purchase=
+d, they&#39;ll stop purchasing. Ensure you&#39;re <strong style=3D"font-wei=
+ght: 700;">consistently solving their problems</strong>, your business is c=
+onstantly evolving, and your content stays immaculate and relevant.</p><p s=
+tyle=3D"margin: 0 0 1.5em 0; line-height: 1.6em; color: #15212A;"><strong s=
+tyle=3D"font-weight: 700;">#7</strong> Always keep <strong style=3D"font-we=
+ight: 700;">a clear line of communication</strong> open with your readers, =
+whether it&#39;s to give them a way to provide feedback or to help them und=
+erstand exactly what you&#39;re doing and why. If they don&#39;t get it, th=
+ey&#39;ll get up and go.</p><p style=3D"margin: 0 0 1.5em 0; line-height: 1=
+=2E6em; color: #15212A;"><strong style=
+=3D"font-weight: 700;">#8</strong> Some=
+times, <strong style=3D"font-weight: 700;">things will be a bad fit</strong=
+>, and there&#39;s nothing you can do about it. That&#39;s life, ya know? A=
+s long as you&#39;re confident in what you&#39;re creating and your other c=
+ustomers are happy, keep doing what you&#39;re doing.</p><table class=3D"kg=
+-card kg-hr-card" role=3D"presentation" width=3D"100%" border=3D"0" cellpad=
+ding=3D"0" cellspacing=3D"0" style=3D"border-collapse: separate; mso-table-=
+lspace: 0pt; mso-table-rspace: 0pt; width: 100%;"><tbody><tr><td style=3D"f=
+ont-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sa=
+ns-serif; vertical-align: top; color: #15212A; margin: 0; padding-top: 1.5e=
+m; padding-bottom: 3em; font-size: 17px;" valign=3D"top"><!--[if !mso]><!--=
+ --><hr style=3D"position: relative; width: 100%; margin: 3em 0; padding: 0=
+; height: 1px; background-color: transparent; border: 0; border-top: 1px so=
+lid #e0e7eb; display: none;"><!--<![endif]--><table class=3D"kg-hr" role=3D=
+"presentation" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"bo=
+rder-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; widt=
+h: 100%;" width=3D"100%"><tbody><tr><td style=3D"font-family: -apple-system=
+, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif; vertical-align:=
+ top; color: #15212A; padding-top: 1.5em; padding-bottom: 3em; margin: 0; p=
+adding: 0; border-top: 1px solid #e0e7eb; font-size: 0; line-height: 0;" va=
+lign=3D"top">&#xA0;</td></tr></tbody></table></td></tr></tbody></table><div=
+ class=3D"kg-card kg-image-card" style=3D"margin: 0 0 1.5em; padding: 0;"><=
+a href=3D"https://ghost.org/resources/r/1f2126aa?m=3D7e1d62c4-8b06-4f06-b2e=
+c-c3f5db97f613" style=3D"overflow-wrap: anywhere; color: #15171A; text-deco=
+ration: underline;" target=3D"_blank"><img src=3D"https://storage.ghost.io/=
+c/2d/17/2d1720de-b48e-4729-8941-6f1d1300a8cc/content/images/size/w1600/2022=
+/09/explore-1.jpg" class=3D"kg-image" alt loading=3D"lazy" width=3D"600" he=
+ight=3D"288" style=3D"border: none; -ms-interpolation-mode: bicubic; displa=
+y: block; margin: 0 auto; height: auto; width: auto; max-width: 100%;"></a>=
+</div><table class=3D"kg-card kg-hr-card" role=3D"presentation" width=3D"10=
+0%" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"border-collap=
+se: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;"><=
+tbody><tr><td style=3D"font-family: -apple-system, BlinkMacSystemFont, Robo=
+to, Helvetica, Arial, sans-serif; vertical-align: top; color: #15212A; marg=
+in: 0; padding-top: 1.5em; padding-bottom: 3em; font-size: 17px;" valign=3D=
+"top"><!--[if !mso]><!-- --><hr style=3D"position: relative; width: 100%; m=
+argin: 3em 0; padding: 0; height: 1px; background-color: transparent; borde=
+r: 0; border-top: 1px solid #e0e7eb; display: none;"><!--<![endif]--><table=
+ class=3D"kg-hr" role=3D"presentation" border=3D"0" cellpadding=3D"0" cells=
+pacing=3D"0" style=3D"border-collapse: separate; mso-table-lspace: 0pt; mso=
+-table-rspace: 0pt; width: 100%;" width=3D"100%"><tbody><tr><td style=3D"fo=
+nt-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, san=
+s-serif; vertical-align: top; color: #15212A; padding-top: 1.5em; padding-b=
+ottom: 3em; margin: 0; padding: 0; border-top: 1px solid #e0e7eb; font-size=
+: 0; line-height: 0;" valign=3D"top">&#xA0;</td></tr></tbody></table></td><=
+/tr></tbody></table><h2 id=3D"feeling-free" style=3D"font-family: -apple-sy=
+stem, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif; line-height=
+: 1.11em; font-weight: 700; text-rendering: optimizeLegibility; margin: 1.5=
+em 0 0.5em 0; font-size: 32px; margin-top: 0; color: #15212A;">Feeling free=
+</h2><div class=3D"kg-card kg-image-card" style=3D"margin: 0 0 1.5em; paddi=
+ng: 0;"><img src=3D"https://storage.ghost.io/c/2d/17/2d1720de-b48e-4729-894=
+1-6f1d1300a8cc/content/images/size/w1600/2026/04/tsd-studio-e9ofuutW3AI-uns=
+plash.jpg" class=3D"kg-image" alt loading=3D"lazy" width=3D"600" height=3D"=
+338" style=3D"border: none; -ms-interpolation-mode: bicubic; display: block=
+; margin: 0 auto; height: auto; width: auto; max-width: 100%;"></div><p sty=
+le=3D"margin: 0 0 1.5em 0; line-height: 1.6em; color: #15212A;">Do you want=
+ to do more for your loyal followers? Yes, your readers are getting their j=
+ust desserts from all of the great content you create for them, but why not=
+ give them a little extra &quot;thank you&quot; in the form of incentives a=
+nd rewards? Not only does this make everyone feel good about sticking aroun=
+d, but it can also keep people from unsubscribing altogether. And who doesn=
+&#39;t love free stuff?</p><p style=3D"margin: 0 0 1.5em 0; line-height: 1.=
+6em; color: #15212A;">Brad Davis, content writer for <strong style=3D"font-=
+weight: 700;">Stamp Me</strong>, shares some <a href=3D"https://ghost.org/r=
+esources/r/282ed238?m=3D00000000-0000-0000-0000-000000000000" style=3D"over=
+flow-wrap: anywhere; color: #15171A; text-decoration: underline;" target=3D=
+"_blank">unique ways to reward your customers</a> so they never want to lea=
+ve.</p><p style=3D"margin: 0 0 1.5em 0; line-height: 1.6em; color: #15212A;=
+"><strong style=3D"font-weight: 700;">&#x2023; </strong>You can offer disco=
+unts to your own content and services, but have you thought about <strong s=
+tyle=3D"font-weight: 700;">partnering with other publications</strong>? Thi=
+s is a great way to network with other brands and collaborate on customer r=
+etention strategies. Hand out some coupons for other sites, and they can do=
+ the same for you.</p><p style=3D"margin: 0 0 1.5em 0; line-height: 1.6em; =
+color: #15212A;">&#x2023; Allowing your paying customers to be the first to=
+ <strong style=3D"font-weight: 700;">experience exclusive content</strong>,=
+ new premium tiers, or VIP webinars is a great way to show them how much yo=
+u appreciate their business. Letting them be first in line also gives you a=
+ chance to gather feedback from those who&#39;ll probably tell you the trut=
+h.</p><p style=3D"margin: 0 0 1.5em 0; line-height: 1.6em; color: #15212A;"=
+>&#x2023; If someone is in the process of canceling their subscription, pre=
+sent them with a tempting <strong style=3D"font-weight: 700;">retention off=
+er</strong> that will stop them in their tracks. This will help you stop cu=
+stomer churn before it even happens, let you track who took the offer, and =
+ask them for feedback on why they were thinking about leaving.</p><div clas=
+s=3D"kg-card kg-image-card kg-card-hascaption" style=3D"margin: 0 0 1.5em; =
+padding: 0;"><a href=3D"https://ghost.org/resources/r/4f0119d2?m=3D7e1d62c4=
+-8b06-4f06-b2ec-c3f5db97f613" style=3D"overflow-wrap: anywhere; color: #151=
+71A; text-decoration: underline;" target=3D"_blank"><img src=3D"https://sto=
+rage.ghost.io/c/2d/17/2d1720de-b48e-4729-8941-6f1d1300a8cc/content/images/s=
+ize/w1600/2026/04/Frame-75.png" class=3D"kg-image" alt loading=3D"lazy" wid=
+th=3D"600" height=3D"300" style=3D"border: none; -ms-interpolation-mode: bi=
+cubic; display: block; margin: 0 auto; height: auto; width: auto; max-width=
+: 100%;"></a><div class=3D"kg-card-figcaption" style=3D"text-align: center;=
+ font-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, =
+sans-serif; padding-top: 10px; padding-bottom: 10px; line-height: 1.5em; co=
+lor: #15212a; color: rgba(0, 0, 0, 0.6); font-size: 13px;"><span style=3D"t=
+ext-align: center; white-space: pre-wrap;">Ghost lets you </span><b><strong=
+ style=3D"font-weight: 700; white-space: pre-wrap;">turn on retention offer=
+s</strong></b><span style=3D"text-align: center; white-space: pre-wrap;"> t=
+o catch subscribers who are on the fence.</span></div></div><p style=3D"mar=
+gin: 0 0 1.5em 0; line-height: 1.6em; color: #15212A;">&#x2023; Try <strong=
+ style=3D"font-weight: 700;">running a charity event</strong> where you don=
+ate a percentage of your revenue to your favorite charitable organization. =
+You can also send out a poll to let your followers vote on which org the mo=
+ney should go to. This lets you get more personal with your subscribers and=
+ do something nice for your community.</p><p style=3D"margin: 0 0 1.5em 0; =
+line-height: 1.6em; color: #15212A;"><strong style=3D"font-weight: 700;">&#=
+x2023;</strong> Do you remember your very first paying subscriber? Or do yo=
+u know who your most loyal and passionate member is? If you&#39;ve got a ri=
+de-or-die, why not honor them by<strong style=3D"font-weight: 700;"> naming=
+ a product or a paid tier after them</strong>? This is a really fun way to =
+get the word out about your publication and gain even more advocates.</p><p=
+ style=3D"margin: 0 0 1.5em 0; line-height: 1.6em; color: #15212A;"><strong=
+ style=3D"font-weight: 700;">&#x2023;</strong> Take the time to <strong sty=
+le=3D"font-weight: 700;">feature your most loyal customers</strong> by shar=
+ing their personal stories, how long they&#39;ve been a member, and why the=
+y love your content. You can <a href=3D"https://ghost.org/resources/r/a2d57=
+e92?m=3D00000000-0000-0000-0000-000000000000" style=3D"overflow-wrap: anywh=
+ere; color: #15171A; text-decoration: underline;" target=3D"_blank">send ou=
+t a survey</a> to see who&#39;s interested. This can create more community =
+around your publication, keeping customers engaged.</p><table class=3D"kg-c=
+ard kg-hr-card" role=3D"presentation" width=3D"100%" border=3D"0" cellpaddi=
+ng=3D"0" cellspacing=3D"0" style=3D"border-collapse: separate; mso-table-ls=
+pace: 0pt; mso-table-rspace: 0pt; width: 100%;"><tbody><tr><td style=3D"fon=
+t-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans=
+-serif; vertical-align: top; color: #15212A; margin: 0; padding-top: 1.5em;=
+ padding-bottom: 3em; font-size: 17px;" valign=3D"top"><!--[if !mso]><!-- -=
+-><hr style=3D"position: relative; width: 100%; margin: 3em 0; padding: 0; =
+height: 1px; background-color: transparent; border: 0; border-top: 1px soli=
+d #e0e7eb; display: none;"><!--<![endif]--><table class=3D"kg-hr" role=3D"p=
+resentation" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"bord=
+er-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width:=
+ 100%;" width=3D"100%"><tbody><tr><td style=3D"font-family: -apple-system, =
+BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif; vertical-align: t=
+op; color: #15212A; padding-top: 1.5em; padding-bottom: 3em; margin: 0; pad=
+ding: 0; border-top: 1px solid #e0e7eb; font-size: 0; line-height: 0;" vali=
+gn=3D"top">&#xA0;</td></tr></tbody></table></td></tr></tbody></table><h2 id=
+=3D"curators-pick-%E2%9C%8D%EF%B8%8F" style=3D"font-family: -apple-system, =
+BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif; line-height: 1.11=
+em; font-weight: 700; text-rendering: optimizeLegibility; margin: 1.5em 0 0=
+=2E5em 0; font-size: 32px; margin-top:=20=
+0; color: #15212A;">Curator&#39;s pick=
+ &#x270D;&#xFE0F;</h2><p style=3D"margin: 0 0 1.5em 0; line-height: 1.6em; =
+color: #15212A;"></p><div class=3D"kg-card kg-image-card" style=3D"margin: =
+0 0 1.5em; padding: 0;"><a href=3D"https://ghost.org/resources/r/b06ca1db?m=
+=3D00000000-0000-0000-0000-000000000000" style=3D"overflow-wrap: anywhere; =
+color: #15171A; text-decoration: underline;" target=3D"_blank"><img src=3D"=
+https://storage.ghost.io/c/2d/17/2d1720de-b48e-4729-8941-6f1d1300a8cc/conte=
+nt/images/2026/04/reads-with-ravi-tweet.png" class=3D"kg-image" alt loading=
+=3D"lazy" width=3D"600" height=3D"343" style=3D"border: none; -ms-interpola=
+tion-mode: bicubic; display: block; margin: 0 auto; height: auto; width: au=
+to; max-width: 100%;"></a></div><table class=3D"kg-card kg-hr-card" role=3D=
+"presentation" width=3D"100%" border=3D"0" cellpadding=3D"0" cellspacing=3D=
+"0" style=3D"border-collapse: separate; mso-table-lspace: 0pt; mso-table-rs=
+pace: 0pt; width: 100%;"><tbody><tr><td style=3D"font-family: -apple-system=
+, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif; vertical-align:=
+ top; color: #15212A; margin: 0; padding-top: 1.5em; padding-bottom: 3em; f=
+ont-size: 17px;" valign=3D"top"><!--[if !mso]><!-- --><hr style=3D"position=
+: relative; width: 100%; margin: 3em 0; padding: 0; height: 1px; background=
+-color: transparent; border: 0; border-top: 1px solid #e0e7eb; display: non=
+e;"><!--<![endif]--><table class=3D"kg-hr" role=3D"presentation" border=3D"=
+0" cellpadding=3D"0" cellspacing=3D"0" style=3D"border-collapse: separate; =
+mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%;" width=3D"100%">=
+<tbody><tr><td style=3D"font-family: -apple-system, BlinkMacSystemFont, Rob=
+oto, Helvetica, Arial, sans-serif; vertical-align: top; color: #15212A; pad=
+ding-top: 1.5em; padding-bottom: 3em; margin: 0; padding: 0; border-top: 1p=
+x solid #e0e7eb; font-size: 0; line-height: 0;" valign=3D"top">&#xA0;</td><=
+/tr></tbody></table></td></tr></tbody></table><p style=3D"margin: 0 0 1.5em=
+ 0; line-height: 1.6em; color: #15212A;"><strong style=3D"font-weight: 700;=
+">Enjoy this newsletter? </strong>Forward to a friend or hit reply to share=
+ your thoughts. We don&#39;t bite! &#x1F47B; </p><p style=3D"margin: 0 0 1.=
+5em 0; line-height: 1.6em; color: #15212A;"><strong style=3D"font-weight: 7=
+00;">Want more how-tos?</strong> <a href=3D"https://ghost.org/resources/r/e=
+e77caa9?m=3D00000000-0000-0000-0000-000000000000" style=3D"overflow-wrap: a=
+nywhere; color: #15171A; text-decoration: underline;" target=3D"_blank">Sea=
+rch our library of tutorials</a> and subscribe to our monthly &quot;Build w=
+ith Ghost&quot; newsletter.</p><p style=3D"margin: 0 0 1.5em 0; line-height=
+: 1.6em; color: #15212A;"><strong style=3D"font-weight: 700;">Join our Ghos=
+t Creator Community!</strong> Connect with like-minded people who create co=
+ntent professionally &#x2014; <a href=3D"https://ghost.org/resources/r/50de=
+a496?m=3D00000000-0000-0000-0000-000000000000" style=3D"overflow-wrap: anyw=
+here; color: #15171A; text-decoration: underline;" target=3D"_blank">apply =
+here</a>. </p>
+                                                                           =
+ <!-- POST CONTENT END -->
+                           =20
+                                                                        </t=
+d>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                           =20
+                                                        <!-- END MAIN CONTE=
+NT AREA -->
+                           =20
+                                                            <tr>
+                                                                <td class=
+=3D"feedback-buttons-container" dir=3D"ltr" width=3D"100%" align=3D"center"=
+ style=3D"font-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica=
+, Arial, sans-serif; font-size: 18px; vertical-align: top; color: #15212A; =
+padding: 32px 0 24px; border-bottom: 1px solid #e0e7eb; text-align: center;=
+ background-color: #ffffff;" valign=3D"top" bgcolor=3D"#ffffff">
+                                                                    <table =
+class=3D"feedback-buttons" role=3D"presentation" border=3D"0" cellpadding=
+=3D"0" cellspacing=3D"0" style=3D"border-collapse: separate; mso-table-lspa=
+ce: 0pt; mso-table-rspace: 0pt; margin: auto; width: 100%;" width=3D"100%">
+                                                                        <tr=
+>
+                                                                           =
+     <td dir=3D"ltr" valign=3D"top" align=3D"center" style=3D"font-size: 18=
+px; color: #15212A; display: inline-block; vertical-align: top; font-family=
+: inherit; text-align: center; padding: 0 4px 4px; cursor: pointer; width: =
+30%;" width=3D"30%">
+                                                                           =
+         <a href=3D"https://ghost.org/resources/saving-your-subscribers/#/f=
+eedback/69cbd796c1826500014e6421/1/?uuid=3D7e1d62c4-8b06-4f06-b2ec-c3f5db97=
+f613&amp;key=3D510d17e3474212256b5f4c3953a6d34f8efb718645697b787d196862a646=
+e2c8" target=3D"_blank" style=3D"color: #15171A; text-decoration: none; ove=
+rflow-wrap: anywhere;">
+                                                                           =
+             <img src=3D"https://static.ghost.org/v5.0.0/images/more-like-t=
+his-mobile.png" border=3D"0" width=3D"42" height=3D"42" alt=3D"More like th=
+is" style=3D"border: none; -ms-interpolation-mode: bicubic; max-width: 100%=
+; display: block; margin: 0 auto; vertical-align: middle;">
+                                                                           =
+             <p class=3D"feedback-button-text" style=3D"display: inline-blo=
+ck; font-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Aria=
+l, sans-serif; color: #15212A; font-weight: 500; margin: 1em 0 0 0; line-he=
+ight: 1.4em; word-break: break-word; font-size: 13px;">More like this</p>
+                                                                           =
+         </a>
+                                                                           =
+     </td>                                                    <td dir=3D"lt=
+r" valign=3D"top" align=3D"center" style=3D"font-size: 18px; color: #15212A=
+; display: inline-block; vertical-align: top; font-family: inherit; text-al=
+ign: center; padding: 0 4px 4px; cursor: pointer; width: 30%;" width=3D"30%=
+">
+                                                                           =
+         <a href=3D"https://ghost.org/resources/saving-your-subscribers/#/f=
+eedback/69cbd796c1826500014e6421/0/?uuid=3D7e1d62c4-8b06-4f06-b2ec-c3f5db97=
+f613&amp;key=3D510d17e3474212256b5f4c3953a6d34f8efb718645697b787d196862a646=
+e2c8" target=3D"_blank" style=3D"color: #15171A; text-decoration: none; ove=
+rflow-wrap: anywhere;">
+                                                                           =
+             <img src=3D"https://static.ghost.org/v5.0.0/images/less-like-t=
+his-mobile.png" border=3D"0" width=3D"42" height=3D"42" alt=3D"Less like th=
+is" style=3D"border: none; -ms-interpolation-mode: bicubic; max-width: 100%=
+; display: block; margin: 0 auto; vertical-align: middle;">
+                                                                           =
+             <p class=3D"feedback-button-text" style=3D"display: inline-blo=
+ck; font-family: -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Aria=
+l, sans-serif; color: #15212A; font-weight: 500; margin: 1em 0 0 0; line-he=
+ight: 1.4em; word-break: break-word; font-size: 13px;">Less like this</p>
+                                                                           =
+         </a>
+                                                                           =
+     </td>                                            </tr>
+                                                                    </table=
+>
+                                                                </td>
+                                                            </tr>
+                           =20
+                           =20
+                           =20
+                                                        <tr>
+                                                            <td class=3D"wr=
+apper" align=3D"center" style=3D"font-family: -apple-system, BlinkMacSystem=
+Font, Roboto, Helvetica, Arial, sans-serif; font-size: 18px; vertical-align=
+: top; color: #15212A; box-sizing: border-box;" valign=3D"top">
+                                                                <table role=
+=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D=
+"100%" style=3D"border-collapse: separate; mso-table-lspace: 0pt; mso-table=
+-rspace: 0pt; width: 100%; padding-top: 40px; padding-bottom: 30px;">
+                                                                    <tr>
+                                                                        <td=
+ class=3D"footer" style=3D"font-family: -apple-system, BlinkMacSystemFont, =
+Roboto, Helvetica, Arial, sans-serif; vertical-align: top; color: #15212a; =
+color: rgba(0, 0, 0, 0.6); margin-top: 20px; text-align: center; padding-bo=
+ttom: 10px; padding-top: 10px; padding-left: 30px; padding-right: 30px; lin=
+e-height: 1.5em; font-size: 13px;" valign=3D"top" align=3D"center">Ghost Re=
+sources &#xA9; 2026 &#x2013; <a href=3D"https://ghost.org/resources/unsubsc=
+ribe/?uuid=3D00000000-0000-0000-0000-000000000000&key=3D510d17e3474212256b5=
+f4c3953a6d34f8efb718645697b787d196862a646e2c8&newsletter=3D19355208-014f-41=
+0e-ab5c-800289cc1ead" style=3D"overflow-wrap: anywhere; color: #15212a; col=
+or: rgba(0, 0, 0, 0.6); text-decoration: underline; font-size: 13px;" targe=
+t=3D"_blank">Unsubscribe</a></td>
+                                                                    </tr>
+                           =20
+                                                                        <tr=
+>
+                                                                           =
+ <td class=3D"footer-powered" style=3D"font-family: -apple-system, BlinkMac=
+SystemFont, Roboto, Helvetica, Arial, sans-serif; font-size: 18px; vertical=
+-align: top; color: #15212A; text-align: center; padding-top: 70px; padding=
+-bottom: 40px;" valign=3D"top" align=3D"center"><a href=3D"https://ghost.or=
+g/?via=3Dpbg-newsletter&amp;ref=3Dghost.org" style=3D"color: #15171A; text-=
+decoration: none; overflow-wrap: anywhere;" target=3D"_blank"><img src=3D"h=
+ttps://static.ghost.org/v4.0.0/images/powered.png" border=3D"0" width=3D"14=
+2" height=3D"30" class=3D"gh-powered" alt=3D"Powered by Ghost" style=3D"bor=
+der: none; -ms-interpolation-mode: bicubic; max-width: 100%; width: 142px; =
+height: 30px;"></a></td>
+                                                                        </t=
+r>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                        </table>
+                        <!-- END CENTERED WHITE CONTAINER -->
+                    </div>
+                </td>
+                <td style=3D"font-family: -apple-system, BlinkMacSystemFont=
+, Roboto, Helvetica, Arial, sans-serif; font-size: 18px; vertical-align: to=
+p; color: #15212A;" valign=3D"top">&#xA0;</td>
+            </tr>
+
+            <!--[if mso]>
+                            </table>
+                        </center>
+                    </td>
+                </tr>
+            <![endif]-->
+        </table>
+    </body>
+</html>
+
+--68622dc32d858f00fe5027f95652eb9265a0cd8d111b4284475a240a5c3b--

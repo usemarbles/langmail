@@ -1,0 +1,297 @@
+Delivered-To: test@example.com
+Received: by 2002:a05:7300:e123:b0:2be:2a85:dd8c with SMTP id hd35csp593519dyb;
+        Wed, 15 Apr 2026 01:14:13 -0700 (PDT)
+X-Received: by 2002:ac8:614c:0:10b0:50b:3a6d:db64 with SMTP id d75a77b69052e-50dd5d1154bmr237243501cf.48.1776240853330;
+        Wed, 15 Apr 2026 01:14:13 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1776240853; cv=none;
+        d=google.com; s=arc-20240605;
+        b=gkgK9o89hWM4ikL/YFiDYwMTUz4c2l5qMUTjN/o3EUJZnWkWstEL/q5RSCQbpVPGYe
+         mRn8fr64Aifh6Iaia+ZfTsPQe7JUXnm5269ykYqDNrAZ5giwQvKDzkMH6erFYULYRLNl
+         TYD9LhKhepcmh69zZkIQc74byvjdiic+D+qdK5JjZ2AiyXzLtdS/NnyltR68nEbd+COv
+         iZcxSv7pJpPY4K8MuQdQB7vjkO7exHb5HCcauyPx8shg9hFJ+VSuPU9KBNCJ9arJN/jn
+         1wdqFG/Gl1wIwNlUWEovOMfHm10wbup54jFFM9F5x9YHZt91SesAS5CWsumgDd3n30Cb
+         Q+Aw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=destinations:list-unsubscribe-post:list-unsubscribe:list-post
+         :list-archive:list-id:precedence:content-transfer-encoding
+         :mime-version:subject:references:in-reply-to:message-id:cc:to
+         :reply-to:from:date:dkim-signature;
+        bh=IhqizDsWUXsgpohNLr5GK5a5XcDgnkRZTiXQGXKkSE4=;
+        fh=lIPEhIYXXl3Aw9cZ2UjzlTIydEUQTiM2SVsaZ6XfkVA=;
+        b=iVtIYzq6PNPW1X2n+X9J3O+nOtordUxqDi81lkikKBL8cC89yjAYi4W0jaGBfmfhyT
+         dskS2uQ6NfhaAeTkmuGlFdlXuF2fsOoTXgkDA+afkAPH8jVl5cgnEgxA+GycTRrr9y2D
+         puUd/TCFE2hluCPfHDvnmdX0jMEuihJRla8xxVqHPGgBnqY4Ct7MRxmp9YYy+GIT3usA
+         H5C8EOk8Lr5Q5iRihLp2ViQnTPnKwOKLYbPgTnNk/0P4HehaBSU5OcJGCgrOGTWZVx+0
+         cxCSXHfNunrapr+Tz0IAExKbM45orgwo8adeD5DlyOltgwfnVGwy2V0J++/fAJ5S+oa0
+         A+Zg==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@github.com header.s=pf2023 header.b=OPFCQLPb;
+       spf=pass (google.com: domain of noreply@github.com designates 192.30.252.134 as permitted sender) smtp.mailfrom=noreply@github.com;
+       dmarc=pass (p=QUARANTINE sp=REJECT dis=NONE) header.from=github.com
+Return-Path: <noreply@github.com>
+Received: from out-35.smtp.github.com (out-35.smtp.github.com. [192.30.252.134])
+        by mx.google.com with ESMTPS id d75a77b69052e-50e1adafb79si11920081cf.44.2026.04.15.01.14.13
+        for <test@example.com>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Apr 2026 01:14:13 -0700 (PDT)
+Received-SPF: pass (google.com: domain of noreply@github.com designates 192.30.252.134 as permitted sender) client-ip=192.30.252.134;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@github.com header.s=pf2023 header.b=OPFCQLPb;
+       spf=pass (google.com: domain of noreply@github.com designates 192.30.252.134 as permitted sender) smtp.mailfrom=noreply@github.com;
+       dmarc=pass (p=QUARANTINE sp=REJECT dis=NONE) header.from=github.com
+Received: from github.com (hubbernetes-node-7235b45.ac4-iad.github.net [10.52.136.16])
+	by smtp.github.com (Postfix) with ESMTPA id 105407000CB
+	for <test@example.com>; Wed, 15 Apr 2026 01:14:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=github.com;
+	s=pf2023; t=1776240853;
+	bh=IhqizDsWUXsgpohNLr5GK5a5XcDgnkRZTiXQGXKkSE4=;
+	h=Date:From:Reply-To:To:Cc:In-Reply-To:References:Subject:List-ID:
+	 List-Archive:List-Post:List-Unsubscribe:List-Unsubscribe-Post:
+	 From;
+	b=OPFCQLPbiUPWMURua7OS1kjQM0miYcC1DHNEDO4c2ePlR89PVBdf+YrQa/LeZJO6J
+	 sFtlGCgltJJgNe+mh1EwDfPesl5++CWxz/Efwz89hg9VfF1wBnjRjN2EkNsoKGrKvb
+	 1vQ7au6Yqe997+/1Z6xNOPJ4Xd+iLOQ9QF0B2wUs=
+Date: Wed, 15 Apr 2026 01:14:13 -0700
+From: "claude[bot]" <notifications@github.com>
+Reply-To: usemarbles/langmail <reply+TESTTOKEN1234567890ABCDEFGHIJKLMNOPQRSTU@reply.github.com>
+To: usemarbles/langmail <langmail@noreply.github.com>
+Cc: Test User <test@example.com>, 
+ Author <author@noreply.github.com>
+Message-ID: <usemarbles/langmail/pull/42/c1234567890@github.com>
+In-Reply-To: <usemarbles/langmail/pull/42@github.com>
+References: <usemarbles/langmail/pull/42@github.com>
+Subject: Re: [usemarbles/langmail] chore: release v0.10.1 (PR #42)
+Mime-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="--==_mimepart_69df48d5d94d_e211085806e";
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Precedence: list
+X-GitHub-Sender: claude[bot]
+X-GitHub-Recipient: testuser
+X-GitHub-Reason: author
+List-ID: usemarbles/langmail <langmail.usemarbles.github.com>
+List-Archive: https://github.com/usemarbles/langmail
+List-Post: <mailto:reply+TESTTOKEN1234567890ABCDEFGHIJKLMNOPQRSTU@reply.github.com>
+List-Unsubscribe: <mailto:unsub+TESTTOKEN1234567890ABCDEFGHIJKLMNOPQRSTU@reply.github.com>,
+ <https://github.com/notifications/unsubscribe/one-click/TESTUNSUB1234567890ABCDEFGHIJKLMNOPQRSTU>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+X-GitHub-Notify-Platform: newsies
+X-GitHub-Labels: 
+X-GitHub-Assignees: 
+X-GitHub-PullRequestStatus: open
+X-Auto-Response-Suppress: All
+destinations: test@example.com
+X-GitHub-Recipient-Address: test@example.com
+
+
+----==_mimepart_69df48d5d94d_e211085806e
+Content-Type: text/plain;
+ charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+claude[bot] left a comment (usemarbles/langmail#42)
+
+## Review: v0.10.1 release PR
+
+This is an automated release PR =E2=80=94 scope is limited to version bum=
+ps and changelog additions. Overall it looks good and CI is green so far.=
+
+
+### Version consistency =E2=9C=85
+Versions are bumped coherently across all four surfaces:
+- `Cargo.toml` workspace: `0.10.0` =E2=86=92 `0.10.1`
+- `crates/langmail-python/pyproject.toml`: `0.10.0` =E2=86=92 `0.10.1`
+- `packages/langmail/package.json`: main version + all five `optionalDepe=
+ndencies` entries updated to `0.10.1`
+
+### Changelog =E2=9C=85
+Both commits in the 0.10.1 window are represented under accurate category=
+ headings (`Bug Fixes`, `Refactor`) and reflect the preceding work (#41 G=
+mail adapter move to Rust core + review follow-up).
+
+### Observations / minor nits
+
+1. **Stale version string in `packages/langmail/native.js`** =E2=80=94 th=
+e auto-generated NAPI loader still contains `0.10.0` in its `bindingPacka=
+geVersion !=3D=3D '0.10.0'` guards (20+ occurrences). In practice this sh=
+ould be harmless because:
+   - The file is auto-generated by `@napi-rs/cli` and `prepublishOnly: na=
+pi version` runs before publish.
+   - The version check is gated on the opt-in `NAPI_RS_ENFORCE_VERSION_CH=
+ECK` env var, so normal installs aren't affected.
+   =
+
+   Still, worth confirming the publish workflow regenerates `native.js` =E2=
+=80=94 if it doesn't, users who set `NAPI_RS_ENFORCE_VERSION_CHECK=3D1` w=
+ould hit a spurious ``expected 0.10.0 but got 0.10.1`` error. If there's =
+a chance `napi version` alone doesn't rewrite these guards, consider runn=
+ing `napi build`/`napi create-npm-dirs` as part of the release flow, or r=
+egenerating `native.js` in this PR.
+
+2. **Pre-existing changelog formatting** (not introduced by this PR, but =
+worth fixing in the release script someday):
+   - Missing blank line between the intro paragraph and the first `## [0.=
+10.1]` heading (line 3 =E2=86=92 line 4).
+   - Missing blank line between the 0.10.1 block and the 0.10.0 block (li=
+ne 12 =E2=86=92 line 13).
+   - Missing space before the commit-link parenthetical =E2=80=94 e.g. `a=
+dapter([800d934]...)` should be `adapter ([800d934]...)`. This mirrors th=
+e same pattern in prior versions, so it's a changelog-generator template =
+issue rather than anything new here.
+
+### Code quality / bugs / perf / security / tests
+- No business-logic changes, so no code quality, perf, or security surfac=
+e to evaluate here.
+- Test coverage is not affected =E2=80=94 release PR only.
+- Lint, Rust tests, and Guard checks are passing; Node/Python matrix jobs=
+ still in progress at review time.
+
+### Recommendation
+Approve once remaining CI jobs go green. The `native.js` concern is worth=
+ verifying out-of-band but shouldn't block the release.
+
+-- =
+
+Reply to this email directly or view it on GitHub:
+https://github.com/usemarbles/langmail/pull/42#issuecomment-1234567890
+You are receiving this because you authored the thread.
+
+Message ID: <usemarbles/langmail/pull/42/c1234567890@github.com>=
+
+----==_mimepart_69df48d5d94d_e211085806e
+Content-Type: text/html;
+ charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div style=3D"display: flex; flex-wrap: wrap; white-space: pre-wrap; alig=
+n-items: center; "><img height=3D"20" width=3D"20" style=3D"border-radius=
+:50%; margin-right: 4px;" decoding=3D"async" src=3D"https://avatars.githu=
+busercontent.com/in/1236702?s=3D20&amp;v=3D4" /><strong>claude[bot]</stro=
+ng> left a comment <a href=3D"https://github.com/usemarbles/langmail/pull=
+/42#issuecomment-1234567890">(usemarbles/langmail#42)</a></div>
+<h2 dir=3D"auto">Review: v0.10.1 release PR</h2>
+<p dir=3D"auto">This is an automated release PR =E2=80=94 scope is limite=
+d to version bumps and changelog additions. Overall it looks good and CI =
+is green so far.</p>
+<h3 dir=3D"auto">Version consistency =E2=9C=85</h3>
+<p dir=3D"auto">Versions are bumped coherently across all four surfaces:<=
+/p>
+<ul dir=3D"auto">
+<li><code class=3D"notranslate">Cargo.toml</code> workspace: <code class=3D=
+"notranslate">0.10.0</code> =E2=86=92 <code class=3D"notranslate">0.10.1<=
+/code></li>
+<li><code class=3D"notranslate">crates/langmail-python/pyproject.toml</co=
+de>: <code class=3D"notranslate">0.10.0</code> =E2=86=92 <code class=3D"n=
+otranslate">0.10.1</code></li>
+<li><code class=3D"notranslate">packages/langmail/package.json</code>: ma=
+in version + all five <code class=3D"notranslate">optionalDependencies</c=
+ode> entries updated to <code class=3D"notranslate">0.10.1</code></li>
+</ul>
+<h3 dir=3D"auto">Changelog =E2=9C=85</h3>
+<p dir=3D"auto">Both commits in the 0.10.1 window are represented under a=
+ccurate category headings (<code class=3D"notranslate">Bug Fixes</code>, =
+<code class=3D"notranslate">Refactor</code>) and reflect the preceding wo=
+rk (<a class=3D"issue-link js-issue-link" data-error-text=3D"Failed to lo=
+ad title" data-id=3D"4263372605" data-permission-text=3D"Title is private=
+" data-url=3D"https://github.com/usemarbles/langmail/issues/41" data-hove=
+rcard-type=3D"pull_request" data-hovercard-url=3D"/usemarbles/langmail/pu=
+ll/41/hovercard" href=3D"https://github.com/usemarbles/langmail/pull/41">=
+#41</a> Gmail adapter move to Rust core + review follow-up).</p>
+<h3 dir=3D"auto">Observations / minor nits</h3>
+<ol dir=3D"auto">
+<li>
+<p dir=3D"auto"><strong>Stale version string in <code class=3D"notranslat=
+e">packages/langmail/native.js</code></strong> =E2=80=94 the auto-generat=
+ed NAPI loader still contains <code class=3D"notranslate">0.10.0</code> i=
+n its <code class=3D"notranslate">bindingPackageVersion !=3D=3D '0.10.0'<=
+/code> guards (20+ occurrences). In practice this should be harmless beca=
+use:</p>
+<ul dir=3D"auto">
+<li>The file is auto-generated by <code class=3D"notranslate">@napi-rs/cl=
+i</code> and <code class=3D"notranslate">prepublishOnly: napi version</co=
+de> runs before publish.</li>
+<li>The version check is gated on the opt-in <code class=3D"notranslate">=
+NAPI_RS_ENFORCE_VERSION_CHECK</code> env var, so normal installs aren't a=
+ffected.</li>
+</ul>
+<p dir=3D"auto">Still, worth confirming the publish workflow regenerates =
+<code class=3D"notranslate">native.js</code> =E2=80=94 if it doesn't, use=
+rs who set <code class=3D"notranslate">NAPI_RS_ENFORCE_VERSION_CHECK=3D1<=
+/code> would hit a spurious <code class=3D"notranslate">expected 0.10.0 b=
+ut got 0.10.1</code> error. If there's a chance <code class=3D"notranslat=
+e">napi version</code> alone doesn't rewrite these guards, consider runni=
+ng <code class=3D"notranslate">napi build</code>/<code class=3D"notransla=
+te">napi create-npm-dirs</code> as part of the release flow, or regenerat=
+ing <code class=3D"notranslate">native.js</code> in this PR.</p>
+</li>
+<li>
+<p dir=3D"auto"><strong>Pre-existing changelog formatting</strong> (not i=
+ntroduced by this PR, but worth fixing in the release script someday):</p=
+>
+<ul dir=3D"auto">
+<li>Missing blank line between the intro paragraph and the first <code cl=
+ass=3D"notranslate">## [0.10.1]</code> heading (line 3 =E2=86=92 line 4).=
+</li>
+<li>Missing blank line between the 0.10.1 block and the 0.10.0 block (lin=
+e 12 =E2=86=92 line 13).</li>
+<li>Missing space before the commit-link parenthetical =E2=80=94 e.g. <co=
+de class=3D"notranslate">adapter([800d934]...)</code> should be <code cla=
+ss=3D"notranslate">adapter ([800d934]...)</code>. This mirrors the same p=
+attern in prior versions, so it's a changelog-generator template issue ra=
+ther than anything new here.</li>
+</ul>
+</li>
+</ol>
+<h3 dir=3D"auto">Code quality / bugs / perf / security / tests</h3>
+<ul dir=3D"auto">
+<li>No business-logic changes, so no code quality, perf, or security surf=
+ace to evaluate here.</li>
+<li>Test coverage is not affected =E2=80=94 release PR only.</li>
+<li>Lint, Rust tests, and Guard checks are passing; Node/Python matrix jo=
+bs still in progress at review time.</li>
+</ul>
+<h3 dir=3D"auto">Recommendation</h3>
+<p dir=3D"auto">Approve once remaining CI jobs go green. The <code class=3D=
+"notranslate">native.js</code> concern is worth verifying out-of-band but=
+ shouldn't block the release.</p>
+
+<p style=3D"font-size:small;-webkit-text-size-adjust:none;color:#666;">&m=
+dash;<br />Reply to this email directly, <a href=3D"https://github.com/us=
+emarbles/langmail/pull/42#issuecomment-1234567890">view it on GitHub</a>,=
+ or <a href=3D"https://github.com/notifications/unsubscribe-auth/AAPMWBLU=
+42VLCDTZ6NUQKCT4V5AFLAVCNFSM6AAAAACXZ36SFOVHI2DSMVQWIX3LMV43OSLTON2WKQ3PN=
+VWWK3TUHM2DENJQGM2DEOBVGY">unsubscribe</a>.<br />You are receiving this b=
+ecause you authored the thread.<img src=3D"https://github.com/notificatio=
+ns/beacon/AAPMWBP5NSQNHL56KLKLKBD4V5AFLBFCNFSM6AAAAACXZ36SFOWGG33NNVSW45C=
+7OR4XAZNMJFZXG5LFINXW23LFNZ2KUY3PNVWWK3TUL5UWJTX5K4K4RJTSMVQXG33OUZQXK5DI=
+N5ZA.gif" height=3D"1" width=3D"1" alt=3D"" /><span style=3D"color: trans=
+parent; font-size: 0; display: none; visibility: hidden; overflow: hidden=
+; opacity: 0; width: 0; height: 0; max-width: 0; max-height: 0; mso-hide:=
+ all">Message ID: <span>&lt;usemarbles/langmail/pull/42/c1234567890</span=
+><span>@</span><span>github</span><span>.</span><span>com&gt;</span></spa=
+n></p>
+
+<script type=3D"application/ld+json">[
+{
+"@context": "http://schema.org",
+"@type": "EmailMessage",
+"potentialAction": {
+"@type": "ViewAction",
+"target": "https://github.com/usemarbles/langmail/pull/42#issuecomment-42=
+50342856",
+"url": "https://github.com/usemarbles/langmail/pull/42#issuecomment-42503=
+42856",
+"name": "View Pull Request"
+},
+"description": "View this Pull Request on GitHub",
+"publisher": {
+"@type": "Organization",
+"name": "GitHub",
+"url": "https://github.com"
+}
+}
+]</script>
+
+----==_mimepart_69df48d5d94d_e211085806e--
