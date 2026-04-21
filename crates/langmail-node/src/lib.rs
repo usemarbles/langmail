@@ -45,6 +45,9 @@ pub struct ProcessedEmail {
 
     /// Thread messages extracted from quoted reply blocks (oldest first).
     pub thread_messages: Vec<NapiThreadMessage>,
+
+    /// Whether this email was identified as a newsletter or bulk marketing message.
+    pub is_newsletter: bool,
 }
 
 /// A single message extracted from a quoted reply chain.
@@ -365,6 +368,7 @@ fn to_core_email(email: ProcessedEmail) -> langmail::ProcessedEmail {
                 body: m.body,
             })
             .collect(),
+        is_newsletter: email.is_newsletter,
     }
 }
 
@@ -413,5 +417,6 @@ fn to_napi_output(result: langmail::ProcessedEmail) -> ProcessedEmail {
                 body: m.body,
             })
             .collect(),
+        is_newsletter: result.is_newsletter,
     }
 }

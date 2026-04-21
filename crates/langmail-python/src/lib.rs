@@ -129,6 +129,8 @@ pub struct ProcessedEmail {
     pub primary_cta: Option<CallToAction>,
     /// Thread messages extracted from quoted reply blocks (oldest first).
     pub thread_messages: Vec<ThreadMessage>,
+    /// Whether this email was identified as a newsletter or bulk marketing message.
+    pub is_newsletter: bool,
 }
 
 #[pymethods]
@@ -319,6 +321,7 @@ fn to_core_email(email: &ProcessedEmail) -> ::langmail::ProcessedEmail {
                 body: m.body.clone(),
             })
             .collect(),
+        is_newsletter: email.is_newsletter,
     }
 }
 
@@ -350,6 +353,7 @@ fn to_py_output(result: ::langmail::ProcessedEmail) -> ProcessedEmail {
                 body: m.body,
             })
             .collect(),
+        is_newsletter: result.is_newsletter,
     }
 }
 
