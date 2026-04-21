@@ -1,6 +1,11 @@
 # Changelog
 
 All notable changes to this project will be automatically documented in this file.
+## [0.11.1] - 2026-04-21
+
+### Bug Fixes
+
+- **newsletter**: Use subdomain-aware domain matching([87ddc3c](https://github.com/usemarbles/langmail/commit/87ddc3c28082deba775bfeb7e1cb409fd1715053))
 ## [0.11.0] - 2026-04-21
 
 ### Features
