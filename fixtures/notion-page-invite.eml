@@ -1,0 +1,154 @@
+Delivered-To: user@example.com
+Received: by 2002:a05:6638:af03:b0:000:0000:0000 with SMTP id z3csp000000jae;
+        Wed, 18 Mar 2026 01:46:20 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1773823579; cv=none;
+        d=google.com; s=arc-20240605;
+        b=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:mime-version:message-id:list-unsubscribe-post
+         :list-unsubscribe:from:date:sender:dkim-signature;
+        bh=2x5cT4PwLMJgejpVmBbpG/4YURcwyc9Yg2xnlty1Wu4=;
+        fh=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=;
+        b=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@mail.notion.so header.s=pic header.b=AAAAAAAAAA;
+       spf=pass (google.com: domain of bounce+00000000.000000-user=example.com@mail.notion.so designates 143.55.229.30 as permitted sender) smtp.mailfrom="bounce+00000000.000000-user=example.com@mail.notion.so";
+       dmarc=pass (p=QUARANTINE sp=QUARANTINE dis=NONE) header.from=mail.notion.so
+Return-Path: <bounce+00000000.000000-user=example.com@mail.notion.so>
+Received: from outgoing4.mail.notion.so (outgoing4.mail.notion.so. [143.55.229.30])
+        by mx.google.com with UTF8SMTPS id test-smtp-id
+        for <user@example.com>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 18 Mar 2026 01:46:19 -0700 (PDT)
+Received-SPF: pass (google.com: domain of bounce+00000000.000000-user=example.com@mail.notion.so designates 143.55.229.30 as permitted sender) client-ip=143.55.229.30;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@mail.notion.so header.s=pic header.b=AAAAAAAAAA;
+       spf=pass (google.com: domain of bounce+00000000.000000-user=example.com@mail.notion.so designates 143.55.229.30 as permitted sender) smtp.mailfrom="bounce+00000000.000000-user=example.com@mail.notion.so";
+       dmarc=pass (p=QUARANTINE sp=QUARANTINE dis=NONE) header.from=mail.notion.so
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mail.notion.so; q=dns/txt; s=pic; t=1773823579; x=1773830779;
+ h=To: To: Subject: Subject: Mime-Version: Message-Id: List-Unsubscribe-Post: List-Unsubscribe: From: From: Date: Content-Type: Sender: Sender;
+ bh=2x5cT4PwLMJgejpVmBbpG/4YURcwyc9Yg2xnlty1Wu4=;
+ b=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+X-Mailgun-Sid: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+Received: from localhost (2.worker.customeriomail.com [130.211.229.195]) by
+ test-delivery-id with SMTP id test-smtp-id-2;
+ Wed, 18 Mar 2026 08:46:19 GMT
+X-Mailgun-Sending-Ip: 143.55.229.30
+Sender: notify@mail.notion.so
+Content-Type: multipart/alternative; boundary="testboundary001"; charset="utf-8"
+Date: Wed, 18 Mar 2026 08:46:18 +0000
+From: "Alice Example via Notion" <notify@mail.notion.so>
+List-Unsubscribe: <mailto:unsubscribe@example.com>, <https://example.com/unsubscribe>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+Message-Id: <test-message-id-001@mail.notion.so>
+Mime-Version: 1.0
+Subject: =?utf-8?q?Page_shared_with_you:_=E2=80=9CTest_Page=E2=80=9D?=
+To: <user@example.com>
+X-Mailer: Customer.io (test-message-id-001; +https://whatis.customeriomail.com)
+X-Mailgun-Variables: {"email_id":"test-message-id-001"}
+X-Report-Abuse-To: badactor@customer.io
+
+--testboundary001
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+
+A
+
+Alice Example shared a page with=C2=A0you
+
+View =E2=80=9CTest Page=E2=80=9D in Notion.
+
+Get started ( https://www.notion.so/Test-Page-00000000000000000000000000000000 )
+
+Write, plan, organize.
+In one AI-powered workspace.
+
+Notion ( https://www.notion.so/ )
+Notion Mail ( https://www.notion.com/product/mail )
+Notion Calendar ( https://www.notion.com/product/calendar )
+
+685 Market Street, San Francisco, CA 94105
+
+Unsubscribe ( https://www.notion.so/unsubscribe )=E2=80=83Manage preferences ( https://example.com/manage )=E2=80=83Privacy Policy ( https://www.notion.so/notion/Privacy-Policy )=E2=80=83View in browser ( https://example.com/view )
+--testboundary001
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html; charset="utf-8"
+
+<!DOCTYPE html><html lang=3D"en_US"><head>
+  <title></title>
+  <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3DUTF-8"/>
+  <meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D1"/>
+</head>
+<body>
+<table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" role=3D"none" width=3D"100%">
+  <tbody><tr>
+    <td align=3D"center" bgcolor=3D"#FFFFFF">
+      <table role=3D"none" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"max-width:600px;min-width:420px;width:100%;">
+        <tbody><tr>
+          <td valign=3D"top" style=3D"padding: 64px">
+            <table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" role=3D"none" width=3D"100%">
+              <tbody>
+              <tr>
+                <td align=3D"left" style=3D"padding-bottom: 24px;">
+                  <table role=3D"presentation" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"32" style=3D"width: 32px; height: 32px;">
+                    <tbody><tr>
+                      <td height=3D"28" align=3D"center" style=3D"font-family: -apple-system, sans-serif; border-radius: 50px; border: 2px solid #4A4945; font-size: 16px; line-height: 16px;">
+                        A
+                      </td>
+                    </tr></tbody>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td align=3D"left">
+                  <div style=3D"font-family: -apple-system, sans-serif; font-size: 26px; font-weight: 700; line-height: 32px; color: #1D1B16;">
+                    Alice Example shared a page with=C2=A0you
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td align=3D"left" style=3D"padding-top: 27px;">
+                  <div style=3D"font-family: -apple-system, sans-serif; font-size: 17px; font-weight: 400; line-height: 32px; color: #787774;">
+                    View =E2=80=9CTest Page=E2=80=9D in Notion.
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td align=3D"left" style=3D"padding-top: 20px;">
+                  <table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" role=3D"none" width=3D"100%" style=3D"border-collapse: separate;">
+                    <tbody><tr>
+                      <td align=3D"center" bgcolor=3D"#2383E2" style=3D"border-radius: 8px;">
+                        <a href=3D"https://www.notion.so/Test-Page-00000000000000000000000000000000" style=3D"display: block; padding: 12px; color: #ffffff; font-family: -apple-system, sans-serif; font-size: 14px; font-weight: 600; text-decoration: none;">
+                          Get started
+                        </a>
+                      </td>
+                    </tr></tbody>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style=3D"font-family: -apple-system, sans-serif; font-size: 12px; line-height: 18px; color: #1D1B16;">
+                    Write, plan, organize.<br/>In one AI-powered workspace.
+                  </div>
+                  <div style=3D"font-family: -apple-system, sans-serif; font-size: 12px; line-height: 18px; color: #9C9B98;">
+                    685 Market Street, San Francisco, CA 94105
+                  </div>
+                  <div style=3D"font-family: -apple-system, sans-serif; font-size: 12px; line-height: 22px; color: #9C9B98;">
+                    <a href=3D"https://www.notion.so/unsubscribe" style=3D"color: #9C9B98; text-decoration: none; border-bottom: 1px solid #9C9B98; display: inline-block;">Unsubscribe</a>=E2=80=83
+                    <a href=3D"https://example.com/manage" style=3D"color: #9C9B98; text-decoration: none; border-bottom: 1px solid #9C9B98; display: inline-block;">Manage preferences</a>=E2=80=83
+                    <a href=3D"https://www.notion.so/notion/Privacy-Policy" style=3D"color: #9C9B98; text-decoration: none; border-bottom: 1px solid #9C9B98; display: inline-block;">Privacy Policy</a>=E2=80=83
+                    <a href=3D"https://example.com/view" style=3D"color: #9C9B98; text-decoration: none; border-bottom: 1px solid #9C9B98; display: inline-block;">View in browser</a>
+                  </div>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr></tbody>
+      </table>
+    </td>
+  </tr></tbody>
+</table>
+</body></html>
+--testboundary001--
