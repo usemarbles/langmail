@@ -1,0 +1,55 @@
+Delivered-To: test@example.com
+Received: from mail-sor-f73.google.com (mail-sor-f73.google.com. [192.0.2.1])
+        by mx.google.com with SMTPS id REDACTED
+        for <test@example.com>
+        (Google Transport Security);
+        Sat, 07 Mar 2026 18:38:03 -0800 (PST)
+MIME-Version: 1.0
+Date: Fri, 10 Jan 2612 07:05:20 GMT
+Message-ID: <test-message-id@example.com>
+Subject: =?UTF-8?Q?Example_App=E2=80=99s_access_to_your_Google_Account_data_will_e?=
+	=?UTF-8?Q?xpire_soon?=
+From: Google <noreply@example.com>
+To: test@example.com
+Content-Type: multipart/alternative; boundary="000000000000ea3fb7064c7a2cda"
+
+--000000000000ea3fb7064c7a2cda
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Content-Transfer-Encoding: base64
+
+W2ltYWdlOiBHb29nbGVdDQpFeGFtcGxlIEFwcOKAmXMgYWNjZXNzIHRvIHNvbWUgb2YgeW91ciBH
+b29nbGUgQWNjb3VudCBkYXRhIGV4cGlyZXMgb24gNyBBcHJpbCAyMDI2DQoNCg0KdGVzdEBleGFt
+cGxlLmNvbQ0KDQpUbyBwcm90ZWN0IHlvdXIgcHJpdmFjeSBhbmQgeW91ciBHb29nbGUgQWNjb3Vu
+dCBkYXRhLCBFeGFtcGxlIEFwcOKAmXMgYWNjZXNzIHRvDQp5b3VyIEdvb2dsZSBBY2NvdW50IGRh
+dGEgd2lsbCBleHBpcmUgb24gKjcgQXByaWwgMjAyNiouDQoNCipXaGF0IHlvdSBjYW4gZG8qDQpS
+ZXZpZXcgdGhlIGFjY2VzcyB0aGF0IEV4YW1wbGUgQXBwIGhhcyB0byBzb21lIG9mIHlvdXIgR29v
+Z2xlIEFjY291bnQgZGF0YQ0KYmVmb3JlICo3IEFwcmlsIDIwMjYqLg0KDQpSZXZpZXcgYWNjZXNz
+DQo8aHR0cHM6Ly9leGFtcGxlLmNvbS8+DQoNCllvdSByZWNlaXZlZCB0aGlzIGVtYWlsIHRvIGxl
+dCB5b3Uga25vdyBhYm91dCBpbXBvcnRhbnQgY2hhbmdlcyB0byB5b3VyDQpHb29nbGUgQWNjb3Vu
+dCBhbmQgc2VydmljZXMuDQrCqSAyMDI2IEdvb2dsZSBJcmVsYW5kIEx0ZC4sIEdvcmRvbiBIb3Vz
+ZSwgQmFycm93IFN0cmVldCwgRHVibGluIDQsIElyZWxhbmQNCg==
+--000000000000ea3fb7064c7a2cda
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html><html lang=3D"en"><head><meta name=3D"format-detection" cont=
+ent=3D"email=3Dno"/></head><body style=3D"margin: 0; padding: 0;" bgcolor=
+=3D"#FFFFFF"><table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpaddi=
+ng=3D"0" lang=3D"en"><tr><td><div itemscope itemtype=3D"//schema.org/Email=
+Message"><div itemprop=3D"action" itemscope itemtype=3D"//schema.org/ViewA=
+ction"><link itemprop=3D"url" href=3D"https://example.com/review-access"/>=
+<meta itemprop=3D"name" content=3D"Review Activity"/></div></div><div styl=
+e=3D"font-size: 24px;">Example App=E2=80=99s access to some of your Google=
+ Account data expires on 7 April 2026</div><p>To protect your privacy and =
+your Google Account data, Example App=E2=80=99s access to your Google Acco=
+unt data will expire on <b>7 April 2026</b>.</p><p><b>What you can do</b><=
+br>Review the access that Example App has to some of your Google Account d=
+ata before <b>7 April 2026</b>.</p><div style=3D"padding-top: 32px; text-a=
+lign: center;"><a href=3D"https://example.com/review-access" target=3D"_bl=
+ank" link-id=3D"main-button-link" style=3D"display:inline-block;padding: 1=
+2px 24px;background-color: #0b57d0; color: #ffffff; border-radius: 9999px;=
+">Review access</a></div><div>You received this email to let you know abou=
+t important changes to your Google Account and services.</div><div>&copy; =
+2026 Google Ireland Ltd., Gordon House, Barrow Street, Dublin 4, Ireland</=
+div></td></tr></table></body></html>
+--000000000000ea3fb7064c7a2cda--

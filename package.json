@@ -1,9 +1,9 @@
 {
   "private": true,
   "devDependencies": {
-    "@commitlint/cli": "^19",
-    "@commitlint/config-conventional": "^19",
-    "lefthook": "^1"
+    "@commitlint/cli": "^20",
+    "@commitlint/config-conventional": "^20",
+    "lefthook": "^2"
   },
   "scripts": {
     "prepare": "lefthook install"

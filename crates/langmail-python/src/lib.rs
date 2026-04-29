@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 
 /// A primary call-to-action link extracted from an HTML email.
-#[pyclass(get_all)]
+#[pyclass(get_all, skip_from_py_object)]
 #[derive(Clone)]
 pub struct CallToAction {
     /// The URL the action points to.
@@ -23,7 +23,7 @@ impl CallToAction {
 }
 
 /// An email address with optional display name.
-#[pyclass(get_all)]
+#[pyclass(get_all, skip_from_py_object)]
 #[derive(Clone)]
 pub struct Address {
     /// Display name (e.g. "Alice").
@@ -43,7 +43,7 @@ impl Address {
 }
 
 /// A single message extracted from a quoted reply chain.
-#[pyclass(get_all)]
+#[pyclass(get_all, skip_from_py_object)]
 #[derive(Clone)]
 pub struct ThreadMessage {
     /// The sender attribution (e.g. "Max Mustermann <test@example.com>").
@@ -67,7 +67,7 @@ impl ThreadMessage {
 }
 
 /// Controls how `to_llm_context_with_options` renders the email body.
-#[pyclass(eq, eq_int)]
+#[pyclass(eq, eq_int, from_py_object)]
 #[derive(Clone, Debug, PartialEq)]
 pub enum RenderMode {
     /// Strip all quoted content — only the latest message is rendered.
@@ -77,7 +77,7 @@ pub enum RenderMode {
 }
 
 /// Options for `to_llm_context_with_options`.
-#[pyclass(get_all, set_all)]
+#[pyclass(get_all, set_all, skip_from_py_object)]
 #[derive(Clone)]
 pub struct LlmContextOptions {
     /// How to render the email body. Default: RenderMode.LatestOnly.
@@ -98,7 +98,7 @@ impl LlmContextOptions {
 }
 
 /// Preprocessed email output optimized for LLM consumption.
-#[pyclass(get_all)]
+#[pyclass(get_all, skip_from_py_object)]
 #[derive(Clone)]
 pub struct ProcessedEmail {
     /// The cleaned email body text, with quotes and signature removed.
@@ -145,7 +145,7 @@ impl ProcessedEmail {
 }
 
 /// Options for customizing preprocessing behavior.
-#[pyclass(get_all, set_all)]
+#[pyclass(get_all, set_all, skip_from_py_object)]
 #[derive(Clone)]
 pub struct PreprocessOptions {
     /// Whether to strip quoted reply content. Default: True.

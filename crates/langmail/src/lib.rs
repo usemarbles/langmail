@@ -9,7 +9,7 @@ mod types;
 
 pub use types::*;
 
-use mail_parser::{MessageParser, MimeHeaders};
+use mail_parser::{HeaderName, HeaderValue, MessageParser, MimeHeaders};
 
 /// Preprocess a raw email (RFC 5322 / EML format) into an LLM-ready structure.
 ///
@@ -49,7 +49,7 @@ pub fn preprocess_with_options(
     let to = extract_addresses(message.to());
     let cc = extract_addresses(message.cc());
 
-    let date = message.date().map(datetime_to_utc_iso8601);
+    let date = extract_date(&message);
 
     let rfc_message_id = message.message_id().map(|id| id.to_string());
 
@@ -343,6 +343,44 @@ pub(crate) fn timestamp_to_iso8601_utc(ts: i64) -> String {
 /// Converts a mail-parser `DateTime` to a UTC ISO 8601 string using its Unix timestamp.
 fn datetime_to_utc_iso8601(d: &mail_parser::DateTime) -> String {
     timestamp_to_iso8601_utc(d.to_timestamp())
+}
+
+/// Plausible calendar-year window for an email send date. Anything outside
+/// this range is treated as a malformed `Date:` header (we've seen real
+/// senders emit years like 2612 due to encoder bugs).
+const MIN_PLAUSIBLE_YEAR: u16 = 1990;
+const MAX_PLAUSIBLE_YEAR: u16 = 2100;
+
+fn is_plausible(d: &mail_parser::DateTime) -> bool {
+    d.year >= MIN_PLAUSIBLE_YEAR && d.year <= MAX_PLAUSIBLE_YEAR
+}
+
+/// Resolve the message's send date.
+///
+/// Prefers the `Date:` header, but if it parses to an implausible year
+/// (a known failure mode for some senders), falls back to the most recent
+/// `Received:` header with a plausible date.
+fn extract_date(message: &mail_parser::Message) -> Option<String> {
+    if let Some(d) = message.date() {
+        if is_plausible(d) {
+            return Some(datetime_to_utc_iso8601(d));
+        }
+    }
+
+    for header in message.headers() {
+        if !matches!(header.name, HeaderName::Received) {
+            continue;
+        }
+        if let HeaderValue::Received(received) = &header.value {
+            if let Some(d) = &received.date {
+                if is_plausible(d) {
+                    return Some(datetime_to_utc_iso8601(d));
+                }
+            }
+        }
+    }
+
+    None
 }
 
 fn extract_addresses(address_opt: Option<&mail_parser::Address>) -> Vec<Address> {
