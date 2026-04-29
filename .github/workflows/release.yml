@@ -147,7 +147,7 @@ jobs:
       - name: Regenerate Node.js bindings index
         working-directory: packages/langmail
         run: |
-          npm ci
+          npm install --no-audit --no-fund
           npm run build:debug
 
       - name: Generate changelog
@@ -163,7 +163,7 @@ jobs:
           BRANCH="release/v${NEXT_VERSION}"
 
           git checkout -b "$BRANCH"
-          git add Cargo.toml packages/langmail/package.json packages/langmail/index.js packages/langmail/index.d.ts crates/langmail-python/pyproject.toml CHANGELOG.md
+          git add Cargo.toml packages/langmail/package.json packages/langmail/package-lock.json packages/langmail/index.js packages/langmail/index.d.ts crates/langmail-python/pyproject.toml CHANGELOG.md
           git commit -m "chore: release v${NEXT_VERSION}"
           git push origin "$BRANCH"
 
