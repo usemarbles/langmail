@@ -1,6 +1,12 @@
 # Changelog
 
 All notable changes to this project will be automatically documented in this file.
+## [0.11.2] - 2026-04-29
+
+### Bug Fixes
+
+- **ci**: Resync npm lockfile during release prep([a6756eb](https://github.com/usemarbles/langmail/commit/a6756eb027fcd58c0bb4ce021df22d10ccb3905b))
+- **date**: Fall back to Received header when Date is implausible([398d8cc](https://github.com/usemarbles/langmail/commit/398d8ccb409447d921165acd0d095ddd6db30197))
 ## [0.11.1] - 2026-04-21
 
 ### Bug Fixes
