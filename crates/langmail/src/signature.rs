@@ -43,6 +43,7 @@ static SIGNOFF_PATTERNS: Lazy<Vec<Regex>> = Lazy::new(|| {
         r"(?mi)^(Mit freundlichen Grüßen|Beste Grüße|Viele Grüße|Liebe Grüße|MfG),?\s*$",  // German
         r"(?mi)^(Cordialement|Bien cordialement|Merci|Cdlt),?\s*$",              // French
         r"(?mi)^(Saludos|Atentamente|Gracias),?\s*$",                            // Spanish
+        r"(?mi)^(Pozdrawiam serdecznie|Serdecznie pozdrawiam|Pozdrawiam|Z poważaniem|Z wyrazami szacunku|Miłego dnia|Dziękuję),?\s*$", // Polish
     ]
     .iter()
     .filter_map(|pattern| Regex::new(pattern).ok())
@@ -210,6 +211,24 @@ mod tests {
         assert!(text.contains("Hier ist meine Antwort."));
         assert!(sig.is_some());
         assert!(sig.unwrap().contains("Beste Grüße"));
+    }
+
+    #[test]
+    fn test_polish_pozdrawiam_signoff() {
+        let body = "Dzień dobry,\n\ndrukarka nie drukuje paragonów.\n\nPozdrawiam\nJan Kowalski\nNIP: 5221001010\n";
+        let (text, sig) = extract_signature(body);
+        assert!(text.contains("drukarka nie drukuje paragonów."));
+        assert!(sig.is_some());
+        assert!(sig.unwrap().contains("Jan Kowalski"));
+    }
+
+    #[test]
+    fn test_polish_z_powazaniem_signoff() {
+        let body = "Dzień dobry,\n\nproszę o dodanie wozu WX 12345.\n\nZ poważaniem,\nAnna Nowak\nTaxi Nowak\n";
+        let (text, sig) = extract_signature(body);
+        assert!(text.contains("proszę o dodanie wozu"));
+        assert!(sig.is_some());
+        assert!(sig.unwrap().contains("Anna Nowak"));
     }
 
     #[test]
