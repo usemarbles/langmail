@@ -29,6 +29,14 @@ static QUOTE_HEADERS: Lazy<Vec<Regex>> = Lazy::new(|| {
         r"(?m)^Le .{10,80} a écrit\s*:\s*$",
         // Spanish: "El <date>, <name> escribió:"
         r"(?m)^El .{10,80} escribi[óo]\s*:\s*$",
+        // Polish: "W dniu <date>, <name> napisał(a):" / "... pisze:"
+        // Thunderbird pl-PL uses the present tense ("pisze:"), Gmail and
+        // Outlook use the past tense with the optional feminine ending.
+        r"(?m)^(?:W dniu|Dnia) .{10,80} (?:napisa[^\s:]*|pisze)\s*:\s*$",
+        // Polish Apple Mail: "Wiadomość napisana przez <name> w dniu <date>:"
+        r"(?m)^Wiadomość napisana przez .{5,120}:\s*$",
+        // Polish Outlook header block: "Od: ... Wysłano: ..."
+        r"(?m)^Od:\s+.+\nWysłano:\s+",
         // Generic "wrote:" at end of line
         r"(?m)^.{10,120} wrote:\s*$",
         // Line of ">" quoted text after a blank line
@@ -124,6 +132,48 @@ mod tests {
             result.contains("Forwarded content"),
             "forwarded body should not be stripped"
         );
+    }
+
+    #[test]
+    fn test_polish_quote_header_past_tense() {
+        let body = "Dzień dobry,\n\nproszę o fakturę.\n\nW dniu 8.08.2026 o 15:50, Jan Kowalski napisał(a):\n> poprzednia wiadomość\n> druga linia\n";
+        let result = strip_quotes(body);
+        assert!(result.contains("proszę o fakturę."));
+        assert!(!result.contains("poprzednia wiadomość"));
+    }
+
+    #[test]
+    fn test_polish_quote_header_present_tense() {
+        // Thunderbird pl-PL writes "pisze:" instead of "napisał(a):".
+        let body = "Zrobione.\n\nW dniu 8.08.2026 o 15:50, Volodymyr Burla pisze:\nDzień dobry, proszę dodać samochód\n";
+        let result = strip_quotes(body);
+        assert!(result.contains("Zrobione."));
+        assert!(!result.contains("proszę dodać samochód"));
+    }
+
+    #[test]
+    fn test_polish_gmail_quote_header() {
+        let body = "Dzień dobry,\n\npotwierdzam.\n\nDnia 8 sierpnia 2026 o 15:50 Anna Nowak <anna@example.com> napisała:\n> treść poprzedniej wiadomości\n";
+        let result = strip_quotes(body);
+        assert!(result.contains("potwierdzam."));
+        assert!(!result.contains("treść poprzedniej wiadomości"));
+    }
+
+    #[test]
+    fn test_polish_outlook_header_block() {
+        let body = "Dziękuję.\n\nOd: Biuro Obsługi\nWysłano: czwartek, 8 sierpnia 2026\nTemat: Re: faktura\n\nPoprzednia treść\n";
+        let result = strip_quotes(body);
+        assert!(result.contains("Dziękuję."));
+        assert!(!result.contains("Poprzednia treść"));
+    }
+
+    #[test]
+    fn test_polish_body_without_quote_is_untouched() {
+        // "W dniu" and "pisze" also occur in ordinary sentences — the pattern
+        // requires the trailing colon at end of line, so this must survive.
+        let body = "Dzień dobry,\n\nW dniu 5 sierpnia pisze się inaczej niż w innych miesiącach.\n\nProszę o odpowiedź.\n";
+        let result = strip_quotes(body);
+        assert_eq!(result, body);
     }
 
     #[test]
